@@ -17,6 +17,12 @@ interface ApiResponse<T> {
   };
 }
 
+// Конфигурация для React Query
+const DEFAULT_QUERY_OPTIONS = {
+  retry: 2,
+  staleTime: 5 * 60 * 1000, // 5 минут
+};
+
 interface Product {
   id: number;
   sku: string;
@@ -30,60 +36,6 @@ interface Product {
   brandId?: number;
   description?: string;
 }
-
-// Mock данные (пока API не интегрировано)
-const mockProducts: Product[] = [
-  {
-    id: 1,
-    sku: 'RTX-4070-TI-S',
-    name: 'NVIDIA GeForce RTX 4070 Ti Super',
-    category: 'Видеокарты',
-    brand: 'NVIDIA',
-    price: 79990,
-    stock: 47,
-    status: 'active',
-  },
-  {
-    id: 2,
-    sku: 'R7-7800X3D',
-    name: 'AMD Ryzen 7 7800X3D AM5',
-    category: 'Процессоры',
-    brand: 'AMD',
-    price: 34990,
-    stock: 23,
-    status: 'active',
-  },
-  {
-    id: 3,
-    sku: 'TUF-B650-PLUS',
-    name: 'ASUS TUF Gaming B650-PLUS',
-    category: 'Материнские платы',
-    brand: 'ASUS',
-    price: 18990,
-    stock: 3,
-    status: 'low_stock',
-  },
-  {
-    id: 4,
-    sku: 'F5-6400J32',
-    name: 'G.Skill Trident Z5 RGB 32GB',
-    category: 'Оперативная память',
-    brand: 'G.Skill',
-    price: 12490,
-    stock: 0,
-    status: 'out_of_stock',
-  },
-  {
-    id: 5,
-    sku: 'MZ-V9P2T0',
-    name: 'Samsung 990 Pro 2TB',
-    category: 'Накопители',
-    brand: 'Samsung',
-    price: 14990,
-    stock: 15,
-    status: 'active',
-  },
-];
 
 const statusConfig: Record<string, { label: string; class: string }> = {
   active: { label: 'Активен', class: 'green' },
@@ -108,20 +60,23 @@ export default function ProductsPanel() {
   const itemsPerPage = 20;
 
   // Загрузка товаров (API)
-  const { data: productsData, isLoading: productsLoading } = useQuery({
-    queryKey: ['products', { page: currentPage, limit: itemsPerPage }],
+  const { data: productsData, isLoading: productsLoading, error: productsError } = useQuery({
+    queryKey: ['products', currentPage, itemsPerPage],
     queryFn: () => productsApi.list({ page: currentPage, limit: itemsPerPage }),
+    ...DEFAULT_QUERY_OPTIONS,
   });
 
   // Загрузка категорий и брендов
-  const { data: categoriesData } = useQuery({
+  const { data: categoriesData, error: categoriesError } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoriesApi.list(),
+    ...DEFAULT_QUERY_OPTIONS,
   });
 
-  const { data: brandsData } = useQuery({
+  const { data: brandsData, error: brandsError } = useQuery({
     queryKey: ['brands'],
     queryFn: () => brandsApi.list(),
+    ...DEFAULT_QUERY_OPTIONS,
   });
 
   // Мутация для удаления
@@ -131,12 +86,32 @@ export default function ProductsPanel() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       setSelectedProducts([]);
     },
+    onError: (error) => {
+      console.error('Failed to delete product:', error);
+      alert('Ошибка при удалении товара');
+    },
   });
 
-  // Используем данные API или fallback
-  const products: Product[] = (productsData as ApiResponse<Product[]>)?.data || mockProducts;
+  // Используем данные API или пустой массив
+  const products: Product[] = (productsData as ApiResponse<Product[]>)?.data || [];
   const categories = (categoriesData as ApiResponse<{ id: number; name: string; slug?: string }[]>)?.data || [];
   const brands = (brandsData as ApiResponse<{ id: number; name: string; slug?: string }[]>)?.data || [];
+
+  // Обработка ошибок загрузки
+  if (productsError || categoriesError || brandsError) {
+    return (
+      <AdminLayout activePanel={activePanel} onPanelChange={onPanelChange}>
+        <div style={{ padding: '48px', textAlign: 'center' }}>
+          <div style={{ color: '#ef4444', marginBottom: '16px', fontSize: '14px' }}>
+            Ошибка загрузки данных
+          </div>
+          <button className="btn btn--primary" onClick={() => queryClient.invalidateQueries({ queryKey: ['products', 'categories', 'brands'] })}>
+            Повторить
+          </button>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -501,6 +476,10 @@ export default function ProductsPanel() {
                 <path d="M12 2a10 10 0 0 1 10 10" />
               </svg>
               Загрузка...
+            </div>
+          ) : products.length === 0 ? (
+            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-3)' }}>
+              Товары не найдены
             </div>
           ) : (
             <table className="tbl">
