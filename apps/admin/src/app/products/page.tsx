@@ -141,7 +141,7 @@ export default function ProductsPanel() {
         break;
     }
     return sortOrder === 'asc' ? comparison : -comparison;
-  }, [filteredProducts, sortBy, sortOrder]);
+  }), [filteredProducts, sortBy, sortOrder]);
 
   const paginatedProducts = sortedProducts.slice(
     (currentPage - 1) * itemsPerPage,
