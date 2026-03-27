@@ -2,6 +2,8 @@
 // API Client для 1000FPS Admin
 // ============================================
 
+import { getAuthToken, setAuthToken, removeAuthToken } from '@/lib/tokenUtils';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
 // ============================================
@@ -42,25 +44,6 @@ async function fetchApi<T>(
   }
 
   return response.json();
-}
-
-// ============================================
-// Работа с токеном
-// ============================================
-
-function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('admin_token');
-}
-
-function setAuthToken(token: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('admin_token', token);
-}
-
-function removeAuthToken(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('admin_token');
 }
 
 // ============================================

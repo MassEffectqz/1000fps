@@ -4,6 +4,19 @@ import { useState } from 'react';
 import { productsApi, categoriesApi, brandsApi } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
+// ============================================
+// Types
+// ============================================
+
+interface ApiResponse<T> {
+  data: T;
+  meta?: {
+    total?: number;
+    page?: number;
+    limit?: number;
+  };
+}
+
 interface Product {
   id: number;
   sku: string;
@@ -121,9 +134,9 @@ export default function ProductsPanel() {
   });
 
   // Используем данные API или fallback
-  const products: Product[] = (productsData as unknown as { data: Product[] })?.data || mockProducts;
-  const categories = (categoriesData as unknown as { data: { id: number; name: string; slug?: string }[] })?.data || [];
-  const brands = (brandsData as unknown as { data: { id: number; name: string; slug?: string }[] })?.data || [];
+  const products: Product[] = (productsData as ApiResponse<Product[]>)?.data || mockProducts;
+  const categories = (categoriesData as ApiResponse<{ id: number; name: string; slug?: string }[]>)?.data || [];
+  const brands = (brandsData as ApiResponse<{ id: number; name: string; slug?: string }[]>)?.data || [];
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -169,9 +182,20 @@ export default function ProductsPanel() {
     }
   };
 
-  const deleteSelected = () => {
-    if (confirm(`Удалить ${selectedProducts.length} товаров?`)) {
-      selectedProducts.forEach((id) => deleteMutation.mutate(id));
+  const deleteSelected = async () => {
+    if (!confirm(`Удалить ${selectedProducts.length} товаров?`)) {
+      return;
+    }
+
+    try {
+      await Promise.all(
+        selectedProducts.map((id) => productsApi.delete(id))
+      );
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      setSelectedProducts([]);
+    } catch (error) {
+      console.error('Failed to delete products:', error);
+      alert('Ошибка при удалении товаров');
     }
   };
 
@@ -193,15 +217,24 @@ export default function ProductsPanel() {
     if (!files) return;
     const newFiles = Array.from(files);
     setSelectedImages((prev) => [...prev, ...newFiles]);
-    
-    // Создаем preview для каждого изображения
-    newFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews((prev) => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
+
+    // Создаем preview для всех изображений батчем, чтобы избежать race condition
+    const previewPromises = newFiles.map((file) => {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     });
+
+    Promise.all(previewPromises)
+      .then((newPreviews) => {
+        setImagePreviews((prev) => [...prev, ...newPreviews]);
+      })
+      .catch((error) => {
+        console.error('Failed to create image previews:', error);
+      });
   };
 
   const handleRemoveImage = (index: number) => {
@@ -212,15 +245,54 @@ export default function ProductsPanel() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
+    
+    // Валидация данных формы
+    const categoryId = Number(formData.get('categoryId'));
+    const brandId = Number(formData.get('brandId'));
+    const price = Number(formData.get('price'));
+    const stock = Number(formData.get('stock'));
+    const name = formData.get('name')?.toString().trim() || '';
+    const sku = formData.get('sku')?.toString().trim() || '';
+
+    // Проверка категории
+    if (!categoryId || categoryId <= 0) {
+      alert('Выберите корректную категорию');
+      return;
+    }
+
+    // Проверка бренда
+    if (!brandId || brandId <= 0) {
+      alert('Выберите корректный бренд');
+      return;
+    }
+
+    // Проверка цены
+    if (price <= 0) {
+      alert('Цена должна быть больше 0');
+      return;
+    }
+
+    // Проверка остатка
+    if (stock < 0) {
+      alert('Остаток не может быть отрицательным');
+      return;
+    }
+
+    // Проверка названия
+    if (name.length < 3) {
+      alert('Название должно содержать минимум 3 символа');
+      return;
+    }
+
     const data: Record<string, unknown> = {
-      name: formData.get('name'),
-      sku: formData.get('sku'),
-      categoryId: Number(formData.get('categoryId')),
-      brandId: Number(formData.get('brandId')),
-      price: Number(formData.get('price')),
-      stock: Number(formData.get('stock')),
+      name,
+      sku,
+      categoryId,
+      brandId,
+      price,
+      stock,
       status: formData.get('status'),
-      description: formData.get('description'),
+      description: formData.get('description')?.toString().trim(),
     };
 
     try {
@@ -583,7 +655,7 @@ export default function ProductsPanel() {
             {imagePreviews.length > 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '20px' }}>
                 {imagePreviews.map((preview, index) => (
-                  <div key={index} style={{ position: 'relative' }}>
+                  <div key={`${index}-${preview.slice(0, 30)}`} style={{ position: 'relative' }}>
                     <img
                       src={preview}
                       alt={`Preview ${index + 1}`}

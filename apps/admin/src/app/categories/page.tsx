@@ -56,6 +56,7 @@ export default function CategoriesPanel() {
   const [activePanel, setActivePanel] = useState('categories');
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [expandedParents, setExpandedParents] = useState<number[]>([]);
@@ -75,15 +76,16 @@ export default function CategoriesPanel() {
   // Загрузка категорий
   const fetchCategories = async () => {
     try {
+      setError(null);
       const res = await fetch(`${API_URL}/categories`);
-      
+
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
-      
+
       const result = await res.json();
       const data: ApiCategory[] = result.data || [];
-      
+
       // Преобразуем данные API в формат для таблицы
       const flatCategories: Category[] = [];
 
@@ -111,8 +113,9 @@ export default function CategoriesPanel() {
       // Разворачиваем все родительские категории по умолчанию
       const rootCats = data.filter(cat => !cat.parentId || cat.parentId === null);
       setExpandedParents(rootCats.map((c) => c.id));
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
+    } catch (err) {
+      console.error('Failed to fetch categories:', err);
+      setError(err instanceof Error ? err.message : 'Ошибка загрузки категорий');
     } finally {
       setLoading(false);
     }
@@ -261,6 +264,27 @@ export default function CategoriesPanel() {
           {loading ? (
             <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-3)' }}>
               Загрузка...
+            </div>
+          ) : error ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              <div style={{ color: '#ef4444', marginBottom: '16px', fontSize: '14px' }}>
+                {error}
+              </div>
+              <button className="btn btn--primary" onClick={fetchCategories}>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  width="14"
+                  height="14"
+                  style={{ marginRight: '8px' }}
+                >
+                  <path d="M23 4v6h-6M1 20v-6h6" />
+                  <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+                </svg>
+                Повторить
+              </button>
             </div>
           ) : categories.length === 0 ? (
             <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-3)' }}>
