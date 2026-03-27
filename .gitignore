@@ -78,3 +78,29 @@ BACKUP_*.zip
 # Misc
 .vercel
 .turbo
+
+# AI Agent settings
+.qwen/
+.agents/
+
+# Parser Chrome profile
+parser/wb-parser-auto/chrome_profile/
+parser/wb-parser-auto/Cache/
+parser/wb-parser-auto/Code Cache/
+parser/wb-parser-auto/GPUCache/
+parser/wb-parser-auto/Local Storage/
+parser/wb-parser-auto/DawnGraphiteCache/
+parser/wb-parser-auto/DawnWebGPUCache/
+parser/wb-parser-auto/Shared Dictionary/
+parser/wb-parser-auto/shared_proto_db/
+parser/wb-parser-auto/Network/
+parser/wb-parser-auto/PersistentOriginTrials/
+parser/wb-parser-auto/Session Storage/
+parser/wb-parser-auto/DIPS/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Temporary parser files
+parser/$null
+parser/*.log
