@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { productsApi, categoriesApi, brandsApi } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -47,6 +47,7 @@ const statusConfig: Record<string, { label: string; class: string }> = {
 export default function ProductsPanel() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedBrand, setSelectedBrand] = useState('all');
   const [sortBy, setSortBy] = useState('name');
@@ -58,6 +59,12 @@ export default function ProductsPanel() {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const itemsPerPage = 20;
+
+  // Дебаунс для поиска (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Загрузка товаров (API)
   const { data: productsData, isLoading: productsLoading, error: productsError } = useQuery({
@@ -115,8 +122,8 @@ export default function ProductsPanel() {
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.sku.toLowerCase().includes(searchQuery.toLowerCase());
+      product.name.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+      product.sku.toLowerCase().includes(debouncedQuery.toLowerCase());
     return matchesSearch;
   });
 
