@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { productsApi, categoriesApi, brandsApi } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -120,14 +120,14 @@ export default function ProductsPanel() {
     );
   }
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = useMemo(() => products.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
       product.sku.toLowerCase().includes(debouncedQuery.toLowerCase());
     return matchesSearch;
-  });
+  }), [products, debouncedQuery]);
 
-  const sortedProducts = [...filteredProducts].sort((a: Product, b: Product) => {
+  const sortedProducts = useMemo(() => [...filteredProducts].sort((a: Product, b: Product) => {
     let comparison = 0;
     switch (sortBy) {
       case 'name':
@@ -141,7 +141,7 @@ export default function ProductsPanel() {
         break;
     }
     return sortOrder === 'asc' ? comparison : -comparison;
-  });
+  }, [filteredProducts, sortBy, sortOrder]);
 
   const paginatedProducts = sortedProducts.slice(
     (currentPage - 1) * itemsPerPage,
