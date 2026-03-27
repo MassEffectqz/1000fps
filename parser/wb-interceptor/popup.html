@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=320, initial-scale=1">
+<title>1000fps WB Парсер</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+    </svg>
+    <span class="logo-title">1000fps</span>
+  </div>
+  <div style="display: flex; gap: 8px; align-items: center;">
+    <button class="btn-tracker" id="btn-open-tracker" style="padding: 6px 12px; font-size: 10px;">
+      Админка
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+      </svg>
+    </button>
+    <button class="btn-theme" id="btn-theme" title="Сменить тему">
+      <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<div class="add-section">
+  <div class="input-row">
+    <input type="text" id="input-article" placeholder="Артикул или ссылка на WB" autocomplete="off">
+    <button class="btn-add" id="btn-add">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 8v8M8 12h8"/>
+      </svg>
+    </button>
+  </div>
+  <div class="add-hint" id="add-hint">Введите артикул товара WB</div>
+  
+  <!-- Переключатель автопарсинга -->
+  <div class="auto-parse-toggle" style="margin-top: 12px; padding: 10px; background: var(--bg-secondary); border-radius: 6px;">
+    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+      <input type="checkbox" id="auto-parse-enabled" style="width: 18px; height: 18px; accent-color: var(--accent);">
+      <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Автопарсинг</span>
+    </label>
+    <div style="font-size: 9px; color: var(--text-dim); margin-top: 6px; line-height: 1.4;">
+      Автоматически парсить цены при открытии вкладок WB
+    </div>
+  </div>
+  
+  <!-- Настройка backend URL -->
+  <div style="margin-top: 12px; padding: 10px; background: var(--bg-secondary); border-radius: 6px;">
+    <label style="display: block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+      Backend URL
+    </label>
+    <input type="text" id="backend-url-input" placeholder="http://localhost:3002"
+      style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-primary); color: var(--text); font-size: 11px; box-sizing: border-box;">
+    <div style="font-size: 9px; color: var(--text-dim); margin-top: 4px;">
+      URL сервера для синхронизации
+    </div>
+  </div>
+  
+  <!-- Настройка автозакрытия вкладок -->
+  <div style="margin-top: 12px; padding: 10px; background: var(--bg-secondary); border-radius: 6px;">
+    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+      <input type="checkbox" id="auto-close-enabled" style="width: 18px; height: 18px; accent-color: var(--accent);">
+      <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Автозакрытие вкладок</span>
+    </label>
+    <div style="font-size: 9px; color: var(--text-dim); margin-top: 6px; line-height: 1.4;">
+      Автоматически закрывать вкладки WB после парсинга
+    </div>
+  </div>
+</div>
+
+<main class="main">
+  <div id="products-list" class="products-list">
+    <div class="empty-state">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+      </svg>
+      <div class="empty-title">Нет товаров</div>
+      <div class="empty-sub">Добавьте первый товар</div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="stats">
+    <span class="stat-val" id="stat-count">0</span>
+    <span class="stat-label">товаров</span>
+    <span class="stat-divider">|</span>
+    <span class="stat-time" id="last-check"></span>
+  </div>
+  <div class="actions">
+    <button class="btn-icon" id="btn-check-pending" title="Проверить pending товары">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+      </svg>
+    </button>
+    <button class="btn-icon" id="btn-sync" title="Синхронизировать">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+      </svg>
+    </button>
+    <button class="btn-icon" id="btn-refresh-all" title="Обновить все">
+      <svg class="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M23 4v6h-6M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+      </svg>
+    </button>
+    <button class="btn-icon" id="btn-export" title="Экспорт JSON">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+      </svg>
+    </button>
+    <button class="btn-icon" id="btn-info" title="Инфо">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+      </svg>
+    </button>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="utils.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# ============================================
+# PNPM Workspace Configuration
+# ============================================
+# https://pnpm.io/workspaces
+
+packages:
+  # Apps (frontend)
+  - 'apps/*'
+  
+  # Packages (backend, shared)
+  - 'packages/*'
+  
+  # Parser (отдельный сервис)
+  - 'parser'

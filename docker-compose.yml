@@ -1,0 +1,127 @@
+# ============================================
+# Docker Compose для 1000FPS
+# ============================================
+# Версия: 1.0.0
+# 
+# Примечание: PostgreSQL используется внешний (pg-local)
+# ============================================
+
+version: '3.8'
+
+services:
+  # ============================================
+  # Redis - Кэш и сессии
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: site-1000fps-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - site-1000fps-network
+
+  # ============================================
+  # Meilisearch - Полнотекстовый поиск
+  # ============================================
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    container_name: site-1000fps-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${MEILISEARCH_API_KEY:-dev-master-key-change-in-production}
+      MEILI_ENV: development
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - site-1000fps-network
+
+  # ============================================
+  # MailHog - Перехват email (development)
+  # ============================================
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: site-1000fps-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP сервер
+      - "8025:8025"  # Web интерфейс
+    networks:
+      - site-1000fps-network
+
+  # ============================================
+  # MinIO - S3-compatible хранилище (development)
+  # ============================================
+  minio:
+    image: minio/minio:latest
+    container_name: site-1000fps-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - site-1000fps-network
+
+  # ============================================
+  # pgAdmin - Администрирование PostgreSQL
+  # ============================================
+  # Подключение к вашему pg-local контейнеру
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: site-1000fps-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@1000fps.ru
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - redis
+    networks:
+      - site-1000fps-network
+    # Для подключения к pg-local извне Docker:
+    # Используйте host.docker.internal как hostname
+
+volumes:
+  redis_data:
+    driver: local
+  meilisearch_data:
+    driver: local
+  minio_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  site-1000fps-network:
+    driver: bridge
+    name: site-1000fps-network

@@ -1,0 +1,23 @@
+{
+  "name": "@site-1000fps/parser",
+  "version": "1.0.0",
+  "description": "Сервис парсинга товаров для 1000FPS",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "run:parse": "node src/parse.js",
+    "test": "node --test src/**/*.test.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.0",
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "cron": "^3.1.0",
+    "playwright": "^1.42.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

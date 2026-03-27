@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<!-- 
+  ⚠️ МАКЕТ / LAYOUT TEMPLATE
+  Этот HTML файл является визуальным макетом для дизайна.
+  Основной сайт работает на Next.js в apps/storefront.
+  
+  Актуальный код: apps/storefront/src/app/product/[id]/page.tsx
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASUS TUF Gaming GeForce RTX 4070 Ti Super OC 16 ГБ — 1000FPS</title>
+<link rel="stylesheet" href="style.css">
+<style>
+
+/* ─── BREADCRUMB ─────────────────────────────────────── */
+.breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  padding: 12px 0; font-size: 12px; color: var(--gray3);
+  border-bottom: 1px solid var(--gray1);
+}
+.breadcrumb a { color: var(--gray3); transition: color var(--tr); }
+.breadcrumb a:hover { color: var(--orange); }
+.breadcrumb__sep { color: var(--gray2); }
+.breadcrumb__current { color: var(--white); }
+
+/* ─── PRODUCT LAYOUT ─────────────────────────────────── */
+.product-layout {
+  display: grid;
+  grid-template-columns: 520px 1fr;
+  gap: 32px;
+  padding: 28px 0 40px;
+  align-items: start;
+}
+
+/* ─── GALLERY ────────────────────────────────────────── */
+.gallery { position: sticky; top: 16px; }
+.gallery__main {
+  background: var(--black2);
+  border: 1px solid var(--gray1);
+  border-radius: var(--radius);
+  aspect-ratio: 4/3;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.gallery__main-img {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px;
+}
+.gallery__badges {
+  position: absolute; top: 14px; left: 14px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.gallery__zoom {
+  position: absolute; bottom: 14px; right: 14px;
+  width: 36px; height: 36px;
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gray3); cursor: pointer; transition: var(--tr);
+}
+.gallery__zoom:hover { border-color: var(--orange); color: var(--orange); }
+.gallery__zoom svg { width: 16px; height: 16px; }
+
+.gallery__thumbs { display: flex; gap: 8px; }
+.gallery__thumb {
+  width: 80px; height: 60px; flex-shrink: 0;
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: border-color var(--tr);
+  padding: 6px;
+}
+.gallery__thumb:hover { border-color: var(--gray2); }
+.gallery__thumb.is-active { border-color: var(--orange); }
+
+.product-info__vendor {
+  font-size: 11px; color: var(--gray3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.product-info__vendor a { color: var(--orange); }
+.product-info__title {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 800; text-transform: uppercase;
+  line-height: 1.15; color: var(--white2);
+  margin-bottom: 12px;
+}
+.product-info__meta {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.product-info__rating { display: flex; align-items: center; gap: 6px; }
+.product-info__reviews { font-size: 12px; color: var(--orange); cursor: pointer; }
+.product-info__reviews:hover { text-decoration: underline; }
+.product-info__sku { font-size: 12px; color: var(--gray3); }
+.product-info__sku span { color: var(--gray4); }
+.product-info__avail {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600;
+}
+.product-info__avail--yes { color: #4caf50; }
+.product-info__avail--yes::before { content: ''; width: 6px; height: 6px; background: #4caf50; border-radius: 50%; display: inline-block; }
+.product-info__avail--no  { color: var(--gray3); }
+
+/* Price block */
+.price-block {
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius); padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.price-block__row {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px;
+}
+.price-block__current {
+  font-family: var(--font-display); font-size: 36px; font-weight: 800;
+  color: var(--white2); line-height: 1;
+}
+.price-block__old {
+  font-size: 16px; color: var(--gray3); text-decoration: line-through;
+}
+.price-block__save {
+  font-size: 12px; color: var(--orange); font-weight: 700;
+  background: rgba(255,106,0,0.1); padding: 2px 8px;
+  border-radius: var(--radius);
+}
+.price-block__note {
+  font-size: 11px; color: var(--gray3); margin-top: 6px;
+}
+.price-block__credit {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--gray1);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--gray4);
+}
+.price-block__credit strong {
+  font-family: var(--font-display); font-size: 15px; color: var(--white2);
+}
+
+/* CTA buttons */
+.product-cta { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.product-cta__main { display: flex; gap: 8px; }
+.product-cta__main .btn { flex: 1; justify-content: center; padding: 13px; font-size: 14px; }
+.product-cta__secondary { display: flex; gap: 8px; }
+.product-cta__secondary .btn { flex: 1; justify-content: center; font-size: 12px; padding: 9px; }
+
+/* Delivery info */
+.delivery-block {
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius); margin-bottom: 16px; overflow: hidden;
+}
+.delivery-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px; border-bottom: 1px solid var(--gray1);
+}
+.delivery-row:last-child { border-bottom: none; }
+.delivery-row__icon {
+  width: 32px; height: 32px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--orange);
+}
+.delivery-row__icon svg { width: 18px; height: 18px; }
+.delivery-row__title { font-size: 13px; font-weight: 600; color: var(--white2); margin-bottom: 2px; }
+.delivery-row__sub { font-size: 11px; color: var(--gray3); }
+.delivery-row__sub a { color: var(--orange); }
+.delivery-row__price {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 12px; font-weight: 600; color: var(--white);
+}
+
+/* Quick specs */
+.quick-specs {
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius); margin-bottom: 16px;
+}
+.quick-specs__head {
+  padding: 10px 16px; border-bottom: 1px solid var(--gray1);
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--orange);
+}
+.quick-spec {
+  display: flex; align-items: center;
+  padding: 8px 16px; border-bottom: 1px solid var(--gray1);
+  font-size: 12px;
+}
+.quick-spec:last-child { border-bottom: none; }
+.quick-spec__name { color: var(--gray3); width: 160px; flex-shrink: 0; }
+.quick-spec__val  { color: var(--white2); font-weight: 500; }
+
+/* ─── TABS ───────────────────────────────────────────── */
+.product-tabs-wrap { margin-bottom: 32px; }
+.product-tabs {
+  display: flex; border-bottom: 2px solid var(--gray1); margin-bottom: 0;
+}
+.product-tab {
+  padding: 12px 22px;
+  font-family: var(--font-display); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--gray3); background: none; border: none;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  cursor: pointer; transition: color var(--tr), border-color var(--tr);
+  white-space: nowrap;
+}
+.product-tab:hover { color: var(--white); }
+.product-tab.is-active { color: var(--orange); border-bottom-color: var(--orange); }
+
+.tab-panel { display: none; padding: 24px 0; }
+.tab-panel.is-active { display: block; }
+
+/* Specs table */
+.specs-table { width: 100%; border-collapse: collapse; }
+.specs-group__title {
+  font-family: var(--font-display); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--orange); padding: 14px 16px 8px;
+  background: var(--black2); border-top: 1px solid var(--gray1);
+}
+.specs-group__title:first-child { border-top: none; }
+.spec-row { display: flex; border-bottom: 1px solid var(--gray1); }
+.spec-row:hover { background: var(--black2); }
+.spec-row__name {
+  width: 240px; flex-shrink: 0;
+  padding: 10px 16px; font-size: 13px; color: var(--gray3);
+  background: var(--black3);
+}
+.spec-row__val {
+  padding: 10px 16px; font-size: 13px; color: var(--white2);
+  flex: 1;
+}
+
+/* Description */
+.description { font-size: 14px; color: var(--gray4); line-height: 1.7; }
+.description h3 {
+  font-size: 16px; color: var(--white2); margin: 20px 0 8px;
+  font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.04em;
+}
+.description h3:first-child { margin-top: 0; }
+.description p { margin-bottom: 12px; }
+.description ul { margin: 0 0 12px 20px; list-style: disc; }
+.description ul li { margin-bottom: 4px; color: var(--gray4); }
+
+/* Reviews */
+.reviews-summary {
+  display: grid; grid-template-columns: 180px 1fr;
+  gap: 32px; margin-bottom: 28px;
+  padding-bottom: 28px; border-bottom: 1px solid var(--gray1);
+}
+.reviews-big-score {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 6px;
+}
+.reviews-big-score__num {
+  font-family: var(--font-display); font-size: 64px; font-weight: 800;
+  color: var(--white2); line-height: 1;
+}
+.reviews-big-score__stars { font-size: 20px; color: var(--orange); letter-spacing: 3px; }
+.reviews-big-score__count { font-size: 12px; color: var(--gray3); }
+.reviews-bars { display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+.reviews-bar { display: flex; align-items: center; gap: 10px; }
+.reviews-bar__label { font-size: 12px; color: var(--gray3); width: 20px; text-align: right; }
+.reviews-bar__track {
+  flex: 1; height: 6px; background: var(--gray1);
+  border-radius: 3px; overflow: hidden;
+}
+.reviews-bar__fill { height: 100%; background: var(--orange); border-radius: 3px; }
+.reviews-bar__count { font-size: 12px; color: var(--gray3); width: 28px; }
+
+.review-item {
+  padding: 20px 0; border-bottom: 1px solid var(--gray1);
+}
+.review-item:last-child { border-bottom: none; }
+.review-item__head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.review-item__avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--gray1); border: 1px solid var(--gray2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  color: var(--gray4); flex-shrink: 0;
+}
+.review-item__name { font-size: 13px; font-weight: 600; color: var(--white2); }
+.review-item__date { font-size: 11px; color: var(--gray3); margin-top: 1px; }
+.review-item__stars { color: var(--orange); font-size: 13px; margin-left: auto; }
+.review-item__badge {
+  font-size: 10px; padding: 2px 6px;
+  background: rgba(255,106,0,0.1); color: var(--orange);
+  border-radius: var(--radius); border: 1px solid rgba(255,106,0,0.3);
+}
+.review-item__text { font-size: 13px; color: var(--gray4); line-height: 1.6; margin-bottom: 10px; }
+.review-item__pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+.review-item__pros, .review-item__cons { font-size: 12px; }
+.review-item__pros strong { color: #4caf50; }
+.review-item__cons strong { color: #e53935; }
+.review-item__footer { display: flex; align-items: center; gap: 12px; }
+.review-helpful { font-size: 11px; color: var(--gray3); }
+.review-helpful button {
+  color: var(--gray3); font-size: 11px; padding: 3px 8px;
+  border: 1px solid var(--gray1); border-radius: var(--radius);
+  transition: var(--tr);
+}
+.review-helpful button:hover { border-color: var(--orange); color: var(--orange); }
+
+/* ─── RELATED ────────────────────────────────────────── */
+.related-section { padding: 36px 0; border-top: 1px solid var(--gray1); }
+.related-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 1px; background: var(--gray1);
+  border: 1px solid var(--gray1); border-radius: var(--radius); overflow: hidden;
+}
+.related-grid .product-card { border: none; border-radius: 0; }
+.related-grid .product-card:hover {
+  outline: 2px solid var(--orange); outline-offset: -1px;
+  z-index: 1; position: relative; transform: none;
+}
+
+/* ─── STICKY BUY BAR ─────────────────────────────────── */
+.sticky-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--black2); border-top: 2px solid var(--orange);
+  padding: 12px 0; z-index: 900;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+.sticky-bar.is-visible { transform: translateY(0); }
+.sticky-bar__inner {
+  display: flex; align-items: center; gap: 20px;
+}
+.sticky-bar__name {
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  text-transform: uppercase; color: var(--white2);
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sticky-bar__price {
+  font-family: var(--font-display); font-size: 22px; font-weight: 800;
+  color: var(--white2); flex-shrink: 0;
+}
+.sticky-bar__actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* ─── BUNDLE ─────────────────────────────────────────── */
+.bundle-wrap {
+  display: grid;
+  grid-template-columns: 160px 32px 1fr 260px;
+  gap: 0;
+  align-items: start;
+  background: var(--black2);
+  border: 1px solid var(--gray1);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.bundle-main {
+  padding: 20px 16px;
+  border-right: 1px solid var(--gray1);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; text-align: center; align-self: stretch;
+  justify-content: center;
+  background: var(--black3);
+}
+.bundle-main__name { font-size: 12px; color: var(--gray4); line-height: 1.4; }
+.bundle-main__price { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: var(--white2); }
+.bundle-plus {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 20px; font-weight: 800;
+  color: var(--gray2); border-right: 1px solid var(--gray1);
+  align-self: stretch;
+}
+.bundle-items { display: flex; flex-direction: column; }
+.bundle-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-bottom: 1px solid var(--gray1);
+  transition: background var(--tr);
+}
+.bundle-item:last-child { border-bottom: none; }
+.bundle-item:hover { background: var(--black3); }
+.bundle-item__check {
+  flex-shrink: 0; cursor: pointer; display: flex; align-items: center;
+}
+.bundle-item__check input { display: none; }
+.bundle-item__checkmark {
+  width: 18px; height: 18px;
+  background: var(--black3); border: 1px solid var(--gray2);
+  border-radius: 2px; display: flex; align-items: center; justify-content: center;
+  transition: background var(--tr), border-color var(--tr);
+}
+.bundle-item__check input:checked ~ .bundle-item__checkmark {
+  background: var(--orange); border-color: var(--orange);
+}
+.bundle-item__img { flex-shrink: 0; }
+.bundle-item__info { flex: 1; min-width: 0; }
+.bundle-item__cat { font-size: 10px; color: var(--orange); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px; }
+.bundle-item__name { font-size: 12px; color: var(--gray4); line-height: 1.35; display: block; transition: color var(--tr); }
+.bundle-item__name:hover { color: var(--orange); }
+.bundle-item__spec { font-size: 11px; color: var(--gray3); margin-top: 2px; }
+.bundle-item__price-col { flex-shrink: 0; text-align: right; }
+.bundle-item__price { font-family: var(--font-display); font-size: 15px; font-weight: 800; color: var(--white2); }
+.bundle-item__save { font-size: 10px; color: #4caf50; margin-top: 2px; }
+
+.bundle-total {
+  padding: 20px 16px;
+  border-left: 1px solid var(--gray1);
+  background: var(--black3);
+  align-self: stretch;
+}
+.bundle-total__breakdown { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.bundle-total__row { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray3); }
+.bundle-total__row span:last-child { color: var(--gray4); }
+.bundle-total__divider { height: 1px; background: var(--gray1); margin-bottom: 10px; }
+.bundle-total__save { font-size: 12px; color: #4caf50; margin-bottom: 6px; }
+.bundle-total__save strong { font-size: 14px; }
+.bundle-total__sum { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--white2); }
+
+
+.compare-block {
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius); padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px; font-size: 13px; color: var(--gray4);
+}
+.compare-block label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.compare-block input[type="checkbox"] { accent-color: var(--orange); width: 15px; height: 15px; }
+
+</style>
+</head>
+<body>
+
+<!-- BREADCRUMB -->
+<div style="background:var(--black2);border-bottom:1px solid var(--gray1)">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Главная</a>
+      <span class="breadcrumb__sep">/</span>
+      <a href="catalog.html">Комплектующие</a>
+      <span class="breadcrumb__sep">/</span>
+      <a href="catalog.html">Видеокарты</a>
+      <span class="breadcrumb__sep">/</span>
+      <a href="catalog.html">NVIDIA GeForce RTX 40xx</a>
+      <span class="breadcrumb__sep">/</span>
+      <span class="breadcrumb__current">ASUS TUF Gaming GeForce RTX 4070 Ti Super OC 16 ГБ</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- ══════ PRODUCT LAYOUT ══════ -->
+  <div class="product-layout">
+
+    <!-- GALLERY -->
+    <div class="gallery">
+      <div class="gallery__main">
+        <div class="gallery__badges">
+          <span class="badge badge-orange">-18%</span>
+          <span class="badge badge-gray">Хит продаж</span>
+        </div>
+        <div class="gallery__main-img">
+          <svg viewBox="0 0 400 300" fill="none" style="width:100%;max-width:380px">
+            <rect x="20" y="60" width="360" height="180" rx="4" stroke="var(--gray2)" stroke-width="2"/>
+            <rect x="40" y="80" width="100" height="140" rx="2" stroke="var(--orange)" stroke-width="2"/>
+            <rect x="50" y="92" width="80" height="116" rx="1" fill="var(--black3)" stroke="var(--gray2)" stroke-width="1"/>
+            <!-- fan -->
+            <circle cx="90" cy="150" r="36" stroke="var(--gray2)" stroke-width="1.5"/>
+            <circle cx="90" cy="150" r="12" stroke="var(--orange)" stroke-width="1.5"/>
+            <path d="M90 114v72M54 150h72M62 122l56 56M62 178l56-56" stroke="var(--gray3)" stroke-width="1" opacity=".5"/>
+            <!-- heatsink lines -->
+            <path d="M160 90h180M160 102h180M160 114h180M160 126h180M160 138h180M160 150h180M160 162h180M160 174h180M160 186h180M160 198h180" stroke="var(--gray2)" stroke-width="1"/>
+            <!-- connector -->
+            <rect x="340" y="100" width="28" height="48" rx="2" stroke="var(--orange)" stroke-width="1.5"/>
+            <path d="M346 108v32M354 108v32M362 108v32" stroke="var(--gray3)" stroke-width="1"/>
+            <!-- ports -->
+            <rect x="20" y="190" width="14" height="28" rx="1" fill="var(--gray1)"/>
+            <rect x="20" y="224" width="14" height="8" rx="1" fill="var(--gray2)"/>
+            <!-- label -->
+            <text x="200" y="270" text-anchor="middle" font-family="sans-serif" font-size="11" fill="var(--gray3)">ASUS TUF GAMING RTX 4070 Ti SUPER</text>
+          </svg>
+        </div>
+        <button class="gallery__zoom">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg>
+        </button>
+      </div>
+      <div class="gallery__thumbs">
+        <div class="gallery__thumb is-active">
+          <svg viewBox="0 0 80 60" fill="none" style="width:60px"><rect x="4" y="8" width="72" height="44" rx="2" stroke="var(--orange)" stroke-width="1.5"/><circle cx="28" cy="30" r="12" stroke="var(--gray3)" stroke-width="1"/><path d="M50 18h22M50 26h22M50 34h18" stroke="var(--gray2)" stroke-width="1"/></svg>
+        </div>
+        <div class="gallery__thumb">
+          <svg viewBox="0 0 80 60" fill="none" style="width:60px"><rect x="4" y="8" width="72" height="44" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><rect x="10" y="14" width="60" height="32" rx="1" stroke="var(--gray3)" stroke-width="1"/><path d="M20 30h40M40 20v20" stroke="var(--gray2)" stroke-width="1"/></svg>
+        </div>
+        <div class="gallery__thumb">
+          <svg viewBox="0 0 80 60" fill="none" style="width:60px"><rect x="4" y="8" width="72" height="44" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><path d="M10 14h60M10 26h60M10 38h40" stroke="var(--gray2)" stroke-width="1"/></svg>
+        </div>
+        <div class="gallery__thumb">
+          <svg viewBox="0 0 80 60" fill="none" style="width:60px"><rect x="4" y="8" width="72" height="44" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><circle cx="40" cy="30" r="16" stroke="var(--gray3)" stroke-width="1"/><circle cx="40" cy="30" r="6" stroke="var(--orange)" stroke-width="1.5"/></svg>
+        </div>
+        <div class="gallery__thumb">
+          <svg viewBox="0 0 80 60" fill="none" style="width:60px"><rect x="4" y="8" width="72" height="44" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><path d="M16 20h48v20H16z" stroke="var(--gray3)" stroke-width="1"/><path d="M24 20v20M32 20v20M40 20v20M48 20v20M56 20v20" stroke="var(--gray2)" stroke-width="1"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="product-info">
+
+      <div class="product-info__vendor">
+        Бренд: <a href="#">ASUS</a> &nbsp;/&nbsp; Серия: <a href="#">TUF Gaming</a>
+      </div>
+
+      <h1 class="product-info__title">
+        ASUS TUF Gaming GeForce RTX 4070 Ti Super OC Edition 16 ГБ GDDR6X
+      </h1>
+
+      <div class="product-info__meta">
+        <div class="product-info__rating">
+          <span class="stars">★★★★★</span>
+          <span class="product-info__reviews">284 отзыва</span>
+        </div>
+        <span class="product-info__sku">Арт: <span>TUF-RTX4070TIS-O16G</span></span>
+        <span class="product-info__avail product-info__avail--yes">В наличии (47 шт.)</span>
+      </div>
+
+      <!-- PRICE -->
+      <div class="price-block">
+        <div class="price-block__row">
+          <span class="price-block__current">79 990 руб.</span>
+          <span class="price-block__old">97 500 руб.</span>
+          <span class="price-block__save">-17 510 руб.</span>
+        </div>
+        <div class="price-block__note">Цена действительна при заказе на сайте</div>
+        <div class="price-block__credit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--orange)"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Рассрочка от <strong>3 333 руб./мес</strong> &nbsp;·&nbsp; 24 месяца без переплат
+          <a href="#" style="color:var(--orange);margin-left:auto;font-size:11px">Подробнее</a>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="product-cta">
+        <div class="product-cta__main">
+          <a href="#" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            В корзину
+          </a>
+          <a href="#" class="btn btn-outline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Купить в 1 клик
+          </a>
+        </div>
+        <div class="product-cta__secondary">
+          <button class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            В вишлист
+          </button>
+          <button class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Сравнить
+          </button>
+          <button class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M9 3h6M12 3v4M9 12h6M12 9v6"/></svg>
+            В конфигуратор
+          </button>
+        </div>
+      </div>
+
+      <!-- COMPARE CHECK -->
+      <div class="compare-block">
+        <label>
+          <input type="checkbox">
+          Добавить к сравнению
+        </label>
+        <span style="color:var(--gray3);font-size:11px;margin-left:auto">Сравните с другими видеокартами</span>
+      </div>
+
+      <!-- DELIVERY -->
+      <div class="delivery-block">
+        <div class="delivery-row">
+          <div class="delivery-row__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8zM5.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+          </div>
+          <div class="delivery-row__info">
+            <div class="delivery-row__title">Доставка курьером</div>
+            <div class="delivery-row__sub">Завтра, 18 марта — <a href="#">уточнить адрес</a></div>
+          </div>
+          <div class="delivery-row__price">390 руб.</div>
+        </div>
+        <div class="delivery-row">
+          <div class="delivery-row__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="delivery-row__info">
+            <div class="delivery-row__title">Самовывоз</div>
+            <div class="delivery-row__sub">Сегодня из <a href="#">14 пунктов выдачи</a> в Москве</div>
+          </div>
+          <div class="delivery-row__price" style="color:#4caf50">Бесплатно</div>
+        </div>
+        <div class="delivery-row">
+          <div class="delivery-row__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="delivery-row__info">
+            <div class="delivery-row__title">СДЭК / Boxberry / Почта России</div>
+            <div class="delivery-row__sub">3–7 дней по всей России</div>
+          </div>
+          <div class="delivery-row__price">от 290 руб.</div>
+        </div>
+      </div>
+
+      <!-- QUICK SPECS -->
+      <div class="quick-specs">
+        <div class="quick-specs__head">Основные характеристики</div>
+        <div class="quick-spec"><span class="quick-spec__name">Производитель GPU</span><span class="quick-spec__val">NVIDIA</span></div>
+        <div class="quick-spec"><span class="quick-spec__name">Модель GPU</span><span class="quick-spec__val">GeForce RTX 4070 Ti Super</span></div>
+        <div class="quick-spec"><span class="quick-spec__name">Объём памяти</span><span class="quick-spec__val">16 ГБ GDDR6X</span></div>
+        <div class="quick-spec"><span class="quick-spec__name">Шина памяти</span><span class="quick-spec__val">256 бит</span></div>
+        <div class="quick-spec"><span class="quick-spec__name">Частота GPU (Boost)</span><span class="quick-spec__val">2640 МГц</span></div>
+        <div class="quick-spec"><span class="quick-spec__name">TDP</span><span class="quick-spec__val">285 Вт</span></div>
+        <div class="quick-spec"><span class="quick-spec__name">Разъёмы питания</span><span class="quick-spec__val">1× 16-pin (PCIe 5.0)</span></div>
+        <div class="quick-spec"><span class="quick-spec__name">Гарантия</span><span class="quick-spec__val">36 месяцев</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════ TABS ══════ -->
+  <div class="product-tabs-wrap">
+    <div class="product-tabs">
+      <button class="product-tab is-active" data-tab="specs">Характеристики</button>
+      <button class="product-tab" data-tab="desc">Описание</button>
+      <button class="product-tab" data-tab="reviews">Отзывы <span style="color:var(--gray3);font-weight:400">(284)</span></button>
+      <button class="product-tab" data-tab="questions">Вопросы <span style="color:var(--gray3);font-weight:400">(12)</span></button>
+      <button class="product-tab" data-tab="video">Видеообзор</button>
+    </div>
+
+    <!-- SPECS -->
+    <div class="tab-panel is-active" id="tab-specs">
+      <div class="specs-group__title">Общие</div>
+      <div class="spec-row"><div class="spec-row__name">Производитель карты</div><div class="spec-row__val">ASUS</div></div>
+      <div class="spec-row"><div class="spec-row__name">Серия</div><div class="spec-row__val">TUF Gaming</div></div>
+      <div class="spec-row"><div class="spec-row__name">Производитель GPU</div><div class="spec-row__val">NVIDIA</div></div>
+      <div class="spec-row"><div class="spec-row__name">Модель GPU</div><div class="spec-row__val">GeForce RTX 4070 Ti Super</div></div>
+      <div class="spec-row"><div class="spec-row__name">Архитектура</div><div class="spec-row__val">Ada Lovelace</div></div>
+      <div class="spec-row"><div class="spec-row__name">Техпроцесс</div><div class="spec-row__val">4 нм (TSMC)</div></div>
+      <div class="spec-row"><div class="spec-row__name">Количество шейдеров</div><div class="spec-row__val">8448</div></div>
+      <div class="spec-row"><div class="spec-row__name">Количество блоков RT</div><div class="spec-row__val">66</div></div>
+      <div class="spec-row"><div class="spec-row__name">Тензорных ядер</div><div class="spec-row__val">264</div></div>
+
+      <div class="specs-group__title">Видеопамять</div>
+      <div class="spec-row"><div class="spec-row__name">Объём</div><div class="spec-row__val">16 ГБ</div></div>
+      <div class="spec-row"><div class="spec-row__name">Тип</div><div class="spec-row__val">GDDR6X</div></div>
+      <div class="spec-row"><div class="spec-row__name">Разрядность шины</div><div class="spec-row__val">256 бит</div></div>
+      <div class="spec-row"><div class="spec-row__name">Частота памяти</div><div class="spec-row__val">21 Гбит/с</div></div>
+      <div class="spec-row"><div class="spec-row__name">Пропускная способность</div><div class="spec-row__val">672 ГБ/с</div></div>
+
+      <div class="specs-group__title">Частоты</div>
+      <div class="spec-row"><div class="spec-row__name">Базовая частота GPU</div><div class="spec-row__val">2340 МГц</div></div>
+      <div class="spec-row"><div class="spec-row__name">Частота в режиме Boost</div><div class="spec-row__val">2640 МГц</div></div>
+
+      <div class="specs-group__title">Охлаждение и питание</div>
+      <div class="spec-row"><div class="spec-row__name">Количество вентиляторов</div><div class="spec-row__val">3</div></div>
+      <div class="spec-row"><div class="spec-row__name">Тип охладителя</div><div class="spec-row__val">TUF Axial-tech</div></div>
+      <div class="spec-row"><div class="spec-row__name">TDP</div><div class="spec-row__val">285 Вт</div></div>
+      <div class="spec-row"><div class="spec-row__name">Разъём питания</div><div class="spec-row__val">1× 16-pin (PCIe 5.0)</div></div>
+      <div class="spec-row"><div class="spec-row__name">Рекомендуемый БП</div><div class="spec-row__val">от 700 Вт</div></div>
+
+      <div class="specs-group__title">Разъёмы и интерфейс</div>
+      <div class="spec-row"><div class="spec-row__name">Интерфейс</div><div class="spec-row__val">PCI-E 4.0 x16</div></div>
+      <div class="spec-row"><div class="spec-row__name">Видеовыходы</div><div class="spec-row__val">3× DisplayPort 1.4a, 1× HDMI 2.1a</div></div>
+      <div class="spec-row"><div class="spec-row__name">Макс. разрешение</div><div class="spec-row__val">7680×4320 (8K)</div></div>
+      <div class="spec-row"><div class="spec-row__name">Поддержка DirectX</div><div class="spec-row__val">12 Ultimate</div></div>
+
+      <div class="specs-group__title">Конструктив</div>
+      <div class="spec-row"><div class="spec-row__name">Длина</div><div class="spec-row__val">336 мм</div></div>
+      <div class="spec-row"><div class="spec-row__name">Занимаемые слоты</div><div class="spec-row__val">3</div></div>
+      <div class="spec-row"><div class="spec-row__name">Гарантия</div><div class="spec-row__val">36 месяцев</div></div>
+    </div>
+
+    <!-- DESC -->
+    <div class="tab-panel" id="tab-desc">
+      <div class="description">
+        <h3>ASUS TUF Gaming GeForce RTX 4070 Ti Super OC Edition</h3>
+        <p>Видеокарта ASUS TUF Gaming GeForce RTX 4070 Ti Super OC Edition создана для тех, кто не идёт на компромисс в производительности и надёжности. Серия TUF Gaming известна военным уровнем стандартов качества комплектующих — каждый элемент платы проверен по спецификациям MIL-STD-810H.</p>
+
+        <h3>Архитектура Ada Lovelace</h3>
+        <p>В основе карты лежит GPU NVIDIA AD103 на 4-нм техпроцессе TSMC. 8448 шейдерных процессоров, 66 ядер трассировки лучей и 264 тензорных ядра Tensor Cores 4-го поколения обеспечивают исключительную производительность как в играх, так и в задачах GPGPU.</p>
+
+        <h3>16 ГБ GDDR6X с пропускной способностью 672 ГБ/с</h3>
+        <p>Буфер памяти GDDR6X объёмом 16 ГБ по 256-битной шине обеспечивает пропускную способность 672 ГБ/с. Этого более чем достаточно для комфортной работы в 4K-разрешении и с текстурами высокого качества.</p>
+
+        <h3>Система охлаждения TUF Axial-tech</h3>
+        <p>Три осевых вентилятора Axial-tech с двойными шарикоподшипниками и усиленной крыльчаткой создают повышенный воздушный поток при сниженном уровне шума. Алюминиевый радиатор с испарительными камерами эффективно отводит тепло даже при длительных игровых сессиях.</p>
+
+        <ul>
+          <li>Реализован режим 0 dB — вентиляторы полностью останавливаются при низкой нагрузке</li>
+          <li>GPU Tweak III — фирменная утилита для разгона и мониторинга</li>
+          <li>Усиленный PCIe-слот и защита от статики</li>
+          <li>Металлический бэкплейт для дополнительной жёсткости</li>
+          <li>Поддержка NVIDIA DLSS 3, Frame Generation, Reflex, Broadcast</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="tab-panel" id="tab-reviews">
+      <div class="reviews-summary">
+        <div class="reviews-big-score">
+          <div class="reviews-big-score__num">4.8</div>
+          <div class="reviews-big-score__stars">★★★★★</div>
+          <div class="reviews-big-score__count">284 отзыва</div>
+        </div>
+        <div class="reviews-bars">
+          <div class="reviews-bar">
+            <span class="reviews-bar__label">5</span>
+            <div class="reviews-bar__track"><div class="reviews-bar__fill" style="width:78%"></div></div>
+            <span class="reviews-bar__count">221</span>
+          </div>
+          <div class="reviews-bar">
+            <span class="reviews-bar__label">4</span>
+            <div class="reviews-bar__track"><div class="reviews-bar__fill" style="width:15%"></div></div>
+            <span class="reviews-bar__count">43</span>
+          </div>
+          <div class="reviews-bar">
+            <span class="reviews-bar__label">3</span>
+            <div class="reviews-bar__track"><div class="reviews-bar__fill" style="width:4%"></div></div>
+            <span class="reviews-bar__count">12</span>
+          </div>
+          <div class="reviews-bar">
+            <span class="reviews-bar__label">2</span>
+            <div class="reviews-bar__track"><div class="reviews-bar__fill" style="width:2%"></div></div>
+            <span class="reviews-bar__count">5</span>
+          </div>
+          <div class="reviews-bar">
+            <span class="reviews-bar__label">1</span>
+            <div class="reviews-bar__track"><div class="reviews-bar__fill" style="width:1%"></div></div>
+            <span class="reviews-bar__count">3</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <a href="#" class="btn btn-outline">Написать отзыв</a>
+      </div>
+
+      <div class="review-item">
+        <div class="review-item__head">
+          <div class="review-item__avatar">АК</div>
+          <div>
+            <div class="review-item__name">Алексей К.</div>
+            <div class="review-item__date">12 февраля 2025</div>
+          </div>
+          <span class="review-item__badge">Проверенная покупка</span>
+          <div class="review-item__stars">★★★★★</div>
+        </div>
+        <div class="review-item__pros-cons">
+          <div class="review-item__pros"><strong>Плюсы:</strong> Тихая, мощная, холодная. Прекрасный 4K-геймплей.</div>
+          <div class="review-item__cons"><strong>Минусы:</strong> Большой размер — не влезет в маленький корпус.</div>
+        </div>
+        <div class="review-item__text">Брал под игровую систему на Ryzen 7 7800X3D. В Cyberpunk 2077 на Ultra+RT выдаёт стабильные 80–100 fps в 4K с DLSS Quality. Температура под нагрузкой не поднималась выше 72°C, вентиляторы почти не слышно. Размер карты 336 мм — плотно вошла в корпус Fractal Define 7, но вошла. Очень доволен покупкой.</div>
+        <div class="review-item__footer">
+          <div class="review-helpful">
+            Полезен?
+            <button>Да (24)</button>
+            <button>Нет (1)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-item">
+        <div class="review-item__head">
+          <div class="review-item__avatar">МС</div>
+          <div>
+            <div class="review-item__name">Михаил С.</div>
+            <div class="review-item__date">28 января 2025</div>
+          </div>
+          <span class="review-item__badge">Проверенная покупка</span>
+          <div class="review-item__stars">★★★★★</div>
+        </div>
+        <div class="review-item__pros-cons">
+          <div class="review-item__pros"><strong>Плюсы:</strong> Отличный разгонный потенциал, качественная сборка.</div>
+          <div class="review-item__cons"><strong>Минусы:</strong> Дорогой адаптер питания в комплекте греется.</div>
+        </div>
+        <div class="review-item__text">Перешёл с RTX 3080 — разница заметна. 16 ГБ памяти особенно ощущается в Starfield и Alan Wake 2 с модами на текстуры 4K. DLSS 3 с Frame Generation работает магически. TUF-серия традиционно надёжна, уже второй раз беру их карту.</div>
+        <div class="review-item__footer">
+          <div class="review-helpful">
+            Полезен?
+            <button>Да (18)</button>
+            <button>Нет (0)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-item">
+        <div class="review-item__head">
+          <div class="review-item__avatar">ДВ</div>
+          <div>
+            <div class="review-item__name">Дмитрий В.</div>
+            <div class="review-item__date">15 января 2025</div>
+          </div>
+          <span class="review-item__badge">Проверенная покупка</span>
+          <div class="review-item__stars">★★★★☆</div>
+        </div>
+        <div class="review-item__pros-cons">
+          <div class="review-item__pros"><strong>Плюсы:</strong> Производительность, тишина, надёжность.</div>
+          <div class="review-item__cons"><strong>Минусы:</strong> Нет фирменного RGB, только серый металл.</div>
+        </div>
+        <div class="review-item__text">Карта для рабочей станции — рендер, Stable Diffusion, иногда игры. Производительность в CUDA-задачах радует. Единственное — TUF выглядит скучновато, если хотите RGB, смотрите на ROG Strix.</div>
+        <div class="review-item__footer">
+          <div class="review-helpful">
+            Полезен?
+            <button>Да (9)</button>
+            <button>Нет (2)</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;text-align:center">
+        <button class="btn btn-ghost">Показать ещё 281 отзыв</button>
+      </div>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div class="tab-panel" id="tab-questions">
+      <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:20px">
+        <div class="card" style="padding:20px">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" style="width:18px;height:18px;flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--white2);margin-bottom:4px">Подойдёт ли карта для корпуса Fractal North?</div>
+              <div style="font-size:11px;color:var(--gray3)">Павел Н. · 10 февраля 2025</div>
+            </div>
+          </div>
+          <div style="padding-left:30px;font-size:13px;color:var(--gray4);line-height:1.6">
+            <strong style="color:var(--orange)">Ответ магазина:</strong> Да, Fractal North поддерживает карты до 355 мм — RTX 4070 Ti Super TUF имеет длину 336 мм, войдёт без проблем.
+          </div>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" style="width:18px;height:18px;flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--white2);margin-bottom:4px">Нужен ли блок питания с коннектором 16-pin?</div>
+              <div style="font-size:11px;color:var(--gray3)">Антон Р. · 5 февраля 2025</div>
+            </div>
+          </div>
+          <div style="padding-left:30px;font-size:13px;color:var(--gray4);line-height:1.6">
+            <strong style="color:var(--orange)">Ответ магазина:</strong> В комплекте идёт переходник 3×8-pin → 16-pin. Если ваш БП имеет три 8-pin разъёма PCIe, дополнительно ничего покупать не нужно.
+          </div>
+        </div>
+      </div>
+      <a href="#" class="btn btn-outline">Задать вопрос</a>
+    </div>
+
+    <!-- VIDEO -->
+    <div class="tab-panel" id="tab-video">
+      <div style="background:var(--black2);border:1px solid var(--gray1);border-radius:var(--radius);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;color:var(--gray3)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;color:var(--gray2)"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="var(--gray2)" stroke="none"/></svg>
+        <span style="font-size:13px">Видеообзор ASUS TUF RTX 4070 Ti Super</span>
+        <a href="#" class="btn btn-primary btn-sm">Смотреть на YouTube</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════ С ЭТИМ ТОВАРОМ БЕРУТ ══════ -->
+  <section class="related-section" style="border-top:1px solid var(--gray1)">
+    <div class="section-title">
+      <h2>С этим товаром берут</h2>
+      <span style="font-size:12px;color:var(--gray3)">Популярные сочетания</span>
+    </div>
+
+    <div class="bundle-wrap">
+      <!-- Main product -->
+      <div class="bundle-main">
+        <div class="bundle-main__img">
+          <svg viewBox="0 0 140 110" fill="none" style="width:100px;height:80px"><rect x="10" y="25" width="120" height="65" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="33" width="36" height="48" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M66 40h54M66 52h46M66 64h36" stroke="var(--gray3)" stroke-width="1.5"/></svg>
+        </div>
+        <div class="bundle-main__name">ASUS TUF RTX 4070 Ti Super OC 16 ГБ</div>
+        <div class="bundle-main__price">79 990 руб.</div>
+      </div>
+
+      <div class="bundle-plus">+</div>
+
+      <!-- Bundle items -->
+      <div class="bundle-items">
+
+        <div class="bundle-item" id="bitem1">
+          <label class="bundle-item__check">
+            <input type="checkbox" checked onchange="calcBundle()">
+            <div class="bundle-item__checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" style="width:10px;height:10px"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </label>
+          <div class="bundle-item__img">
+            <svg viewBox="0 0 80 60" fill="none" style="width:60px;height:45px"><rect x="4" y="8" width="72" height="44" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><rect x="10" y="14" width="60" height="32" rx="1" stroke="var(--gray3)" stroke-width="1"/><path d="M20 30h40M40 20v20" stroke="var(--orange)" stroke-width="1"/></svg>
+          </div>
+          <div class="bundle-item__info">
+            <div class="bundle-item__cat">Процессор</div>
+            <a href="product.html" class="bundle-item__name">AMD Ryzen 7 7800X3D AM5, 8 ядер, OEM</a>
+            <div class="bundle-item__spec">8 ядер / 96 МБ L3 / AM5</div>
+          </div>
+          <div class="bundle-item__price-col">
+            <div class="bundle-item__price" data-price="34990">34 990 руб.</div>
+            <div class="bundle-item__save">Экономия 3 200 руб.</div>
+          </div>
+        </div>
+
+        <div class="bundle-item" id="bitem2">
+          <label class="bundle-item__check">
+            <input type="checkbox" checked onchange="calcBundle()">
+            <div class="bundle-item__checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" style="width:10px;height:10px"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </label>
+          <div class="bundle-item__img">
+            <svg viewBox="0 0 80 60" fill="none" style="width:60px;height:45px"><rect x="4" y="8" width="72" height="44" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><path d="M10 14h60M10 22h60M10 30h40M10 38h30" stroke="var(--gray3)" stroke-width="1"/><circle cx="60" cy="36" r="6" stroke="var(--orange)" stroke-width="1.5"/></svg>
+          </div>
+          <div class="bundle-item__info">
+            <div class="bundle-item__cat">Материнская плата</div>
+            <a href="product.html" class="bundle-item__name">ASUS ROG Strix X670E-F Gaming WiFi, AM5</a>
+            <div class="bundle-item__spec">AM5 / DDR5 / PCIe 5.0 / ATX</div>
+          </div>
+          <div class="bundle-item__price-col">
+            <div class="bundle-item__price" data-price="31990">31 990 руб.</div>
+            <div class="bundle-item__save">Экономия 2 100 руб.</div>
+          </div>
+        </div>
+
+        <div class="bundle-item" id="bitem3">
+          <label class="bundle-item__check">
+            <input type="checkbox" onchange="calcBundle()">
+            <div class="bundle-item__checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" style="width:10px;height:10px"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </label>
+          <div class="bundle-item__img">
+            <svg viewBox="0 0 80 60" fill="none" style="width:60px;height:45px"><rect x="8" y="18" width="64" height="24" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><rect x="16" y="24" width="14" height="12" rx="1" stroke="var(--orange)" stroke-width="1.5"/><rect x="36" y="24" width="14" height="12" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M8 18v-8M72 18v-8M8 42v8M72 42v8" stroke="var(--gray2)" stroke-width="1.5"/></svg>
+          </div>
+          <div class="bundle-item__info">
+            <div class="bundle-item__cat">Оперативная память</div>
+            <a href="product.html" class="bundle-item__name">G.Skill Trident Z5 RGB 32 ГБ DDR5-6000</a>
+            <div class="bundle-item__spec">2×16 ГБ / DDR5 / 6000 МГц / CL36</div>
+          </div>
+          <div class="bundle-item__price-col">
+            <div class="bundle-item__price" data-price="11490">11 490 руб.</div>
+            <div class="bundle-item__save">Экономия 900 руб.</div>
+          </div>
+        </div>
+
+        <div class="bundle-item" id="bitem4">
+          <label class="bundle-item__check">
+            <input type="checkbox" onchange="calcBundle()">
+            <div class="bundle-item__checkmark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" style="width:10px;height:10px"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </label>
+          <div class="bundle-item__img">
+            <svg viewBox="0 0 80 60" fill="none" style="width:60px;height:45px"><polygon points="40,8 60,52 20,52" stroke="var(--orange)" stroke-width="1.5" fill="none"/><rect x="28" y="38" width="24" height="8" rx="1" stroke="var(--gray3)" stroke-width="1"/></svg>
+          </div>
+          <div class="bundle-item__info">
+            <div class="bundle-item__cat">Блок питания</div>
+            <a href="product.html" class="bundle-item__name">be quiet! Straight Power 12 850W 80+ Platinum</a>
+            <div class="bundle-item__spec">850 Вт / 80+ Platinum / ATX 3.0</div>
+          </div>
+          <div class="bundle-item__price-col">
+            <div class="bundle-item__price" data-price="14990">14 990 руб.</div>
+            <div class="bundle-item__save">Экономия 1 500 руб.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bundle total -->
+      <div class="bundle-total">
+        <div class="bundle-total__breakdown">
+          <div class="bundle-total__row">
+            <span>Видеокарта</span>
+            <span>79 990 руб.</span>
+          </div>
+          <div class="bundle-total__row" id="brow1">
+            <span>Процессор</span>
+            <span>34 990 руб.</span>
+          </div>
+          <div class="bundle-total__row" id="brow2">
+            <span>Материнская плата</span>
+            <span>31 990 руб.</span>
+          </div>
+          <div class="bundle-total__row" id="brow3" style="display:none">
+            <span>Память</span>
+            <span>11 490 руб.</span>
+          </div>
+          <div class="bundle-total__row" id="brow4" style="display:none">
+            <span>Блок питания</span>
+            <span>14 990 руб.</span>
+          </div>
+        </div>
+        <div class="bundle-total__divider"></div>
+        <div class="bundle-total__save">
+          Экономия: <strong id="bundleSave">5 300 руб.</strong>
+        </div>
+        <div class="bundle-total__sum">
+          Итого: <strong id="bundleTotal">146 970 руб.</strong>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top:12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Добавить всё в корзину
+        </button>
+        <button class="btn btn-ghost btn-block" style="margin-top:6px;font-size:11px">Добавить в конфигуратор</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ RELATED ══════ -->
+  <section class="related-section">
+    <div class="section-title">
+      <h2>Похожие товары</h2>
+      <a href="catalog.html">Все видеокарты &rarr;</a>
+    </div>
+    <div class="related-grid">
+
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-orange">-12%</span></div>
+        <div class="product-card__img"><svg viewBox="0 0 140 110" fill="none" style="width:120px;height:90px"><rect x="10" y="25" width="120" height="65" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="33" width="36" height="48" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M66 40h54M66 52h46M66 64h36" stroke="var(--gray3)" stroke-width="1.5"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★★ <span class="rating-count">(197)</span></div>
+          <a href="product.html" class="product-card__name">Gigabyte GeForce RTX 4080 Super AORUS Master 16 ГБ</a>
+          <div class="product-card__spec">16 ГБ / GDDR6X / 256 бит / 2640 МГц</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">99 990 руб.</span>
+            <span class="price-old">109 900 руб.</span>
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M9 3h6M12 3v4M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-orange">NEW</span></div>
+        <div class="product-card__img"><svg viewBox="0 0 140 110" fill="none" style="width:120px;height:90px"><rect x="10" y="25" width="120" height="65" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="33" width="36" height="48" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M66 40h54M66 52h46M66 64h36" stroke="var(--gray3)" stroke-width="1.5"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★★ <span class="rating-count">(12)</span></div>
+          <a href="product.html" class="product-card__name">MSI GeForce RTX 5080 Gaming Trio 16 ГБ GDDR7</a>
+          <div class="product-card__spec">16 ГБ / GDDR7 / 256 бит / 2617 МГц</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">129 990 руб.</span>
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M9 3h6M12 3v4M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-orange">-22%</span><span class="badge badge-gray">Хит</span></div>
+        <div class="product-card__img"><svg viewBox="0 0 140 110" fill="none" style="width:120px;height:90px"><rect x="10" y="25" width="120" height="65" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="33" width="36" height="48" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M66 40h54M66 52h46M66 64h36" stroke="var(--gray3)" stroke-width="1.5"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★★ <span class="rating-count">(412)</span></div>
+          <a href="product.html" class="product-card__name">ASUS Dual GeForce RTX 4060 OC Edition 8 ГБ GDDR6</a>
+          <div class="product-card__spec">8 ГБ / GDDR6 / 128 бит / 2535 МГц</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">29 990 руб.</span>
+            <span class="price-old">38 500 руб.</span>
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M9 3h6M12 3v4M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-gray">В наличии</span></div>
+        <div class="product-card__img"><svg viewBox="0 0 140 110" fill="none" style="width:120px;height:90px"><rect x="10" y="25" width="120" height="65" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="33" width="36" height="48" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M66 40h54M66 52h46M66 64h36" stroke="var(--gray3)" stroke-width="1.5"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★☆ <span class="rating-count">(88)</span></div>
+          <a href="product.html" class="product-card__name">Sapphire Nitro+ AMD Radeon RX 7900 XTX 24 ГБ GDDR6</a>
+          <div class="product-card__spec">24 ГБ / GDDR6 / 384 бит / 2615 МГц</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">89 990 руб.</span>
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M9 3h6M12 3v4M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-orange">-14%</span></div>
+        <div class="product-card__img"><svg viewBox="0 0 140 110" fill="none" style="width:120px;height:90px"><rect x="10" y="25" width="120" height="65" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="33" width="36" height="48" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M66 40h54M66 52h46M66 64h36" stroke="var(--gray3)" stroke-width="1.5"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★☆ <span class="rating-count">(63)</span></div>
+          <a href="product.html" class="product-card__name">ZOTAC Gaming GeForce RTX 4070 Super Twin Edge OC 12 ГБ</a>
+          <div class="product-card__spec">12 ГБ / GDDR6X / 192 бит / 2535 МГц</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">53 490 руб.</span>
+            <span class="price-old">62 000 руб.</span>
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M9 3h6M12 3v4M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<!-- STICKY BUY BAR -->
+<div class="sticky-bar" id="stickyBar">
+  <div class="container">
+    <div class="sticky-bar__inner">
+      <span class="sticky-bar__name">ASUS TUF Gaming GeForce RTX 4070 Ti Super OC 16 ГБ GDDR6X</span>
+      <span class="sticky-bar__price">79 990 руб.</span>
+      <div class="sticky-bar__actions">
+        <a href="#" class="btn btn-primary">В корзину</a>
+        <a href="#" class="btn btn-ghost btn-sm">1 клик</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Bundle calculator
+const MAIN_PRICE = 79990;
+const BUNDLE_SAVES = [3200, 2100, 900, 1500];
+const BUNDLE_PRICES = [34990, 31990, 11490, 14990];
+const BUNDLE_LABELS = ['Процессор', 'Материнская плата', 'Память', 'Блок питания'];
+
+function calcBundle() {
+  let total = MAIN_PRICE;
+  let save  = 0;
+  for (let i = 1; i <= 4; i++) {
+    const cb  = document.querySelector(`#bitem${i} input[type="checkbox"]`);
+    const row = document.getElementById(`brow${i}`);
+    if (cb && cb.checked) {
+      total += BUNDLE_PRICES[i-1];
+      save  += BUNDLE_SAVES[i-1];
+      if (row) row.style.display = '';
+    } else {
+      if (row) row.style.display = 'none';
+    }
+  }
+  document.getElementById('bundleTotal').textContent = total.toLocaleString('ru-RU') + ' руб.';
+  document.getElementById('bundleSave').textContent  = save.toLocaleString('ru-RU') + ' руб.';
+}
+calcBundle();
+
+// Tabs
+document.querySelectorAll('.product-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.product-tab').forEach(t => t.classList.remove('is-active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('is-active'));
+    tab.classList.add('is-active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('is-active');
+  });
+});
+
+// Gallery thumbs
+document.querySelectorAll('.gallery__thumb').forEach(thumb => {
+  thumb.addEventListener('click', () => {
+    document.querySelectorAll('.gallery__thumb').forEach(t => t.classList.remove('is-active'));
+    thumb.classList.add('is-active');
+  });
+});
+
+// Sticky bar on scroll
+const stickyBar = document.getElementById('stickyBar');
+const priceBlock = document.querySelector('.price-block');
+const observer = new IntersectionObserver(([e]) => {
+  stickyBar.classList.toggle('is-visible', !e.isIntersecting);
+}, { threshold: 0 });
+if (priceBlock) observer.observe(priceBlock);
+</script>
+<script src="theme-toggle.js"></script>
+</body>
+</html>

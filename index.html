@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<!-- 
+  ⚠️ МАКЕТ / LAYOUT TEMPLATE
+  Этот HTML файл является визуальным макетом для дизайна.
+  Основной сайт работает на Next.js в apps/storefront.
+  Не редактируйте этот файл для изменений в продакшене.
+  
+  Актуальный код: apps/storefront/src/app/page.tsx
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1000FPS</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.hero{background:var(--black2);border-bottom:1px solid var(--gray1);overflow:hidden}
+.hero__inner{display:grid;grid-template-columns:1fr 320px;min-height:420px}
+.hero__main{position:relative;border-right:1px solid var(--gray1);min-height:420px;overflow:hidden}
+.hero__slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:48px;opacity:0;transition:opacity .4s ease;pointer-events:none}
+.hero__slide.is-active{opacity:1;pointer-events:auto}
+.hero__slide-bg{position:absolute;inset:0}
+.hero__slide-bg::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,var(--gray1) 39px,var(--gray1) 40px),repeating-linear-gradient(90deg,transparent,transparent 79px,var(--gray1) 79px,var(--gray1) 80px);opacity:.1}
+.slide-bg-1{background:#0d0900}.slide-bg-2{background:#050d08}.slide-bg-3{background:#06050d}
+.hero__dots{position:absolute;left:48px;top:24px;display:flex;gap:6px;z-index:10}
+.hero__dot{width:24px;height:3px;background:var(--gray1);border-radius:2px;cursor:pointer;border:none;padding:0;transition:background var(--tr),width var(--tr)}
+.hero__dot.is-active{background:var(--orange);width:40px}
+.htag{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:var(--orange);font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;border-radius:var(--radius);margin-bottom:14px;width:fit-content}
+.htitle{position:relative;z-index:1;font-size:clamp(28px,3.5vw,50px);color:var(--white2);margin-bottom:8px;max-width:520px}
+.htitle span{color:var(--orange)}
+.hsub{position:relative;z-index:1;font-size:14px;color:var(--gray4);margin-bottom:20px;max-width:420px}
+.hprice-row{position:relative;z-index:1;display:flex;align-items:baseline;gap:12px;margin-bottom:22px}
+.hprice{font-family:var(--font-display);font-size:36px;font-weight:800;color:var(--white2)}
+.hprice-old{font-size:18px;color:var(--gray3);text-decoration:line-through}
+.hprice-save{font-size:12px;color:var(--orange);font-weight:700;background:rgba(255,106,0,.1);padding:2px 8px;border-radius:var(--radius)}
+.hactions{position:relative;z-index:1;display:flex;gap:10px}
+.hero__side{display:flex;flex-direction:column}
+.hbanner{flex:1;position:relative;padding:22px 20px;display:flex;flex-direction:column;justify-content:flex-end;border-bottom:1px solid var(--gray1);overflow:hidden;cursor:pointer;text-decoration:none}
+.hbanner:last-child{border-bottom:none}
+.hbanner-bg{position:absolute;inset:0;background:#0d0d0d;transition:background var(--tr)}
+.hbanner:hover .hbanner-bg{background:#111}
+.hbanner::after{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--orange);opacity:0;transition:opacity var(--tr)}
+.hbanner:hover::after{opacity:1}
+.hbanner-label{position:relative;z-index:1;font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:4px}
+.hbanner-title{position:relative;z-index:1;font-family:var(--font-display);font-size:16px;font-weight:800;text-transform:uppercase;color:var(--white2);line-height:1.2;margin-bottom:10px}
+.hbanner-link{position:relative;z-index:1;display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--gray3);transition:color var(--tr)}
+.hbanner:hover .hbanner-link{color:var(--orange)}
+
+.cat-strip{padding:28px 0;border-bottom:1px solid var(--gray1)}
+.cat-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
+.cat-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px;background:var(--black2);border:1px solid var(--gray1);border-radius:var(--radius);cursor:pointer;transition:border-color var(--tr),background var(--tr);text-align:center;text-decoration:none}
+.cat-item:hover{border-color:var(--orange);background:var(--black3);color:inherit}
+.cat-item svg{width:26px;height:26px;color:var(--gray4);transition:color var(--tr)}
+.cat-item:hover svg{color:var(--orange)}
+.cat-item span{font-size:11px;color:var(--gray4);line-height:1.3;transition:color var(--tr)}
+.cat-item:hover span{color:var(--white)}
+
+.promo-blocks{padding:28px 0;border-bottom:1px solid var(--gray1)}
+.promo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.pblock{padding:22px;background:var(--black2);border:1px solid var(--gray1);border-radius:var(--radius);position:relative;overflow:hidden;transition:border-color var(--tr)}
+.pblock:hover{border-color:var(--orange)}
+.pblock-tag{margin-bottom:10px}
+.pblock-title{font-family:var(--font-display);font-size:16px;font-weight:800;text-transform:uppercase;color:var(--white2);margin-bottom:6px;line-height:1.2}
+.pblock-sub{font-size:12px;color:var(--gray3);margin-bottom:16px}
+.pblock-decor{position:absolute;right:-8px;bottom:-12px;font-family:var(--font-display);font-size:72px;font-weight:800;color:var(--gray1);line-height:1;pointer-events:none;user-select:none;opacity:.35}
+
+.psection{padding:36px 0;border-bottom:1px solid var(--gray1)}
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--gray1);border:1px solid var(--gray1);border-radius:var(--radius);overflow:hidden}.pgrid .product-card{border:none;border-radius:0;transform:none!important}.pgrid .product-card:hover{transform:none!important;border:none;outline:2px solid var(--orange);outline-offset:-1px;z-index:1;position:relative}
+
+.cbar{background:var(--black2);border:1px solid var(--gray1);border-radius:var(--radius);padding:18px 24px;display:flex;align-items:center;gap:20px;margin-bottom:20px}
+.cbar-label{font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--white2);flex-shrink:0}
+.cdwn{display:flex;align-items:center;gap:5px}
+.cdwn-unit{display:flex;flex-direction:column;align-items:center;min-width:44px}
+.cdwn-num{font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--orange);background:var(--black3);border:1px solid var(--gray1);padding:3px 8px;border-radius:var(--radius);min-width:44px;text-align:center;line-height:1.2}
+.cdwn-lbl{font-size:9px;color:var(--gray3);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}
+.cdwn-sep{font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--gray2);margin-bottom:14px}
+
+.ptabs{display:flex;border-bottom:1px solid var(--gray1);margin-bottom:20px}
+.ptab{padding:9px 18px;font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray3);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:color var(--tr),border-color var(--tr)}
+.ptab:hover{color:var(--white)}
+.ptab.is-active{color:var(--orange);border-bottom-color:var(--orange)}
+
+.brands-section{padding:36px 0;border-bottom:1px solid var(--gray1)}
+.brands-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+.brand-item{height:58px;display:flex;align-items:center;justify-content:center;background:var(--black2);border:1px solid var(--gray1);border-radius:var(--radius);font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gray3);cursor:pointer;transition:border-color var(--tr),color var(--tr)}
+.brand-item:hover{border-color:var(--orange);color:var(--white)}
+
+.feat-section{padding:36px 0;border-bottom:1px solid var(--gray1)}
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--gray1);border:1px solid var(--gray1);border-radius:var(--radius);overflow:hidden}
+.feat{display:flex;align-items:flex-start;gap:14px;padding:24px 20px;background:var(--black2);transition:background var(--tr)}
+.feat:hover{background:var(--black3)}
+.feat-icon{width:40px;height:40px;flex-shrink:0;background:var(--black3);border:1px solid var(--gray1);border-radius:var(--radius);display:flex;align-items:center;justify-content:center}
+.feat-icon svg{width:18px;height:18px;color:var(--orange)}
+.feat h4{font-family:var(--font-body);font-size:13px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--white2);margin-bottom:4px}
+.feat p{font-size:12px;color:var(--gray3);line-height:1.5}
+
+.art-section{padding:36px 0}
+.art-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.art-card{background:var(--black2);border:1px solid var(--gray1);border-radius:var(--radius);overflow:hidden;transition:border-color var(--tr)}
+.art-card:hover{border-color:var(--orange)}
+.art-img{height:160px;background:var(--black3);border-bottom:1px solid var(--gray1);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:52px;font-weight:800;color:var(--gray2);text-transform:uppercase;letter-spacing:-.02em;position:relative;overflow:hidden}
+.art-img::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(255,255,255,.015) 10px,rgba(255,255,255,.015) 11px)}
+.art-body{padding:18px}
+.art-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.art-cat{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange)}
+.art-date{font-size:11px;color:var(--gray3)}
+.art-title{display:block;font-family:var(--font-display);font-size:15px;font-weight:800;text-transform:uppercase;color:var(--white2);line-height:1.3;margin-bottom:8px}
+.art-title:hover{color:var(--orange)}
+.art-desc{font-size:12px;color:var(--gray3);line-height:1.5}
+
+.cico{width:110px;height:82px}
+
+/* Theme Toggle Button Styles */
+.theme-toggle{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--black3);border:1px solid var(--gray1);border-radius:var(--radius);color:var(--gray4);transition:var(--tr);cursor:pointer;margin-left:8px}.theme-toggle:hover{border-color:var(--orange);color:var(--orange)}.theme-toggle svg{width:18px;height:18px}.theme-toggle__label{font-size:11px;font-family:var(--font-display);font-weight:600;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap}[data-theme="light"] .theme-toggle__icon--dark,[data-theme="dark"] .theme-toggle__icon--light,:not([data-theme]) .theme-toggle__icon--light{display:none}[data-theme="light"] .theme-toggle__icon--light{display:block}:not([data-theme]) .theme-toggle__icon--dark{display:block}
+</style>
+</head>
+<body>
+<header class="header" style="background:var(--black);border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:1000">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;height:64px;gap:24px">
+      <a href="index.html" class="logo" style="display:flex;align-items:center;gap:0;flex-shrink:0;text-decoration:none">
+        <div style="width:36px;height:36px;background:var(--orange);display:flex;align-items:center;justify-content:center;border-radius:var(--radius);flex-shrink:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:20px;height:20px;color:#fff"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <span style="font-family:var(--font-display);font-size:22px;font-weight:800;letter-spacing:-0.01em;text-transform:uppercase;color:var(--white2);margin-left:10px">1000<span style="color:var(--orange)">fps</span></span>
+      </a>
+      <div style="display:flex;align-items:center;gap:4px">
+        <button class="theme-toggle" id="themeToggle" data-tip="Переключить тему">
+          <svg class="theme-toggle__icon--dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="theme-toggle__icon--light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <span class="theme-toggle__label">Тема</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+<main>
+
+<section class="hero">
+  <div style="display:grid;grid-template-columns:1fr 320px;min-height:420px">
+    <div style="position:relative;border-right:1px solid var(--gray1);min-height:420px;overflow:hidden;background:var(--black2)">
+      <div class="hero__dots">
+        <button class="hero__dot is-active" data-idx="0"></button>
+        <button class="hero__dot" data-idx="1"></button>
+        <button class="hero__dot" data-idx="2"></button>
+      </div>
+      <div class="hero__slide is-active" data-idx="0">
+        <div class="hero__slide-bg slide-bg-1"></div>
+        <div class="htag">Хит продаж</div>
+        <h1 class="htitle">NVIDIA GeForce <span>RTX 4090</span></h1>
+        <p class="hsub">Абсолютный лидер производительности. 24 ГБ GDDR6X, 4K без компромиссов</p>
+        <div class="hprice-row"><span class="hprice">169 990 руб.</span><span class="hprice-old">189 990 руб.</span><span class="hprice-save">-20 000 руб.</span></div>
+        <div class="hactions"><a href="product.html" class="btn btn-primary btn-lg">В корзину</a><a href="product.html" class="btn btn-ghost btn-lg">Подробнее</a></div>
+      </div>
+      <div class="hero__slide" data-idx="1">
+        <div class="hero__slide-bg slide-bg-2"></div>
+        <div class="htag">Новинка</div>
+        <h1 class="htitle">AMD Ryzen 9 <span>9950X</span></h1>
+        <p class="hsub">16 ядер / 32 потока. Zen 5 архитектура. Покоряет многопоток</p>
+        <div class="hprice-row"><span class="hprice">74 990 руб.</span></div>
+        <div class="hactions"><a href="product.html" class="btn btn-primary btn-lg">В корзину</a><a href="product.html" class="btn btn-ghost btn-lg">Подробнее</a></div>
+      </div>
+      <div class="hero__slide" data-idx="2">
+        <div class="hero__slide-bg slide-bg-3"></div>
+        <div class="htag">Акция</div>
+        <h1 class="htitle">Мониторы <span>360 Hz</span></h1>
+        <p class="hsub">QD-OLED панели для киберспорта. ASUS, MSI, Gigabyte — от 55 990 руб.</p>
+        <div class="hprice-row"><span class="hprice">от 55 990 руб.</span></div>
+        <div class="hactions"><a href="catalog.html" class="btn btn-primary btn-lg">Смотреть все</a></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;background:var(--black2)">
+      <a href="configurator.html" class="hbanner"><div class="hbanner-bg"></div><div class="hbanner-label">Конфигуратор</div><div class="hbanner-title">Собери свой<br>идеальный ПК</div><div class="hbanner-link">Перейти <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></a>
+      <a href="#" class="hbanner"><div class="hbanner-bg"></div><div class="hbanner-label">Рассрочка 0%</div><div class="hbanner-title">До 24 мес.<br>без переплат</div><div class="hbanner-link">Узнать условия <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></a>
+      <a href="#" class="hbanner"><div class="hbanner-bg"></div><div class="hbanner-label">Трейд-ин</div><div class="hbanner-title">Сдай старое —<br>купи новое</div><div class="hbanner-link">Оценить устройство <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></a>
+    </div>
+  </div>
+</section>
+
+<section class="cat-strip">
+  <div class="container">
+    <div class="cat-grid">
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="12" rx="1"/><path d="M7 7V5M12 7V5M17 7V5M7 19v2M12 19v2M17 19v2"/></svg><span>Видеокарты</span></a>
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg><span>Процессоры</span></a>
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M6 6h4v4H6zM14 6h4v4h-4zM6 14h4v4H6z"/><path d="M14 16h4M14 14v4"/></svg><span>Матплаты</span></a>
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="8" width="20" height="8" rx="1"/><path d="M6 8V6M10 8V6M14 8V6M18 8V6M6 16v2M10 16v2M14 16v2M18 16v2"/></svg><span>Память</span></a>
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12H2M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/><circle cx="12" cy="12" r="3"/></svg><span>Накопители</span></a>
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span>Мониторы</span></a>
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M0 20h24"/></svg><span>Ноутбуки</span></a>
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="4"/></svg><span>Охлаждение</span></a>
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Блоки питания</span></a>
+      <a href="catalog.html" class="cat-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><circle cx="12" cy="16" r="1"/></svg><span>Периферия</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="promo-blocks">
+  <div class="container">
+    <div class="promo-grid">
+      <div class="pblock"><div class="pblock-tag"><span class="badge badge-orange">Акция</span></div><div class="pblock-title">Скидки до 30%<br>на видеокарты</div><div class="pblock-sub">Только до конца месяца</div><a href="catalog.html" class="btn btn-outline btn-sm">Смотреть</a><div class="pblock-decor">GPU</div></div>
+      <div class="pblock"><div class="pblock-tag"><span class="badge badge-white">Новинки</span></div><div class="pblock-title">Intel Core Ultra<br>серия 200</div><div class="pblock-sub">Новое поколение уже в наличии</div><a href="catalog.html" class="btn btn-outline btn-sm">Смотреть</a><div class="pblock-decor">CPU</div></div>
+      <div class="pblock"><div class="pblock-tag"><span class="badge badge-gray">Готовые сборки</span></div><div class="pblock-title">ПК от 45 000<br>с гарантией 2 года</div><div class="pblock-sub">Протестированы перед отправкой</div><a href="configurator.html" class="btn btn-outline btn-sm">Собрать</a><div class="pblock-decor">PC</div></div>
+      <div class="pblock"><div class="pblock-tag"><span class="badge badge-orange">Б/У</span></div><div class="pblock-title">Техника б/у<br>с проверкой</div><div class="pblock-sub">Гарантия 6 месяцев на всё</div><a href="catalog.html" class="btn btn-outline btn-sm">Смотреть</a><div class="pblock-decor">B/U</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="psection">
+  <div class="container">
+    <div class="cbar">
+      <span class="cbar-label">Горячие предложения</span>
+      <div class="cdwn">
+        <div class="cdwn-unit"><div class="cdwn-num" id="cd-h">07</div><div class="cdwn-lbl">Часов</div></div>
+        <div class="cdwn-sep">:</div>
+        <div class="cdwn-unit"><div class="cdwn-num" id="cd-m">42</div><div class="cdwn-lbl">Минут</div></div>
+        <div class="cdwn-sep">:</div>
+        <div class="cdwn-unit"><div class="cdwn-num" id="cd-s">18</div><div class="cdwn-lbl">Секунд</div></div>
+      </div>
+      <a href="catalog.html" class="btn btn-ghost btn-sm" style="margin-left:auto">Все акции</a>
+    </div>
+    <div class="pgrid">
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-orange">-18%</span><span class="badge badge-gray">Хит</span></div>
+        <div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="10" y="22" width="100" height="54" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="29" width="28" height="38" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M58 33h40M58 43h34M58 53h26" stroke="var(--gray3)" stroke-width="1.5"/><path d="M28 76v5M92 76v5" stroke="var(--gray2)" stroke-width="2"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★★ <span class="rating-count">(284)</span></div>
+          <a href="product.html" class="product-card__name">ASUS TUF Gaming GeForce RTX 4070 Ti Super OC 16 ГБ GDDR6X</a>
+          <div class="product-card__spec">16 ГБ / GDDR6X / 256 бит / 2640 МГц</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">79 990 руб.</span>
+            <span class="price-old">97 500 руб.</span>
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-orange">-12%</span></div>
+        <div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="28" y="14" width="64" height="58" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="37" y="23" width="46" height="38" rx="1" stroke="var(--gray3)" stroke-width="1.5"/><circle cx="60" cy="42" r="11" stroke="var(--orange)" stroke-width="1.5"/><circle cx="60" cy="42" r="4" stroke="var(--orange)" stroke-width="1.5"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★☆ <span class="rating-count">(156)</span></div>
+          <a href="product.html" class="product-card__name">AMD Ryzen 7 7800X3D AM5, 8 ядер, OEM</a>
+          <div class="product-card__spec">8 ядер / 16 потоков / 4.5–5.0 ГГц / 96 МБ L3</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">34 990 руб.</span>
+            <span class="price-old">39 700 руб.</span>
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-orange">NEW</span></div>
+        <div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="5" y="8" width="110" height="62" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="5" y="8" width="110" height="13" fill="var(--gray1)" rx="2"/><path d="M20 38h80M20 48h60M20 58h42" stroke="var(--gray3)" stroke-width="1.5"/><circle cx="95" cy="65" r="4" stroke="var(--orange)" stroke-width="1.5"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★★ <span class="rating-count">(42)</span></div>
+          <a href="product.html" class="product-card__name">ASUS ROG Maximus Z890 Apex Intel Z890, LGA1851</a>
+          <div class="product-card__spec">LGA1851 / DDR5 / PCIe 5.0 / ATX</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">52 990 руб.</span>
+            
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-orange">-22%</span></div>
+        <div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="14" y="28" width="92" height="32" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="24" y="36" width="14" height="14" rx="1" stroke="var(--orange)" stroke-width="1.5"/><rect x="44" y="36" width="14" height="14" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M14 60v10M106 60v10M14 28v-8M106 28v-8" stroke="var(--gray2)" stroke-width="2"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★★ <span class="rating-count">(318)</span></div>
+          <a href="product.html" class="product-card__name">G.Skill Trident Z5 RGB 32 ГБ DDR5-6400 CL32</a>
+          <div class="product-card__spec">2×16 ГБ / DDR5 / 6400 МГц / CL32-39-39</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">12 490 руб.</span>
+            <span class="price-old">15 990 руб.</span>
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="product-card">
+        <div class="product-card__badges"><span class="badge badge-gray">В наличии</span></div>
+        <div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="18" y="18" width="84" height="52" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="28" y="28" width="64" height="32" rx="1" stroke="var(--gray3)" stroke-width="1.5"/><circle cx="60" cy="44" r="9" stroke="var(--orange)" stroke-width="1.5"/><circle cx="60" cy="44" r="3" fill="var(--orange)"/></svg></div>
+        <div class="product-card__body">
+          <div class="stars">★★★★☆ <span class="rating-count">(91)</span></div>
+          <a href="product.html" class="product-card__name">Samsung 990 Pro 2 ТБ M.2 NVMe PCIe 4.0</a>
+          <div class="product-card__spec">2 ТБ / M.2 2280 / PCIe 4.0 / 7450/6900 МБ/с</div>
+        </div>
+        <div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">14 990 руб.</span>
+            
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="psection" style="border-top:1px solid var(--gray1)">
+  <div class="container">
+    <div class="section-title"><h2>Новинки</h2><a href="catalog.html">Все новинки &rarr;</a></div>
+    <div class="ptabs">
+      <button class="ptab is-active">Видеокарты</button>
+      <button class="ptab">Процессоры</button>
+      <button class="ptab">Мониторы</button>
+      <button class="ptab">Ноутбуки</button>
+      <button class="ptab">Периферия</button>
+    </div>
+    <div class="pgrid">
+      <div class="product-card"><div class="product-card__badges"><span class="badge badge-orange">NEW</span></div><div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="10" y="22" width="100" height="54" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="29" width="28" height="38" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M58 33h40M58 43h34M58 53h26" stroke="var(--gray3)" stroke-width="1.5"/></svg></div><div class="product-card__body"><div class="stars">★★★★★ <span class="rating-count">(12)</span></div><a href="product.html" class="product-card__name">MSI GeForce RTX 5090 Gaming Trio 32 ГБ GDDR7</a><div class="product-card__spec">32 ГБ / GDDR7 / 512 бит / 2407 МГц</div></div><div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">249 990 руб.</span>
+            
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div></div>
+      <div class="product-card"><div class="product-card__badges"><span class="badge badge-orange">NEW</span></div><div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="10" y="22" width="100" height="54" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="29" width="28" height="38" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M58 33h40M58 43h34M58 53h26" stroke="var(--gray3)" stroke-width="1.5"/></svg></div><div class="product-card__body"><div class="stars">★★★★★ <span class="rating-count">(8)</span></div><a href="product.html" class="product-card__name">Gigabyte Radeon RX 9070 XT AORUS Elite 16 ГБ</a><div class="product-card__spec">16 ГБ / GDDR6 / 256 бит / RDNA 4</div></div><div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">74 990 руб.</span>
+            
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div></div>
+      <div class="product-card"><div class="product-card__badges"><span class="badge badge-orange">NEW</span></div><div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="10" y="22" width="100" height="54" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="29" width="28" height="38" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M58 33h40M58 43h34M58 53h26" stroke="var(--gray3)" stroke-width="1.5"/></svg></div><div class="product-card__body"><div class="stars">★★★★☆ <span class="rating-count">(5)</span></div><a href="product.html" class="product-card__name">Palit RTX 5070 GameRock OC 12 ГБ GDDR7</a><div class="product-card__spec">12 ГБ / GDDR7 / 192 бит / 2617 МГц</div></div><div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">64 990 руб.</span>
+            
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div></div>
+      <div class="product-card"><div class="product-card__badges"><span class="badge badge-orange">NEW</span></div><div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="10" y="22" width="100" height="54" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="29" width="28" height="38" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M58 33h40M58 43h34M58 53h26" stroke="var(--gray3)" stroke-width="1.5"/></svg></div><div class="product-card__body"><div class="stars">★★★★★ <span class="rating-count">(3)</span></div><a href="product.html" class="product-card__name">ZOTAC Gaming RTX 5080 AMP Extreme 16 ГБ GDDR7</a><div class="product-card__spec">16 ГБ / GDDR7 / 256 бит / 2625 МГц</div></div><div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">129 990 руб.</span>
+            
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div></div>
+      <div class="product-card"><div class="product-card__badges"><span class="badge badge-orange">NEW</span></div><div class="product-card__img"><svg class="cico" viewBox="0 0 120 90" fill="none"><rect x="10" y="22" width="100" height="54" rx="2" stroke="var(--gray2)" stroke-width="2"/><rect x="20" y="29" width="28" height="38" rx="1" stroke="var(--orange)" stroke-width="1.5"/><path d="M58 33h40M58 43h34M58 53h26" stroke="var(--gray3)" stroke-width="1.5"/></svg></div><div class="product-card__body"><div class="stars">★★★★☆ <span class="rating-count">(7)</span></div><a href="product.html" class="product-card__name">PowerColor Red Devil RX 9060 XT 16 ГБ GDDR6</a><div class="product-card__spec">16 ГБ / GDDR6 / 128 бит / RDNA 4</div></div><div class="product-card__footer">
+          <div class="product-card__price-row">
+            <span class="price">39 990 руб.</span>
+            
+          </div>
+          <div class="product-card__actions">
+            <a href="product.html" class="btn-buy">Купить</a>
+            <button class="card-icon-btn card-icon-btn--wish" data-tip="В вишлист"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--compare" data-tip="Сравнить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></button>
+            <button class="card-icon-btn card-icon-btn--config" data-tip="В конфигуратор"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-3a1 1 0 0 0-1 1v3M8 3h3m0 0V3m0 0H8m5 0h3"/><path d="M9 12h6M12 9v6"/></svg></button>
+          </div>
+        </div></div>
+    </div>
+  </div>
+</section>
+
+<section class="brands-section">
+  <div class="container">
+    <div class="section-title"><h2>Бренды</h2><a href="#">Все бренды &rarr;</a></div>
+    <div class="brands-grid">
+      <div class="brand-item">ASUS</div><div class="brand-item">MSI</div><div class="brand-item">Gigabyte</div><div class="brand-item">NVIDIA</div>
+      <div class="brand-item">AMD</div><div class="brand-item">Intel</div><div class="brand-item">Samsung</div><div class="brand-item">Kingston</div>
+      <div class="brand-item">Corsair</div><div class="brand-item">G.Skill</div><div class="brand-item">be quiet!</div><div class="brand-item">Noctua</div>
+      <div class="brand-item">Fractal</div><div class="brand-item">Lian Li</div><div class="brand-item">Razer</div><div class="brand-item">Logitech</div>
+    </div>
+  </div>
+</section>
+
+<section class="feat-section">
+  <div class="container">
+    <div class="feat-grid">
+      <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8zM5.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg></div><div><h4>Доставка по всей России</h4><p>СДЭК, Boxberry, Почта. Экспресс по Москве — 2 часа</p></div></div>
+      <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><h4>Официальная гарантия</h4><p>До 3 лет. Собственный авторизованный сервис-центр</p></div></div>
+      <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div><h4>Рассрочка 0%</h4><p>До 24 месяцев. Тинькофф, Сбер, ВТБ — одобрение за 2 мин</p></div></div>
+      <div class="feat"><div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><h4>Поддержка 24/7</h4><p>Звонок, чат, Telegram. Ответ за 2 минуты</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="art-section">
+  <div class="container">
+    <div class="section-title"><h2>Блог и обзоры</h2><a href="#">Все статьи &rarr;</a></div>
+    <div class="art-grid">
+      <div class="art-card"><div class="art-img">RTX</div><div class="art-body"><div class="art-meta"><span class="art-cat">Обзор</span><span class="art-date">12 марта 2025</span></div><a href="#" class="art-title">RTX 5090 vs RTX 4090: насколько быстрее новый флагман?</a><p class="art-desc">Сравниваем производительность в 12 играх и рендеринге. Стоит ли переплачивать?</p></div></div>
+      <div class="art-card"><div class="art-img">AM5</div><div class="art-body"><div class="art-meta"><span class="art-cat">Гид</span><span class="art-date">8 марта 2025</span></div><a href="#" class="art-title">Лучшие процессоры для игрового ПК в 2025 году</a><p class="art-desc">Ryzen 7 9800X3D против Core Ultra 9 285K. Выбираем лучший CPU для геймера.</p></div></div>
+      <div class="art-card"><div class="art-img">PC</div><div class="art-body"><div class="art-meta"><span class="art-cat">Сборка</span><span class="art-date">2 марта 2025</span></div><a href="#" class="art-title">Игровой ПК за 100 000 рублей: оптимальная сборка 2025</a><p class="art-desc">Подбираем компоненты для мощного игрового ПК с максимальным FPS в ААА-играх.</p></div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script>
+let cur=0;
+const slides=document.querySelectorAll('.hero__slide'),dots=document.querySelectorAll('.hero__dot');
+function goTo(i){slides[cur].classList.remove('is-active');dots[cur].classList.remove('is-active');cur=i;slides[cur].classList.add('is-active');dots[cur].classList.add('is-active');}
+dots.forEach(d=>d.addEventListener('click',()=>goTo(+d.dataset.idx)));
+setInterval(()=>goTo((cur+1)%slides.length),5000);
+document.querySelectorAll('.ptab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.ptab').forEach(x=>x.classList.remove('is-active'));t.classList.add('is-active');});});
+(function(){let end=Date.now()+(7*3600+42*60+18)*1000;function tick(){let d=Math.max(0,Math.round((end-Date.now())/1000)),h=Math.floor(d/3600),m=Math.floor(d%3600/60),s=d%60;document.getElementById('cd-h').textContent=String(h).padStart(2,'0');document.getElementById('cd-m').textContent=String(m).padStart(2,'0');document.getElementById('cd-s').textContent=String(s).padStart(2,'0');}tick();setInterval(tick,1000);})();
+</script>
+<script src="theme-toggle.js"></script>
+</body>
+</html>
