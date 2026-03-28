@@ -75,10 +75,15 @@ export default function OrdersPanel() {
     cancelled: orders.filter((o: Order) => o.status === 'CANCELLED').length,
   }), [orders]);
 
-  const updateStatus = (orderId: number, newStatus: string) => {
-    ordersApi.updateStatus(orderId, newStatus).then(() => {
+  const updateStatus = async (orderId: number, newStatus: string) => {
+    try {
+      await ordersApi.updateStatus(orderId, newStatus);
       queryClient.invalidateQueries({ queryKey: ['orders'] });
-    });
+    } catch (error) {
+      console.error('Failed to update order status:', error);
+      alert('Ошибка при обновлении статуса заказа');
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    }
   };
 
   if (isLoading) {

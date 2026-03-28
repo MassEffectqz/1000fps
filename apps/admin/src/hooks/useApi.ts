@@ -249,6 +249,10 @@ export function useUploadMedia() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media'] });
     },
+    onError: (error) => {
+      console.error('Failed to upload media:', error);
+      alert('Ошибка при загрузке файла');
+    },
   });
 }
 
@@ -259,6 +263,10 @@ export function useDeleteMedia() {
     mutationFn: (id: number) => mediaApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media'] });
+    },
+    onError: (error) => {
+      console.error('Failed to delete media:', error);
+      alert('Ошибка при удалении файла');
     },
   });
 }
