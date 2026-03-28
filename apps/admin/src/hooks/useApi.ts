@@ -65,7 +65,12 @@ export function useAnalyticsSales(period: 'day' | 'week' | 'month' | 'year') {
     queryKey: ['analytics', 'sales', period],
     queryFn: () => analyticsApi.sales(period),
     ...DEFAULT_QUERY_OPTIONS,
+    retry: 1, // Меньше попыток для analytics
     onError: (error) => {
+      // Игнорируем 404 ошибки для analytics (endpoint ещё не реализован)
+      if (error instanceof Response && error.status === 404) {
+        return;
+      }
       console.error('Failed to fetch analytics sales:', error);
     },
   });
@@ -76,7 +81,11 @@ export function useAnalyticsProducts() {
     queryKey: ['analytics', 'products'],
     queryFn: () => analyticsApi.products(),
     ...DEFAULT_QUERY_OPTIONS,
+    retry: 1,
     onError: (error) => {
+      if (error instanceof Response && error.status === 404) {
+        return;
+      }
       console.error('Failed to fetch analytics products:', error);
     },
   });
@@ -87,7 +96,11 @@ export function useAnalyticsCustomers() {
     queryKey: ['analytics', 'customers'],
     queryFn: () => analyticsApi.customers(),
     ...DEFAULT_QUERY_OPTIONS,
+    retry: 1,
     onError: (error) => {
+      if (error instanceof Response && error.status === 404) {
+        return;
+      }
       console.error('Failed to fetch analytics customers:', error);
     },
   });
@@ -235,7 +248,11 @@ export function useMedia() {
     queryKey: ['media'],
     queryFn: () => mediaApi.list(),
     ...DEFAULT_QUERY_OPTIONS,
+    retry: 1,
     onError: (error) => {
+      if (error instanceof Response && error.status === 404) {
+        return;
+      }
       console.error('Failed to fetch media:', error);
     },
   });
