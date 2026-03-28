@@ -49,25 +49,23 @@ export default function AnalyticsPanel({ activePanel, onPanelChange }: Analytics
 
   if (isLoading) {
     return (
-      <AdminLayout activePanel={activePanel} onPanelChange={onPanelChange}>
-        <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-3)' }}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            style={{
-              width: '32px',
-              height: '32px',
-              margin: '0 auto 16px',
-              animation: 'spin 1s linear infinite',
-            }}
-          >
-            <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
-            <path d="M12 2a10 10 0 0 1 10 10" />
-          </svg>
-          Загрузка аналитики...
-        </div>
+      <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-3)' }}>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          style={{
+            width: '32px',
+            height: '32px',
+            margin: '0 auto 16px',
+            animation: 'spin 1s linear infinite',
+          }}
+        >
+          <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
+          <path d="M12 2a10 10 0 0 1 10 10" />
+        </svg>
+        Загрузка аналитики...
       </div>
     );
   }
