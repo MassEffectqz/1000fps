@@ -52,8 +52,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1
 // Component
 // ============================================
 
-export default function CategoriesPanel() {
-  const [activePanel, setActivePanel] = useState('categories');
+interface CategoriesPanelProps {
+  activePanel?: string;
+  onPanelChange?: (panel: string) => void;
+}
+
+export default function CategoriesPanel({ activePanel = 'categories', onPanelChange = () => {} }: CategoriesPanelProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,10 +73,6 @@ export default function CategoriesPanel() {
     description: '',
     imageUrl: '',
   });
-
-  const onPanelChange = (panel: string) => {
-    setActivePanel(panel);
-  };
 
   // Загрузка категорий
   const fetchCategories = async () => {
