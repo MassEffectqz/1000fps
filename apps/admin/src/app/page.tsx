@@ -252,7 +252,7 @@ export default function AdminDashboard() {
       case 'configuration':
         return <ConfigurationPanel key="configuration" />;
       case 'analytics':
-        return <AnalyticsPanel key="analytics" />;
+        return <AnalyticsPanel key="analytics" activePanel={activePanel} onPanelChange={setActivePanel} />;
       case 'price-history':
         return <PriceHistoryPanel key="price-history" />;
       case 'users':

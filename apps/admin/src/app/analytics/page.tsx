@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import AdminLayout from '@/components/AdminLayout';
 import { useAnalyticsSales, useAnalyticsProducts, useAnalyticsCustomers } from '@/hooks/useApi';
 
 interface SalesData {
@@ -24,8 +23,12 @@ interface TopCategory {
   revenue: number;
 }
 
-export default function AnalyticsPanel() {
-  const [activePanel, setActivePanel] = useState('analytics');
+interface AnalyticsPanelProps {
+  activePanel?: string;
+  onPanelChange?: (panel: string) => void;
+}
+
+export default function AnalyticsPanel({ activePanel, onPanelChange }: AnalyticsPanelProps) {
   const [period, setPeriod] = useState<'week' | 'month' | 'year'>('week');
 
   // API hooks
@@ -34,10 +37,6 @@ export default function AnalyticsPanel() {
   const { data: customersData, isLoading: customersLoading } = useAnalyticsCustomers();
 
   const isLoading = salesLoading || productsLoading || customersLoading;
-
-  const onPanelChange = (panel: string) => {
-    setActivePanel(panel);
-  };
 
   // Извлекаем данные из ответа API
   const salesList = (salesData as unknown as { data?: SalesData[] })?.data || [];
@@ -69,12 +68,12 @@ export default function AnalyticsPanel() {
           </svg>
           Загрузка аналитики...
         </div>
-      </AdminLayout>
+      </div>
     );
   }
 
   return (
-    <AdminLayout activePanel={activePanel} onPanelChange={onPanelChange}>
+    <>
       {/* HEADER */}
       <div className="flex flex-c gap-10 mb-16" style={{ justifyContent: 'space-between' }}>
         <div>
@@ -336,6 +335,6 @@ export default function AnalyticsPanel() {
           </table>
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }
