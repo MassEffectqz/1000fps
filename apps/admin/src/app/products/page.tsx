@@ -23,6 +23,10 @@ const DEFAULT_QUERY_OPTIONS = {
   staleTime: 5 * 60 * 1000, // 5 минут
 };
 
+// Константы пагинации и поиска
+const PRODUCTS_PER_PAGE = 20 as const;
+const SEARCH_DEBOUNCE_MS = 300 as const;
+
 interface Product {
   id: number;
   sku: string;
@@ -58,11 +62,11 @@ export default function ProductsPanel() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const itemsPerPage = 20;
+  const itemsPerPage = PRODUCTS_PER_PAGE;
 
   // Дебаунс для поиска (300ms)
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedQuery(searchQuery), 300);
+    const timer = setTimeout(() => setDebouncedQuery(searchQuery), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
@@ -559,7 +563,7 @@ export default function ProductsPanel() {
                     </td>
                     <td>
                       <div className="tbl-actions" style={{ justifyContent: 'flex-end' }}>
-                        <button className="tbl-btn" onClick={() => openEdit(product)}>
+                        <button className="tbl-btn" onClick={() => openEdit(product)} aria-label={`Редактировать товар ${product.name}`}>
                           <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -575,6 +579,7 @@ export default function ProductsPanel() {
                         <button
                           className="tbl-btn tbl-btn--danger"
                           onClick={() => deleteMutation.mutate(product.id)}
+                          aria-label={`Удалить товар ${product.name}`}
                         >
                           <svg
                             viewBox="0 0 24 24"
