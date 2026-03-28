@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/AdminLayout';
 import { getAuthToken } from '@/lib/tokenUtils';
 
 // ============================================
@@ -57,7 +56,7 @@ interface CategoriesPanelProps {
   onPanelChange?: (panel: string) => void;
 }
 
-export default function CategoriesPanel({ activePanel = 'categories', onPanelChange = () => {} }: CategoriesPanelProps) {
+export default function CategoriesPanel({ activePanel, onPanelChange }: CategoriesPanelProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +72,9 @@ export default function CategoriesPanel({ activePanel = 'categories', onPanelCha
     description: '',
     imageUrl: '',
   });
+
+  // Используем переданную функцию или создаём пустую (для обратной совместимости)
+  const handlePanelChange = onPanelChange || (() => {});
 
   // Загрузка категорий
   const fetchCategories = async () => {
@@ -232,7 +234,7 @@ export default function CategoriesPanel({ activePanel = 'categories', onPanelCha
   };
 
   return (
-    <AdminLayout activePanel={activePanel} onPanelChange={onPanelChange}>
+    <>
       {/* HEADER */}
       <div className="flex flex-c gap-10 mb-16" style={{ justifyContent: 'space-between' }}>
         <div>
@@ -530,6 +532,6 @@ export default function CategoriesPanel({ activePanel = 'categories', onPanelCha
           </form>
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }

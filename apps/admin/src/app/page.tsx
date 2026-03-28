@@ -242,7 +242,7 @@ export default function AdminDashboard() {
       case 'products':
         return <ProductsPanel key="products" />;
       case 'categories':
-        return <CategoriesPanel key="categories" />;
+        return <CategoriesPanel key="categories" activePanel={activePanel} onPanelChange={setActivePanel} />;
       case 'gallery':
         return <GalleryPanel key="gallery" />;
       case 'orders':
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <AdminLayout activePanel={activePanel} onPanelChange={setActivePanel} key={activePanel}>
+    <AdminLayout activePanel={activePanel} onPanelChange={setActivePanel}>
       {renderPanel()}
     </AdminLayout>
   );
