@@ -539,8 +539,8 @@ export default function ProductsPanel() {
                         </div>
                       </div>
                     </td>
-                    <td>{typeof product.category === 'object' && product.category !== null ? product.category.name : product.category}</td>
-                    <td>{typeof product.brand === 'object' && product.brand !== null ? product.brand.name : product.brand}</td>
+                    <td>{('name' in product.category) ? product.category.name : product.category}</td>
+                    <td>{('name' in product.brand) ? product.brand.name : product.brand}</td>
                     <td className="text-right text-white fw700">
                       {product.price.toLocaleString('ru-RU')} ₽
                     </td>

@@ -57,6 +57,7 @@ export default function CategoriesPanel() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [expandedParents, setExpandedParents] = useState<number[]>([]);
@@ -163,6 +164,7 @@ export default function CategoriesPanel() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
 
     try {
       const token = getAuthToken();
@@ -191,6 +193,8 @@ export default function CategoriesPanel() {
     } catch (error) {
       console.error('Failed to save category:', error);
       alert('Ошибка при сохранении категории');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -502,15 +506,25 @@ export default function CategoriesPanel() {
               </div>
             </div>
             <div className="modal__foot">
-              <button className="btn btn--ghost" onClick={() => setShowModal(false)}>
+              <button className="btn btn--ghost" onClick={() => setShowModal(false)} disabled={isSaving}>
                 Отмена
               </button>
               <button
                 type="submit"
                 className="btn btn--primary"
-                disabled={!formData.name || !formData.slug}
+                disabled={!formData.name || !formData.slug || isSaving}
               >
-                {editingCategory ? 'Сохранить' : 'Создать'}
+                {isSaving ? (
+                  <>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" style={{ marginRight: '8px', animation: 'spin 1s linear infinite' }}>
+                      <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
+                      <path d="M12 2a10 10 0 0 1 10 10" />
+                    </svg>
+                    Сохранение...
+                  </>
+                ) : (
+                  editingCategory ? 'Сохранить' : 'Создать'
+                )}
               </button>
             </div>
           </form>
