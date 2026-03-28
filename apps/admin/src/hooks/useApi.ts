@@ -28,7 +28,11 @@ export function useUsers(params?: { page?: number; limit?: number; role?: string
     queryKey: ['users', params],
     queryFn: () => usersApi.list(params),
     ...DEFAULT_QUERY_OPTIONS,
+    retry: 1,
     onError: (error) => {
+      if (error instanceof Response && error.status === 404) {
+        return;
+      }
       console.error('Failed to fetch users:', error);
     },
   });
@@ -176,7 +180,11 @@ export function useSettings() {
     queryKey: ['settings'],
     queryFn: () => settingsApi.get(),
     ...DEFAULT_QUERY_OPTIONS,
+    retry: 1,
     onError: (error) => {
+      if (error instanceof Response && error.status === 404) {
+        return;
+      }
       console.error('Failed to fetch settings:', error);
     },
   });
@@ -202,7 +210,11 @@ export function usePriceHistory(params?: { productId?: number; page?: number; li
     queryKey: ['price-history', params],
     queryFn: () => priceHistoryApi.list(params),
     ...DEFAULT_QUERY_OPTIONS,
+    retry: 1,
     onError: (error) => {
+      if (error instanceof Response && error.status === 404) {
+        return;
+      }
       console.error('Failed to fetch price history:', error);
     },
   });
@@ -222,7 +234,11 @@ export function useLogs(params?: {
     queryKey: ['logs', params],
     queryFn: () => logsApi.list(params),
     ...DEFAULT_QUERY_OPTIONS,
+    retry: 1,
     onError: (error) => {
+      if (error instanceof Response && error.status === 404) {
+        return;
+      }
       console.error('Failed to fetch logs:', error);
     },
   });
