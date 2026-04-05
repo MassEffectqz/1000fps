@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getProducts, getProductBySlug } from '@/lib/actions/catalog';
 import { getWarehousesWithStock } from '@/lib/actions/warehouse';
 import { ProductPageClient } from './product-client';
+import type { Product } from './product-client';
 import { isDemoMode } from '@/lib/demo-mode';
 import { Metadata } from 'next';
 import type { Review } from './product-client';
@@ -91,7 +92,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (isDemoMode()) {
     const product = await getProductBySlug(slug);
     if (!product) {
-      notFound();
+      return notFound();
     }
 
     // Похожие товары
@@ -112,7 +113,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
     const mainImage = (product as any).images?.find((img: any) => img.isMain) || (product as any).images?.[0];
 
-    const formattedProduct = {
+    const formattedProduct: Product = {
       id: product.id,
       name: product.name,
       slug: product.slug,
@@ -130,10 +131,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
       stock: product.stock,
       warrantyPeriod: product.warrantyPeriod || 36,
       warrantyType: product.warrantyType || 'MANUFACTURER',
-      weight: product.weight ?? null,
-      length: product.length ?? null,
-      width: product.width ?? null,
-      height: product.height ?? null,
+      weight: product.weight != null ? Number(product.weight) : null,
+      length: product.length != null ? Number(product.length) : null,
+      width: product.width != null ? Number(product.width) : null,
+      height: product.height != null ? Number(product.height) : null,
       metaTitle: product.metaTitle,
       metaDescription: product.metaDescription,
       metaKeywords: product.metaKeywords,
@@ -293,7 +294,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
     length: product.length ? Number(product.length) : null,
     width: product.width ? Number(product.width) : null,
     height: product.height ? Number(product.height) : null,
-    metaTitle: product.metaTitle,
     metaDescription: product.metaDescription,
     metaKeywords: product.metaKeywords,
     isFeatured: product.isFeatured,
