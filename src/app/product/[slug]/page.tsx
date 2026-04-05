@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { notFound } from 'next/navigation';
 import { getProducts, getProductBySlug } from '@/lib/actions/catalog';
 import { getWarehousesWithStock } from '@/lib/actions/warehouse';
