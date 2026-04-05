@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { registerSchema } from '@/lib/validations/auth';
-import bcrypt from 'bcryptjs';
+import { isDemoMode } from '@/lib/demo-mode';
 import { createSession } from '@/lib/session';
 
 /**
@@ -13,6 +12,45 @@ import { createSession } from '@/lib/session';
  */
 export async function POST(request: NextRequest) {
   try {
+    // Демо-режим
+    if (isDemoMode()) {
+      const token = await createSession({
+        userId: 'demo-user-001',
+        email: 'demo@1000fps.ru',
+        role: 'CUSTOMER',
+      });
+
+      const response = NextResponse.json(
+        {
+          success: true,
+          user: {
+            id: 'demo-user-001',
+            email: 'demo@1000fps.ru',
+            name: 'Демо Пользователь',
+            phone: '+7 (999) 123-45-67',
+            role: 'CUSTOMER',
+            level: 'GOLD',
+          },
+          token,
+        },
+        { status: 201 }
+      );
+
+      response.cookies.set('session', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 86400,
+        path: '/',
+      });
+
+      return response;
+    }
+
+    // Продакшн-режим
+    const { prisma } = await import('@/lib/prisma');
+    const bcrypt = await import('bcryptjs');
+
     const body = await request.json();
 
     // Валидация входных данных
