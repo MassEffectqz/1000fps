@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap');
 
 :root {
-  /* === ТЁМНАЯ ТЕМА (по умолчанию) === */
   --black:   #0a0a0a;
   --black2:  #111111;
   --black3:  #1a1a1a;
@@ -19,23 +18,6 @@
   --font-body:    'Barlow', sans-serif;
   --radius: 2px;
   --tr: 0.18s ease;
-}
-
-/* === СВЕТЛАЯ ТЕМА === */
-[data-theme="light"] {
-  --black:   #ffffff;
-  --black2:  #f8f9fa;
-  --black3:  #f1f3f5;
-  --black4:  #e9ecef;
-  --gray1:   #dee2e6;
-  --gray2:   #ced4da;
-  --gray3:   #868e96;
-  --gray4:   #495057;
-  --white:   #212529;
-  --white2:  #000000;
-  --orange:  #ff6a00;
-  --orange2: #e05c00;
-  --orange3: #ff8c33;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

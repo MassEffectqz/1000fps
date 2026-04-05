@@ -1,0 +1,7 @@
+# Keep this directory empty for git
+# This directory is used for Let's Encrypt certificates
+*.pem
+*.crt
+*.key
+live/
+archive/

@@ -1,0 +1,57 @@
+# ============================================================
+# Railway Configuration
+# Конфигурация деплоя для Railway.app
+# ============================================================
+
+[build]
+# Команда сборки
+builder = "nixpacks"
+
+# Версия Node.js
+[nixpacks]
+nodeVersion = "20"
+
+# Команда установки зависимостей
+installCommand = "npm ci"
+
+# Команда сборки
+buildCommand = "npm run build && npx prisma generate"
+
+# Команда запуска
+startCommand = "npm run start"
+
+# ------------------------------------------------------------
+# Переменные окружения (шаблоны)
+# ------------------------------------------------------------
+[variables]
+NODE_ENV = "production"
+NEXT_TELEMETRY_DISABLED = "1"
+PORT = "3000"
+
+# Эти переменные нужно настроить в Railway UI:
+# DATABASE_URL - автоматически добавляется Railway при подключении PostgreSQL
+# JWT_SECRET - добавить в Railway Secrets
+# COOKIE_SECRET - добавить в Railway Secrets
+# PARSER_URL - URL parser сервиса Railway
+
+# ------------------------------------------------------------
+# Health check
+# ------------------------------------------------------------
+[healthcheck]
+# Railway автоматически проверяет health через PORT
+# Endpoint: /api/health
+path = "/api/health"
+interval = 30
+timeout = 10
+retries = 3
+
+# ------------------------------------------------------------
+# Deploy hooks
+# ------------------------------------------------------------
+[deploy]
+# Автоматический деплой при push в main
+numReplicas = 1
+
+# Restart policy
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

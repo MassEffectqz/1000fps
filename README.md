@@ -1,317 +1,383 @@
-# 📦 site-1000fps
+# 1000FPS — Интернет-магазин компьютерной техники
 
-Интернет-магазин компьютерной техники 1000FPS с интеграцией парсера
+[Next.js 15](https://nextjs.org) + [TypeScript](https://www.typescriptlang.org) + [Tailwind CSS 4](https://tailwindcss.com) + [Prisma 7](https://www.prisma.io)
 
-**Статус:** ✅ Готово к production
+## Описание
+
+Интернет-магазин компьютерной техники с конфигуратором ПК, корзиной, системой отзывов и админ-панелью.
+
+### 🕷️ Parser Server
+
+**Сервер парсинга Wildberries** — Node.js + Playwright решение для автоматического сбора цен.
+
+- **Порт:** 3005
+- **API:** POST /api/parse, GET /api/parse/:id
+- **Документация:** [parser/README.md](parser/README.md)
+
+### 🎨 Parser UI
+
+**Интерфейс управления парсером** — Express сервер с веб-интерфейсом для запуска и мониторинга парсинга.
+
+- **Порт:** 3006
+- **URL:** http://localhost:3006
+- **Документация:** [parser/ui/README.md](parser/ui/README.md)
+
+## Стек
+
+- **Frontend:** Next.js 15 (App Router), React 19, TypeScript
+- **Стили:** Tailwind CSS 4
+- **База данных:** PostgreSQL + Prisma ORM
+- **Валидация:** Zod
+- **Контейнеризация:** Docker + Docker Compose
+
+## Структура
+
+```
+├── src/                    # Исходный код
+│   ├── app/                # Страницы
+│   ├── components/         # Компоненты
+│   ├── lib/                # Утилиты
+│   └── types/              # Типы
+├── maket/                  # HTML макеты (исходники)
+├── prisma/                 # Схема БД и миграции
+├── public/                 # Статика
+├── parser/                 # Сервер парсинга
+│   ├── ui/                 # UI интерфейс парсера
+│   └── wb-parser-auto/     # Автоматический парсер
+├── nginx/                  # Nginx конфигурация
+├── scripts/                # Скрипты развёртывания
+├── .github/workflows/      # GitHub Actions CI/CD
+└── docker-compose*.yml     # Docker Compose конфиги
+```
 
 ---
 
 ## 🚀 Быстрый старт
 
-### Требования
-
-| Компонент  | Версия | Примечание                         |
-| ---------- | ------ | ---------------------------------- |
-| Node.js    | 20.x+  | Обязательно                        |
-| pnpm       | 8.x+   | Менеджер пакетов                   |
-| Docker     | 24.x+  | Для Redis, Meilisearch             |
-| PostgreSQL | 16.x   | Контейнер `pg-local` на порту 5432 |
-
-### Установка
+### Вариант 1: Docker Compose (Рекомендуется)
 
 ```bash
-# 1. Клонирование и установка
-cd site-1000fps
-pnpm install
+# Клонирование репозитория
+git clone <repository-url>
+cd 1000fps-backup
 
-# 2. Копирование .env файлов
-cp .env.example .env
-cp packages/api/.env.example packages/api/.env
-cp apps/storefront/.env.local.example apps/storefront/.env.local
-cp apps/admin/.env.local.example apps/admin/.env.local
+# Копирование переменных окружения
+cp .env.example .env.local
 
-# 3. Настройка DATABASE_URL в .env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/site-1000fps?schema=public"
+# Запуск всех сервисов (PostgreSQL + Next.js + Parser + Parser UI)
+docker compose up -d
 
-# 4. Запуск инфраструктуры
-pnpm docker:up
-
-# 5. Создание БД
-docker exec -it pg-local psql -U postgres -c 'CREATE DATABASE "site-1000fps";'
-
-# 6. Генерация Prisma и миграции
-pnpm db:generate
-pnpm db:migrate
-
-# 7. Запуск разработки
-pnpm dev
+# Просмотр логов
+docker compose logs -f app
+docker compose logs -f parser
+docker compose logs -f parser-ui
+docker compose logs -f postgres
 ```
 
-### Запуск разработки
+Откройте [http://localhost:3000](http://localhost:3000)
+
+**Все сервисы:**
+- 🛒 **Next.js App** — http://localhost:3000
+- 🕷️ **Parser Server** — http://localhost:3005
+- 🎨 **Parser UI** — http://localhost:3006
+- 🗄️ **PostgreSQL** — localhost:5432
+
+### Вариант 2: Универсальный скрипт (Windows/Mac/Linux)
 
 ```bash
-# Все сервисы одновременно (Turborepo)
-pnpm dev
+# Windows PowerShell
+npm run start:all
 
-# Или по отдельности:
-pnpm dev:api      # Backend API (порт 3001)
-pnpm dev:store    # Storefront (порт 3000)
-pnpm dev:admin    # Admin panel (порт 3002)
-pnpm dev:parser   # Parser service (порт 3003)
+# Или напрямую
+.\start-all.ps1
+
+# Linux/MacOS
+./start-all.sh
 ```
 
-### 🌐 Доступ
+Скрипт проверит Docker и предложит выбор: Docker Compose или локальный запуск.
 
-| Сервис            | URL                           | Описание                     |
-| ----------------- | ----------------------------- | ---------------------------- |
-| **Storefront**    | http://localhost:3000         | Витрина магазина             |
-| **Admin**         | http://localhost:3002         | Админ-панель                 |
-| **API**           | http://localhost:3001/api/v1  | REST API                     |
-| **Swagger**       | http://localhost:3001/swagger | API документация             |
-| **Parser**        | http://localhost:3003         | Парсер                       |
-| **Prisma Studio** | http://localhost:5555         | GUI для БД                   |
-| **pgAdmin**       | http://localhost:5050         | Администрирование PostgreSQL |
-| **MailHog**       | http://localhost:8025         | Перехват email               |
-| **MinIO Console** | http://localhost:9001         | S3 хранилище                 |
+### Вариант 3: Локальная разработка (без Docker)
 
----
+```bash
+# Установка зависимостей
+npm install
 
-## 📁 Структура проекта
+# Запуск dev-сервера Next.js
+npm run dev
 
-```
-site-1000fps/
-├── apps/
-│   ├── storefront/         # Next.js витрина (порт 3000)
-│   │   ├── src/
-│   │   │   ├── app/
-│   │   │   ├── components/
-│   │   │   ├── lib/
-│   │   │   └── store/
-│   │   ├── package.json
-│   │   └── next.config.js
-│   │
-│   └── admin/              # Next.js админ-панель (порт 3002)
-│       ├── src/
-│       │   ├── app/
-│       │   └── components/
-│       └── package.json
-│
-├── packages/
-│   └── api/                # NestJS backend API (порт 3001)
-│       ├── src/
-│       │   ├── modules/
-│       │   │   ├── products/      # Товары
-│       │   │   ├── categories/    # Категории
-│       │   │   ├── brands/        # Бренды
-│       │   │   ├── orders/        # Заказы
-│       │   │   ├── users/         # Пользователи
-│       │   │   ├── auth/          # Аутентификация
-│       │   │   ├── cart/          # Корзина
-│       │   │   ├── wishlist/      # Вишлист
-│       │   │   ├── configurator/  # Конфигуратор ПК
-│       │   │   ├── parser/        # Интеграция парсера
-│       │   │   └── search/        # Поиск
-│       │   ├── database/
-│       │   └── main.ts
-│       ├── prisma/
-│       │   └── schema.prisma
-│       └── package.json
-│
-├── parser/                 # Parser service (порт 3003)
-│   ├── wb-interceptor/     # Chrome расширение
-│   ├── wb-parser-auto/     # Python парсер
-│   ├── wb-server/          # Node.js сервер
-│   └── package.json
-│
-├── docs/                   # Документация (~8000 строк)
-│   ├── README.md           # Индекс
-│   ├── API.md              # REST API спецификация
-│   ├── DATABASE.md         # Схема БД (ERD)
-│   ├── SETUP.md            # Development setup
-│   ├── DEPLOYMENT.md       # Production deployment
-│   ├── CONTRIBUTING.md     # Contribution guide
-│   ├── CODE_STYLE.md       # Code style
-│   ├── TESTING.md          # Testing guide
-│   ├── RUNBOOK.md          # Operations
-│   ├── INCIDENTS.md        # Incident management
-│   └── SECURITY.md         # Security policies
-│
-├── ARCHITECTURE.md         # Главная архитектура (~1770 строк)
-├── DEVELOPMENT_PLAN.md     # План разработки
-├── docker-compose.yml      # Docker инфраструктура
-├── package.json            # Root package.json
-├── turbo.json              # Turborepo конфиг
-├── pnpm-workspace.yaml     # Workspace конфиг
-└── .env.example            # Переменные окружения
+# В отдельных терминалах запустите:
+cd parser && npm start
+cd ui && npm start
 ```
 
 ---
 
-## 🛠️ Команды
+## 🐳 Docker
+
+### Локальная разработка
+
+```bash
+# Запуск с watch mode (hot-reload)
+docker compose up --watch
+
+# Остановка
+docker compose down
+
+# Пересборка образов
+docker compose build
+
+# Сброс и запуск с чистыми данными
+docker compose down -v
+docker compose up -d
+```
+
+### Продакшен
+
+```bash
+# Запуск production сборки
+docker compose -f docker-compose.prod.yml up -d
+
+# Просмотр логов
+docker compose -f docker-compose.prod.yml logs -f
+
+# Остановка
+docker compose -f docker-compose.prod.yml down
+```
+
+### Сервисы
+
+| Сервис | Порт | Описание |
+|--------|------|----------|
+| `app` | 3000 | Next.js приложение |
+| `parser` | 3005 | Сервер парсинга Wildberries |
+| `postgres` | 5432 | PostgreSQL база данных |
+| `nginx` | 80, 443 | Reverse proxy + SSL (prod) |
+
+---
+
+## 🔧 Настройка окружения
+
+### Переменные окружения
+
+Скопируйте `.env.example` в `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+**Обязательные переменные:**
+
+| Переменная | Описание | Пример |
+|------------|----------|--------|
+| `DATABASE_URL` | Подключение к PostgreSQL | `postgresql://user:pass@host:5432/db` |
+| `JWT_SECRET` | Секрет для JWT токенов | `min-32-characters-secret` |
+| `COOKIE_SECRET` | Секрет для cookies | `min-32-characters-secret` |
+| `NEXT_PUBLIC_APP_URL` | Публичный URL приложения | `http://localhost:3000` |
+| `PARSER_URL` | URL сервера парсинга | `http://localhost:3005` |
+
+Полный список в [`.env.example`](./.env.example)
+
+---
+
+## 📦 Команды
 
 ### Разработка
 
 ```bash
-pnpm dev              # Запуск всех сервисов
-pnpm dev:api          # Только API
-pnpm dev:store        # Только Storefront
-pnpm dev:admin        # Только Admin
-pnpm dev:parser       # Только Parser
+npm run dev      # Запуск dev сервера
+npm run lint     # ESLint проверка
+npm run test     # Запуск тестов
 ```
 
-### Сборка
+### Продакшен
 
 ```bash
-pnpm build            # Сборка всех сервисов
-pnpm build:api        # Только API
-pnpm build:store      # Только Storefront
+npm run build    # Продакшен сборка
+npm run start    # Запуск продакшен сервера
 ```
 
-### База данных
+### Prisma
 
 ```bash
-pnpm db:generate      # Prisma generate
-pnpm db:migrate       # Prisma migrate dev
-pnpm db:migrate:deploy  # Production миграции
-pnpm db:studio        # Prisma Studio GUI (localhost:5555)
-pnpm db:seed          # Seed данные
+npx prisma migrate dev    # Применить миграции (dev)
+npx prisma migrate deploy # Применить миграции (prod)
+npx prisma studio         # Открыть Prisma Studio
+npx prisma generate       # Перегенерировать клиент
+npx prisma db seed        # Сидирование БД
 ```
 
 ### Docker
 
 ```bash
-pnpm docker:up        # Запуск инфраструктуры
-pnpm docker:down      # Остановка
-pnpm docker:logs      # Просмотр логов
-pnpm docker:restart   # Перезапуск
-```
-
-### Тесты
-
-```bash
-pnpm test             # Все тесты
-pnpm test:unit        # Unit тесты
-pnpm test:e2e         # E2E тесты
-pnpm test:coverage    # С покрытием
-```
-
-### Parser
-
-```bash
-pnpm parser:run       # Запуск парсера
+docker compose up -d           # Запуск сервисов
+docker compose down            # Остановка сервисов
+docker compose logs -f         # Просмотр логов
+docker compose restart         # Перезапуск сервисов
+docker compose build --no-cache  # Пересборка без кэша
 ```
 
 ---
 
-## 🔧 Интеграция парсера
+## 🌐 Деплой
 
-### Импорт товаров из Wildberries
+### Hetzner VPS (Ubuntu 24)
+
+1. **Подготовка сервера:**
 
 ```bash
-# 1. Запуск wb-server
-cd parser/wb-server
-npm install
-node server.js
+# Установка Docker
+curl -fsSL https://get.docker.com | sh
 
-# 2. Настройка webhook
-# В wb-interceptor укажите Backend URL: http://localhost:3003
+# Клонирование проекта
+git clone <repository-url> /opt/1000fps
+cd /opt/1000fps
 
-# 3. API для импорта
-POST http://localhost:3001/api/v1/parser/import
-Content-Type: application/json
-
-{
-  "article": "12345678",
-  "name": "Товар",
-  "brand": "Бренд",
-  "price": 1999,
-  "category": "Категория",
-  "url": "https://www.wildberries.ru/..."
-}
+# Настройка переменных окружения
+cp .env.example .env
+# Отредактируйте .env с реальными значениями
 ```
 
-### Маппинг данных
+2. **Настройка SSL (Let's Encrypt):**
 
-| Поле парсера   | Таблица БД     | Поле БД               |
-| -------------- | -------------- | --------------------- |
-| article        | products       | sku                   |
-| name           | products       | name                  |
-| brand          | brands         | name                  |
-| price          | products       | price                 |
-| originalPrice  | products       | oldPrice              |
-| images         | product_images | url                   |
-| specifications | products       | specifications (JSON) |
+```bash
+# Запуск скрипта настройки SSL
+chmod +x scripts/setup-ssl.sh
+./scripts/setup-ssl.sh yourdomain.com your@email.com
+```
+
+3. **Запуск:**
+
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+4. **CI/CD:**
+
+При push в ветку `main` автоматически сработает деплой через GitHub Actions.
+
+**Необходимые GitHub Secrets:**
+
+| Secret | Описание |
+|--------|----------|
+| `VPS_HOST` | IP или домен сервера |
+| `VPS_USER` | Пользователь SSH |
+| `VPS_SSH_KEY` | Приватный SSH ключ |
+| `VPS_PORT` | Порт SSH (по умолчанию 22) |
+| `JWT_SECRET` | Секрет JWT |
+| `COOKIE_SECRET` | Секрет cookies |
+| `POSTGRES_PASSWORD` | Пароль PostgreSQL |
+
+### Railway
+
+1. **Подключите репозиторий** в [Railway](https://railway.app)
+
+2. **Добавьте PostgreSQL** как сервис
+
+3. **Настройте переменные окружения:**
+
+```bash
+# В Railway UI добавьте:
+JWT_SECRET=your-secret
+COOKIE_SECRET=your-cookie-secret
+PARSER_URL=<url-parser-service>
+```
+
+4. **Деплой** произойдёт автоматически при push в `main`
+
+---
+
+## 🏗️ Архитектура
+
+```
+┌─────────────────┐     ┌──────────────┐     ┌─────────────┐
+│     Nginx       │────▶│  Next.js App │────▶│  PostgreSQL │
+│   (80, 443)     │     │   (3000)     │     │   (5432)    │
+└─────────────────┘     └──────────────┘     └─────────────┘
+                              │
+                              ▼
+                        ┌──────────────┐
+                        │ Parser Server│
+                        │   (3005)     │
+                        └──────────────┘
+```
+
+---
+
+## 📄 Страницы
+
+- `/` — Главная
+- `/catalog` — Каталог товаров
+- `/product/[slug]` — Страница товара
+- `/configurator` — Конфигуратор ПК
+- `/profile` — Профиль пользователя
+- `/cart` — Корзина
+- `/login` / `/register` — Авторизация / Регистрация
+- `/admin` — Админ-панель
 
 ---
 
 ## 📚 Документация
 
-Полная документация в папке [docs/](./docs/):
-
-| Документ                                       | Описание              | Строк |
-| ---------------------------------------------- | --------------------- | ----- |
-| [ARCHITECTURE.md](./ARCHITECTURE.md)           | Архитектура проекта   | ~1770 |
-| [docs/API.md](./docs/API.md)                   | REST API спецификация | ~800  |
-| [docs/DATABASE.md](./docs/DATABASE.md)         | Схема БД (ERD)        | ~600  |
-| [docs/SETUP.md](./docs/SETUP.md)               | Development setup     | ~500  |
-| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)     | Production deployment | ~700  |
-| [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md) | Contribution guide    | ~350  |
-| [docs/CODE_STYLE.md](./docs/CODE_STYLE.md)     | Code style            | ~450  |
-| [docs/TESTING.md](./docs/TESTING.md)           | Testing guide         | ~550  |
-| [docs/RUNBOOK.md](./docs/RUNBOOK.md)           | Operations            | ~500  |
-| [docs/INCIDENTS.md](./docs/INCIDENTS.md)       | Incident management   | ~550  |
-| [docs/SECURITY.md](./docs/SECURITY.md)         | Security policies     | ~650  |
-
-**Всего: ~7500+ строк документации**
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — Архитектура проекта
+- [STACK.md](./STACK.md) — Стек технологий
+- [task.md](./task.md) — Задача и план работ
+- [PARSER_IMPLEMENTATION.md](./PARSER_IMPLEMENTATION.md) — Реализация парсера
+- [API_ENDPOINTS_CREATED.md](./API_ENDPOINTS_CREATED.md) — API endpoints
+- [parser/README.md](./parser/README.md) — Документация парсера
 
 ---
 
-## 🔐 Переменные окружения
+## 🔒 Безопасность
 
-### Основные (.env)
+- Non-root пользователь в Docker образах
+- Rate limiting через Nginx
+- SSL/TLS шифрование
+- JWT аутентификация
+- Health check endpoint: `/api/health`
 
-```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/site-1000fps?schema=public"
-REDIS_URL="redis://localhost:6379"
-JWT_SECRET="your-super-secret-jwt-key-min-32-characters-long"
+---
+
+## 🆘 Troubleshooting
+
+### Ошибка: "Port 3000 already in use"
+
+```bash
+# Найдите процесс на порту 3000
+# Windows:
+netstat -ano | findstr :3000
+
+# Linux/Mac:
+lsof -i :3000
+
+# Освободите порт или измените PORT в .env.local
 ```
 
-### API (packages/api/.env)
+### Ошибка: "Database connection failed"
 
-```env
-PORT=3001
-DATABASE_URL="postgresql://..."
-REDIS_URL="redis://localhost:6379"
-JWT_SECRET="..."
-PARSER_API_URL="http://localhost:3003"
+```bash
+# Проверьте, что PostgreSQL запущен
+docker compose ps postgres
+
+# Проверьте логи БД
+docker compose logs postgres
+
+# Убедитесь, что DATABASE_URL правильный
 ```
 
-### Storefront (apps/storefront/.env.local)
+### Ошибка: "Prisma Client not generated"
 
-```env
-NEXT_PUBLIC_API_URL="http://localhost:3001/api/v1"
+```bash
+# Перегенерируйте клиент
+npx prisma generate
+
+# Или пересоберите контейнер
+docker compose build app
+docker compose up -d
 ```
 
 ---
 
-## 🎯 Структура завершена
+## 📝 License
 
-1. ✅ Конфигурация проекта
-2. ✅ Схема БД с поддержкой парсера
-3. ✅ API модули (Products, Categories, Brands, Parser, Auth, Users, Orders, Cart, Wishlist, Configurator, Search)
-4. ✅ Frontend (Storefront, Admin)
-5. ✅ Документация (~7500 строк)
-6. ⏳ Запуск и тестирование
-
----
-
-## 📞 Контакты
-
-- **Email:** dev-support@1000fps.ru
-- **Документация:** [docs/](./docs/)
-
----
-
-**Версия:** 1.0.0  
-**Последнее обновление:** Март 2026  
-**Лицензия:** UNLICENSED
+MIT

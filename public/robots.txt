@@ -1,0 +1,56 @@
+# robots.txt для 1000FPS - Интернет-магазин компьютерной техники
+# https://1000fps.ru
+
+User-agent: *
+Allow: /
+Allow: /catalog
+Allow: /product
+Allow: /configurator
+Allow: /faq
+
+# Запрещаем индексацию админки и личных кабинетов
+Disallow: /admin
+Disallow: /profile
+Disallow: /cart
+Disallow: /wishlist
+Disallow: /compare
+Disallow: /login
+Disallow: /register
+
+# Запрещаем индексацию API
+Disallow: /api
+
+# Запрещаем индексацию служебных страниц
+Disallow: /*?*
+Disallow: /*.json$
+Disallow: /*.xml$
+
+# Sitemap
+Sitemap: https://1000fps.ru/sitemap.xml
+Sitemap: https://1000fps.ru/sitemap-products.xml
+Sitemap: https://1000fps.ru/sitemap-categories.xml
+
+# Crawl-delay для снижения нагрузки
+Crawl-delay: 1
+
+# Googlebot особые настройки
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /profile
+Disallow: /cart
+Crawl-delay: 0.5
+
+# Yandex особые настройки
+User-agent: Yandex
+Allow: /
+Disallow: /admin
+Disallow: /profile
+Disallow: /cart
+Crawl-delay: 2
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Crawl-delay: 1

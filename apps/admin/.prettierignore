@@ -1,8 +1,0 @@
-.next
-node_modules
-public
-coverage
-*.min.js
-dist
-build
-*.lock

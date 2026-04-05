@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1000FPS — Панель управления</title>
+<link rel="stylesheet" href="style.css">
+<style>
+:root {
+  --sidebar-w: 240px;
+  --header-h:  56px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--black); color: var(--white); font-family: var(--font-body); font-size: 14px; overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: inherit; border: none; background: none; }
+select, input, textarea { font-family: inherit; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--black2); }
+::-webkit-scrollbar-thumb { background: var(--gray1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gray2); }
+
+/* ─── LAYOUT ─── */
+.layout { display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--black2);
+  border-right: 1px solid var(--gray1);
+  position: fixed; top: 0; left: 0; height: 100vh;
+  overflow-y: auto; z-index: 100;
+  display: flex; flex-direction: column;
+}
+.sidebar::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 150px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,106,0,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--gray1);
+  position: relative;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: var(--orange);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.logo-icon svg { width: 18px; height: 18px; color: #fff; }
+.logo-text { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+.logo-text span { color: var(--orange); }
+
+.nav { padding: 12px 0; flex: 1; }
+.nav-section {
+  font-family: var(--font-display); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray3);
+  padding: 18px 20px 8px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; color: var(--gray4);
+  cursor: pointer; transition: all var(--tr);
+  position: relative; font-weight: 600; font-size: 13px;
+}
+.nav-item::before {
+  content: '';
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 0; background: var(--orange);
+  transition: height var(--tr);
+}
+.nav-item:hover { color: var(--white); background: var(--black3); }
+.nav-item.is-active {
+  color: #fff; background: rgba(255,106,0,0.08);
+}
+.nav-item.is-active::before { height: 32px; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+.nav-item.is-active svg { opacity: 1; }
+.nav-badge {
+  margin-left: auto;
+  font-family: var(--font-display); font-size: 10px; font-weight: 700;
+  padding: 2px 6px; border-radius: var(--radius);
+  background: rgba(255,106,0,0.15); color: var(--orange);
+  border: 1px solid rgba(255,106,0,0.25);
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--gray1);
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--radius);
+  border: 1px solid var(--gray1); cursor: pointer;
+  transition: border-color var(--tr);
+}
+.sidebar-user:hover { border-color: var(--gray2); }
+.user-ava {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--orange); display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.user-name { font-size: 13px; font-weight: 600; color: var(--white); }
+.user-role { font-size: 10px; color: var(--gray3); font-family: var(--font-display); letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ─── MAIN ─── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1; min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* ─── HEADER ─── */
+.header {
+  height: var(--header-h);
+  background: var(--black2);
+  border-bottom: 1px solid var(--gray1);
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+}
+.header-left { display: flex; align-items: center; gap: 20px; }
+.page-title {
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em; color: #fff;
+}
+.page-title::before {
+  content: '//'; margin-right: 8px; color: var(--orange); opacity: 0.6;
+}
+.header-search {
+  position: relative;
+}
+.header-search svg {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: var(--gray3);
+}
+.header-search input {
+  width: 240px; height: 34px;
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius); color: var(--white);
+  padding: 0 12px 0 32px; font-size: 13px; outline: none;
+  transition: border-color var(--tr);
+}
+.header-search input:focus { border-color: var(--orange); }
+.header-search input::placeholder { color: var(--gray3); }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.hbtn {
+  position: relative; width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius); color: var(--gray4);
+  transition: all var(--tr);
+}
+.hbtn:hover { border-color: var(--orange); color: var(--orange); }
+.hbtn svg { width: 16px; height: 16px; }
+.hbtn-badge {
+  position: absolute; top: -4px; right: -4px;
+  width: 18px; height: 18px; background: var(--orange);
+  color: #fff; font-size: 10px; font-weight: 700; font-family: var(--font-display);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--black2);
+}
+
+/* ─── CONTENT ─── */
+.content { padding: 24px; flex: 1; }
+.panel { display: none; }
+.panel.is-active { display: block; }
+
+/* ─── STAT CARDS ─── */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius); padding: 20px;
+  position: relative; overflow: hidden;
+  transition: border-color var(--tr);
+}
+.stat-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--orange), transparent);
+  opacity: 0; transition: opacity var(--tr);
+}
+.stat-card:hover { border-color: var(--gray2); }
+.stat-card:hover::after { opacity: 1; }
+.stat-card__head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.stat-icon {
+  width: 40px; height: 40px;
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+}
+.stat-icon svg { width: 18px; height: 18px; color: var(--orange); }
+.trend {
+  font-family: var(--font-display); font-size: 10px; font-weight: 700;
+  padding: 3px 8px; border-radius: var(--radius);
+}
+.trend--up { background: rgba(0,230,118,0.1); color: #00e676; }
+.trend--down { background: rgba(255,23,68,0.1); color: #ff1744; }
+.stat-val {
+  font-family: var(--font-display); font-size: 28px; font-weight: 800;
+  color: #fff; line-height: 1; margin-bottom: 6px;
+  letter-spacing: -0.03em;
+}
+.stat-label { font-size: 11px; color: var(--gray4); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--font-display); font-weight: 700; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius); margin-bottom: 16px;
+}
+.card__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--gray1);
+}
+.card__title {
+  font-family: var(--font-display); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--white);
+}
+.card__body { padding: 18px; }
+.card__body--flush { padding: 0; }
+
+/* ─── GRID LAYOUTS ─── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* ─── TABLE ─── */
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th {
+  text-align: left; padding: 12px 16px;
+  font-family: var(--font-display); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gray3); border-bottom: 1px solid var(--gray1);
+  background: var(--black3);
+}
+.tbl td {
+  padding: 12px 16px; font-size: 13px; color: var(--gray4);
+  border-bottom: 1px solid var(--gray1);
+  transition: background var(--tr);
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--black3); }
+.tbl-actions { display: flex; gap: 6px; }
+
+.tbl-btn {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius); color: var(--gray4);
+  transition: all var(--tr);
+}
+.tbl-btn:hover { border-color: var(--orange); color: var(--orange); }
+.tbl-btn svg { width: 13px; height: 13px; }
+.tbl-btn--danger:hover { border-color: #ff1744; color: #ff1744; }
+
+/* ─── BADGES ─── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px; border-radius: var(--radius);
+  font-family: var(--font-display); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.badge--green  { background: rgba(0,230,118,0.1);  color: #00e676; border: 1px solid rgba(0,230,118,0.2); }
+.badge--yellow { background: rgba(255,214,0,0.1);  color: #ffd600; border: 1px solid rgba(255,214,0,0.2); }
+.badge--red    { background: rgba(255,23,68,0.1);   color: #ff1744; border: 1px solid rgba(255,23,68,0.2); }
+.badge--blue   { background: rgba(68,138,255,0.1);  color: #448aff; border: 1px solid rgba(68,138,255,0.2); }
+.badge--orange { background: rgba(255,106,0,0.1);    color: var(--orange); border: 1px solid rgba(255,106,0,0.2); }
+.badge--muted  { background: var(--black3); color: var(--gray3); border: 1px solid var(--gray1); }
+
+/* ─── BUTTONS ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 16px;
+  font-family: var(--font-display); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  border-radius: var(--radius); transition: all var(--tr);
+}
+.btn--primary { background: var(--orange); color: #fff; border: 1px solid transparent; }
+.btn--primary:hover { background: var(--orange2); }
+.btn--ghost { background: transparent; color: var(--gray4); border: 1px solid var(--gray1); }
+.btn--ghost:hover { border-color: var(--orange); color: var(--orange); }
+.btn--sm { padding: 5px 11px; font-size: 10px; }
+.btn svg { width: 12px; height: 12px; }
+
+/* ─── FORMS ─── */
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block; margin-bottom: 6px;
+  font-family: var(--font-display); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray4);
+}
+.req { color: #ff1744; margin-left: 2px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 9px 12px;
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius); color: var(--white);
+  font-size: 13px; outline: none;
+  transition: border-color var(--tr);
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--orange); }
+.form-input::placeholder { color: var(--gray3); }
+.form-textarea { min-height: 90px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-row--3 { grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* ─── TABS ─── */
+.tabs { display: flex; border-bottom: 1px solid var(--gray1); margin-bottom: 18px; gap: 0; }
+.tab {
+  padding: 10px 18px;
+  font-family: var(--font-display); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--gray3); background: none; border: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  cursor: pointer; transition: all var(--tr);
+}
+.tab:hover { color: var(--white); }
+.tab.is-active { color: var(--orange); border-bottom-color: var(--orange); }
+.tab-panel { display: none; }
+.tab-panel.is-active { display: block; }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(4px);
+  z-index: 1000; display: none;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.is-active { display: flex; }
+.modal {
+  background: var(--black2); border: 1px solid var(--gray2);
+  border-radius: var(--radius); width: 100%; max-width: 780px;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--gray1);
+  position: sticky; top: 0; background: var(--black2); z-index: 1;
+}
+.modal__title { font-family: var(--font-display); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #fff; }
+.modal__close {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius); color: var(--gray4); cursor: pointer;
+  transition: all var(--tr);
+}
+.modal__close:hover { border-color: #ff1744; color: #ff1744; }
+.modal__close svg { width: 13px; height: 13px; }
+.modal__body { padding: 18px; }
+.modal__foot {
+  display: flex; gap: 10px; justify-content: flex-end;
+  padding: 14px 18px; border-top: 1px solid var(--gray1);
+}
+
+/* ─── UPLOAD ZONE ─── */
+.upload-zone {
+  border: 1px dashed var(--gray2); border-radius: var(--radius);
+  padding: 32px; text-align: center; cursor: pointer;
+  transition: all var(--tr); margin-bottom: 16px;
+}
+.upload-zone:hover, .upload-zone.is-over {
+  border-color: var(--orange); background: rgba(255,106,0,0.03);
+}
+.upload-zone__icon {
+  width: 48px; height: 48px; margin: 0 auto 12px;
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+}
+.upload-zone__icon svg { width: 22px; height: 22px; color: var(--orange); }
+.upload-zone__title {
+  font-family: var(--font-display); font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--white); margin-bottom: 4px;
+}
+.upload-zone__sub { font-size: 11px; color: var(--gray3); }
+
+/* ─── ALERT ─── */
+.alert {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px; border-radius: var(--radius); margin-bottom: 14px;
+}
+.alert svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+.alert--info { background: rgba(68,138,255,0.08); border: 1px solid rgba(68,138,255,0.2); color: #448aff; }
+.alert__title { font-family: var(--font-display); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 3px; }
+.alert__sub { font-size: 11px; opacity: 0.7; }
+
+/* ─── GALLERY ─── */
+.gallery-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.gallery-item {
+  aspect-ratio: 1; background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius); overflow: hidden; cursor: pointer;
+  position: relative; transition: border-color var(--tr);
+}
+.gallery-item:hover { border-color: var(--orange); }
+.gallery-item__img {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.gallery-item__img svg { width: 36px; height: 36px; color: var(--gray3); }
+.gallery-item__over {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  opacity: 0; transition: opacity var(--tr);
+}
+.gallery-item:hover .gallery-item__over { opacity: 1; }
+
+/* ─── WAREHOUSE CARDS ─── */
+.warehouse-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+.wh-card {
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius); padding: 18px;
+}
+.wh-card__top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--gray1);
+}
+.wh-name { font-family: var(--font-display); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #fff; }
+.wh-addr { font-size: 11px; color: var(--gray3); margin-top: 3px; }
+.wh-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.wh-stat {
+  background: var(--black2); border-radius: var(--radius); padding: 10px;
+  text-align: center; border: 1px solid var(--gray1);
+}
+.wh-stat__val { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: #fff; }
+.wh-stat__lbl { font-size: 10px; color: var(--gray3); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 3px; font-family: var(--font-display); font-weight: 700; }
+
+/* ─── INTEGRATION CARDS ─── */
+.integ-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.integ-card {
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius); padding: 14px;
+}
+.integ-card__top {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.integ-card__icon svg { width: 20px; height: 20px; color: var(--orange); }
+.integ-name { font-size: 13px; font-weight: 700; color: var(--white); }
+.integ-sub { font-size: 11px; color: var(--gray3); }
+
+/* ─── CATEGORY TREE ─── */
+.cat-tree { border: 1px solid var(--gray1); border-radius: var(--radius); overflow: hidden; }
+.cat-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px; border-bottom: 1px solid var(--gray1);
+  transition: background var(--tr);
+}
+.cat-row:last-child { border-bottom: none; }
+.cat-row:hover { background: var(--black3); }
+.cat-row--root { background: var(--black2); }
+.cat-row--root .cat-label { color: var(--orange); font-family: var(--font-display); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.cat-row--child { padding-left: 40px; }
+.cat-label { flex: 1; font-size: 13px; color: var(--white); }
+.cat-count { font-family: var(--font-display); font-size: 11px; color: var(--gray3); margin-right: 12px; }
+
+/* ─── MONO TEXT ─── */
+.mono { font-family: var(--font-display); }
+.text-orange { color: var(--orange); }
+.text-muted { color: var(--gray3); }
+.text-white { color: #fff; }
+.text-green { color: #00e676; }
+.text-bold  { font-weight: 700; color: #fff; }
+.f11 { font-size: 11px; }
+.f12 { font-size: 12px; }
+.flex { display: flex; }
+.flex-c { align-items: center; }
+.gap-6 { gap: 6px; }
+.gap-8 { gap: 8px; }
+.gap-10 { gap: 10px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.mb-16 { margin-bottom: 16px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.ml-auto { margin-left: auto; }
+.fw700 { font-weight: 700; }
+
+/* ─── LOG LEVEL ─── */
+.level { font-family: var(--font-display); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: var(--radius); }
+.level--info   { background: rgba(68,138,255,0.1);  color: #448aff; border: 1px solid rgba(68,138,255,0.2); }
+.level--ok     { background: rgba(0,230,118,0.1);   color: #00e676; border: 1px solid rgba(0,230,118,0.2); }
+.level--warn   { background: rgba(255,214,0,0.1);   color: #ffd600; border: 1px solid rgba(255,214,0,0.2); }
+.level--err    { background: rgba(255,23,68,0.1);   color: #ff1744; border: 1px solid rgba(255,23,68,0.2); }
+
+/* ─── PRICING TABLE ─── */
+.price-cat-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-bottom: 1px solid var(--gray1);
+}
+.price-cat-row:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </div>
+      <span class="logo-text">1000<span>fps</span></span>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Основное</div>
+      <a href="#" class="nav-item is-active" data-panel="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Дашборд
+      </a>
+      <div class="nav-section">Товары</div>
+      <a href="#" class="nav-item" data-panel="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Товары
+        <span class="nav-badge">247</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Категории
+      </a>
+      <a href="#" class="nav-item" data-panel="gallery">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Галерея
+      </a>
+      <div class="nav-section">Продажи</div>
+      <a href="#" class="nav-item" data-panel="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Заказы
+        <span class="nav-badge">12</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Аналитика
+      </a>
+      <a href="#" class="nav-item" data-panel="price-history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        История цен
+      </a>
+      <div class="nav-section">Управление</div>
+      <a href="#" class="nav-item" data-panel="warehouses">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-4h8v4"/></svg>
+        Склады
+      </a>
+      <a href="#" class="nav-item" data-panel="configuration">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Конфигурация
+      </a>
+      <div class="nav-section">Дополнительно</div>
+      <a href="#" class="nav-item" data-panel="users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Пользователи
+      </a>
+      <a href="#" class="nav-item" data-panel="logs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Логи
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-ava">A</div>
+        <div>
+          <div class="user-name">Admin</div>
+          <div class="user-role">Супер-админ</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <div class="main">
+    <header class="header">
+      <div class="header-left">
+        <span class="page-title" id="pageTitle">Дашборд</span>
+        <div class="header-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" placeholder="Поиск...">
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="hbtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="hbtn-badge">5</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <div class="panel is-active" id="panel-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card__head">
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <span class="trend trend--up">+12.5%</span>
+            </div>
+            <div class="stat-val">2 847 500</div>
+            <div class="stat-label">Выручка сегодня, ₽</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__head">
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+              <span class="trend trend--up">+8.2%</span>
+            </div>
+            <div class="stat-val">47</div>
+            <div class="stat-label">Новых заказов</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__head">
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+              <span class="trend trend--up">+3.1%</span>
+            </div>
+            <div class="stat-val">1 247</div>
+            <div class="stat-label">Товаров в каталоге</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__head">
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <span class="trend trend--down">-2.4%</span>
+            </div>
+            <div class="stat-val">3 842</div>
+            <div class="stat-label">Посетителей сегодня</div>
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="card">
+            <div class="card__head">
+              <span class="card__title">Динамика продаж</span>
+              <div class="flex gap-6">
+                <button class="btn btn--ghost btn--sm">7д</button>
+                <button class="btn btn--ghost btn--sm" style="border-color:var(--orange);color:var(--orange)">30д</button>
+                <button class="btn btn--ghost btn--sm">90д</button>
+              </div>
+            </div>
+            <div class="card__body">
+              <svg viewBox="0 0 800 180" style="width:100%;height:160px">
+                <defs>
+                  <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ff4d00;stop-opacity:0.25"/>
+                    <stop offset="100%" style="stop-color:#ff4d00;stop-opacity:0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="40" x2="800" y2="40" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <line x1="0" y1="90" x2="800" y2="90" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <line x1="0" y1="140" x2="800" y2="140" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <path d="M0,140 L100,110 L200,120 L300,70 L400,82 L500,44 L600,55 L700,18 L800,28 L800,180 L0,180 Z" fill="url(#grad1)"/>
+                <polyline points="0,140 100,110 200,120 300,70 400,82 500,44 600,55 700,18 800,28" fill="none" stroke="var(--orange)" stroke-width="2"/>
+                <circle cx="0" cy="140" r="4" fill="var(--orange)"/>
+                <circle cx="300" cy="70" r="4" fill="var(--orange)"/>
+                <circle cx="500" cy="44" r="4" fill="var(--orange)"/>
+                <circle cx="800" cy="28" r="4" fill="var(--orange)"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__head">
+              <span class="card__title">Последние заказы</span>
+              <button class="btn btn--ghost btn--sm" data-panel-nav="orders">Все →</button>
+            </div>
+            <div class="card__body--flush">
+              <table class="tbl">
+                <thead><tr><th>№</th><th>Клиент</th><th>Сумма</th><th>Статус</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono text-orange">#4521</td><td>Иванов П.</td><td class="fw700 text-white">79 990 ₽</td><td><span class="badge badge--green"><span class="badge-dot"></span>Доставлен</span></td></tr>
+                  <tr><td class="mono text-orange">#4520</td><td>Петров С.</td><td class="fw700 text-white">34 990 ₽</td><td><span class="badge badge--yellow"><span class="badge-dot"></span>В пути</span></td></tr>
+                  <tr><td class="mono text-orange">#4519</td><td>Сидоров А.</td><td class="fw700 text-white">52 990 ₽</td><td><span class="badge badge--blue"><span class="badge-dot"></span>Собран</span></td></tr>
+                  <tr><td class="mono text-orange">#4518</td><td>Козлов М.</td><td class="fw700 text-white">124 980 ₽</td><td><span class="badge badge--yellow"><span class="badge-dot"></span>В обработке</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PRODUCTS ═══ -->
+      <div class="panel" id="panel-products">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Управление товарами</span>
+            <div class="flex gap-8">
+              <button class="btn btn--ghost btn--sm" onclick="exportProducts()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Экспорт
+              </button>
+              <button class="btn btn--ghost btn--sm" onclick="document.getElementById('importFile').click()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Импорт
+              </button>
+              <input type="file" id="importFile" style="display:none" accept=".csv,.xlsx">
+              <button class="btn btn--primary btn--sm" onclick="openProductModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Добавить
+              </button>
+            </div>
+          </div>
+          <div style="padding:14px 18px;border-bottom:1px solid var(--gray1);display:flex;gap:10px">
+            <input type="text" class="form-input" placeholder="Поиск по товарам..." style="max-width:280px">
+            <select class="form-select" style="max-width:200px"><option>Все категории</option><option>Видеокарты</option><option>Процессоры</option><option>Матплаты</option></select>
+          </div>
+          <div class="card__body--flush">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width:36px"><input type="checkbox"></th>
+                  <th>Артикул</th><th>Товар</th><th>Категория</th><th>Цена</th><th>Остаток</th><th>Статус</th><th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox"></td>
+                  <td class="mono text-orange f11">TUF-RTX4070TIS-O16G</td>
+                  <td><div class="flex flex-c gap-10">
+                    <div style="width:36px;height:26px;background:var(--black3);border:1px solid var(--gray1);border-radius:var(--radius);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;color:var(--orange)"><rect x="2" y="7" width="20" height="12" rx="1"/></svg></div>
+                    <span>ASUS TUF RTX 4070 Ti Super</span>
+                  </div></td>
+                  <td class="text-muted">Видеокарты</td>
+                  <td class="fw700 text-white">79 990 ₽</td>
+                  <td class="mono f11">47 шт.</td>
+                  <td><span class="badge badge--green"><span class="badge-dot"></span>В наличии</span></td>
+                  <td><div class="tbl-actions">
+                    <button class="tbl-btn" onclick="openProductModal(true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                    <button class="tbl-btn tbl-btn--danger" onclick="deleteProduct(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox"></td>
+                  <td class="mono text-orange f11">9950X-AM5</td>
+                  <td><div class="flex flex-c gap-10">
+                    <div style="width:36px;height:26px;background:var(--black3);border:1px solid var(--gray1);border-radius:var(--radius);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;color:var(--orange)"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></div>
+                    <span>AMD Ryzen 9 9950X</span>
+                  </div></td>
+                  <td class="text-muted">Процессоры</td>
+                  <td class="fw700 text-white">74 990 ₽</td>
+                  <td class="mono f11">24 шт.</td>
+                  <td><span class="badge badge--green"><span class="badge-dot"></span>В наличии</span></td>
+                  <td><div class="tbl-actions">
+                    <button class="tbl-btn" onclick="openProductModal(true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                    <button class="tbl-btn tbl-btn--danger" onclick="deleteProduct(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox"></td>
+                  <td class="mono text-orange f11">ROG-Z890-APEX</td>
+                  <td><div class="flex flex-c gap-10">
+                    <div style="width:36px;height:26px;background:var(--black3);border:1px solid var(--gray1);border-radius:var(--radius);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;color:var(--orange)"><rect x="2" y="2" width="20" height="20" rx="2"/></svg></div>
+                    <span>ASUS ROG Maximus Z890</span>
+                  </div></td>
+                  <td class="text-muted">Матплаты</td>
+                  <td class="fw700 text-white">52 990 ₽</td>
+                  <td class="mono f11">12 шт.</td>
+                  <td><span class="badge badge--yellow"><span class="badge-dot"></span>Заканчивается</span></td>
+                  <td><div class="tbl-actions">
+                    <button class="tbl-btn" onclick="openProductModal(true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                    <button class="tbl-btn tbl-btn--danger" onclick="deleteProduct(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button>
+                  </div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CATEGORIES ═══ -->
+      <div class="panel" id="panel-categories">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Категории</span>
+            <button class="btn btn--primary btn--sm" onclick="openCategoryModal()">Добавить</button>
+          </div>
+          <div class="card__body">
+            <div class="cat-tree">
+              <div class="cat-row cat-row--root">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;color:var(--orange);flex-shrink:0"><rect x="2" y="7" width="20" height="12" rx="1"/></svg>
+                <span class="cat-label">Видеокарты</span>
+                <span class="cat-count">148 товаров</span>
+                <div class="tbl-actions">
+                  <button class="tbl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                  <button class="tbl-btn tbl-btn--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button>
+                </div>
+              </div>
+              <div class="cat-row cat-row--child">
+                <span class="text-muted f11" style="margin-right:6px">└─</span>
+                <span class="cat-label">NVIDIA GeForce</span>
+                <span class="cat-count">84 товара</span>
+                <div class="tbl-actions">
+                  <button class="tbl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                  <button class="tbl-btn tbl-btn--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button>
+                </div>
+              </div>
+              <div class="cat-row cat-row--child">
+                <span class="text-muted f11" style="margin-right:6px">└─</span>
+                <span class="cat-label">AMD Radeon</span>
+                <span class="cat-count">52 товара</span>
+                <div class="tbl-actions">
+                  <button class="tbl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                  <button class="tbl-btn tbl-btn--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ GALLERY ═══ -->
+      <div class="panel" id="panel-gallery">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Галерея</span>
+            <button class="btn btn--primary btn--sm" onclick="document.getElementById('galleryUpload').click()">Загрузить</button>
+            <input type="file" id="galleryUpload" multiple accept="image/*" style="display:none">
+          </div>
+          <div class="card__body">
+            <div class="upload-zone">
+              <div class="upload-zone__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+              <div class="upload-zone__title">Перетащите изображения</div>
+              <div class="upload-zone__sub">PNG, JPG, WEBP — до 10 МБ</div>
+            </div>
+            <div class="gallery-grid">
+              <div class="gallery-item"><div class="gallery-item__img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="12" rx="1"/></svg></div><div class="gallery-item__over"><button class="tbl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="tbl-btn tbl-btn--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button></div></div>
+              <div class="gallery-item"><div class="gallery-item__img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></div><div class="gallery-item__over"><button class="tbl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="tbl-btn tbl-btn--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ ORDERS ═══ -->
+      <div class="panel" id="panel-orders">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Заказы</span>
+            <select class="form-select" style="width:180px"><option>Все статусы</option><option>Новые</option><option>В обработке</option><option>Доставлен</option></select>
+          </div>
+          <div class="card__body--flush">
+            <table class="tbl">
+              <thead><tr><th>№</th><th>Дата</th><th>Клиент</th><th>Сумма</th><th>Статус</th><th>Действия</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td class="mono text-orange">#4521</td>
+                  <td class="mono f11 text-muted">23.03.2026 14:32</td>
+                  <td><div class="text-white">Иванов П.</div><div class="f11 text-muted">ivanov@mail.ru</div></td>
+                  <td class="fw700 text-white">79 990 ₽</td>
+                  <td><select class="form-select" style="width:130px;font-size:11px;padding:5px 10px"><option value="delivered" selected>Доставлен</option><option value="shipping">В пути</option><option value="processing">В обработке</option></select></td>
+                  <td><button class="btn btn--ghost btn--sm" onclick="viewOrder('#4521')">Просмотр</button></td>
+                </tr>
+                <tr>
+                  <td class="mono text-orange">#4520</td>
+                  <td class="mono f11 text-muted">23.03.2026 12:18</td>
+                  <td><div class="text-white">Петров С.</div><div class="f11 text-muted">petrov@gmail.com</div></td>
+                  <td class="fw700 text-white">34 990 ₽</td>
+                  <td><select class="form-select" style="width:130px;font-size:11px;padding:5px 10px"><option value="delivered">Доставлен</option><option value="shipping" selected>В пути</option><option value="processing">В обработке</option></select></td>
+                  <td><button class="btn btn--ghost btn--sm" onclick="viewOrder('#4520')">Просмотр</button></td>
+                </tr>
+                <tr>
+                  <td class="mono text-orange">#4519</td>
+                  <td class="mono f11 text-muted">23.03.2026 10:45</td>
+                  <td><div class="text-white">Сидоров А.</div><div class="f11 text-muted">sidorov@yandex.ru</div></td>
+                  <td class="fw700 text-white">52 990 ₽</td>
+                  <td><select class="form-select" style="width:130px;font-size:11px;padding:5px 10px"><option value="delivered">Доставлен</option><option value="shipping">В пути</option><option value="ready" selected>Собран</option></select></td>
+                  <td><button class="btn btn--ghost btn--sm" onclick="viewOrder('#4519')">Просмотр</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ ANALYTICS ═══ -->
+      <div class="panel" id="panel-analytics">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-val" style="font-size:20px">4 847 500 ₽</div><div class="stat-label">Выручка за месяц</div><div class="trend trend--up" style="display:inline-flex;margin-top:10px">+18.5%</div></div>
+          <div class="stat-card"><div class="stat-val">342</div><div class="stat-label">Заказов</div><div class="trend trend--up" style="display:inline-flex;margin-top:10px">+12.3%</div></div>
+          <div class="stat-card"><div class="stat-val" style="font-size:20px">14 230 ₽</div><div class="stat-label">Средний чек</div><div class="trend trend--down" style="display:inline-flex;margin-top:10px">-3.2%</div></div>
+          <div class="stat-card"><div class="stat-val">98.2%</div><div class="stat-label">Удовлетворённость</div><div class="trend trend--up" style="display:inline-flex;margin-top:10px">+1.4%</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card__head"><span class="card__title">Продажи по категориям</span></div>
+            <div class="card__body">
+              <svg viewBox="0 0 300 240" style="width:100%;height:200px">
+                <circle cx="150" cy="120" r="75" fill="none" stroke="var(--black3)" stroke-width="28"/>
+                <circle cx="150" cy="120" r="75" fill="none" stroke="var(--orange)" stroke-width="28" stroke-dasharray="117 353" transform="rotate(-90 150 120)"/>
+                <circle cx="150" cy="120" r="75" fill="none" stroke="var(--green)" stroke-width="28" stroke-dasharray="70 353" stroke-dashoffset="-117" transform="rotate(-90 150 120)"/>
+                <circle cx="150" cy="120" r="75" fill="none" stroke="var(--blue)" stroke-width="28" stroke-dasharray="53 353" stroke-dashoffset="-187" transform="rotate(-90 150 120)"/>
+                <text x="150" y="115" text-anchor="middle" font-size="18" fill="#fff" font-weight="700" font-family="Barlow Condensed,sans-serif">100%</text>
+                <text x="150" y="132" text-anchor="middle" font-size="9" fill="#555" font-family="Barlow Condensed,sans-serif">TOTAL</text>
+              </svg>
+              <div class="flex gap-16" style="flex-wrap:wrap;margin-top:10px">
+                <div class="flex flex-c gap-6"><span style="width:10px;height:10px;background:var(--orange);border-radius:2px"></span><span class="text-muted f11">Видеокарты (33%)</span></div>
+                <div class="flex flex-c gap-6"><span style="width:10px;height:10px;background:var(--green);border-radius:2px"></span><span class="text-muted f11">Процессоры (20%)</span></div>
+                <div class="flex flex-c gap-6"><span style="width:10px;height:10px;background:var(--blue);border-radius:2px"></span><span class="text-muted f11">Матплаты (15%)</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__head"><span class="card__title">Топ товаров</span></div>
+            <div class="card__body--flush">
+              <table class="tbl"><thead><tr><th>Товар</th><th>Продано</th></tr></thead>
+              <tbody>
+                <tr><td>ASUS TUF RTX 4070 Ti</td><td class="mono fw700 text-orange">284</td></tr>
+                <tr><td>AMD Ryzen 7 7800X3D</td><td class="mono fw700 text-orange">196</td></tr>
+                <tr><td>ASUS ROG Z890</td><td class="mono fw700 text-orange">87</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ PRICE HISTORY ═══ -->
+      <div class="panel" id="panel-price-history">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">История цен</span>
+            <div class="flex gap-8">
+              <input type="text" class="form-input" placeholder="Поиск..." style="width:200px">
+              <select class="form-select" style="width:150px"><option>За 30 дней</option><option>За 7 дней</option></select>
+            </div>
+          </div>
+          <div class="card__body">
+            <svg viewBox="0 0 800 280" style="width:100%;height:240px">
+              <defs>
+                <linearGradient id="pg" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#00e676;stop-opacity:0.2"/>
+                  <stop offset="100%" style="stop-color:#00e676;stop-opacity:0"/>
+                </linearGradient>
+              </defs>
+              <line x1="50" y1="40"  x2="760" y2="40"  stroke="rgba(255,255,255,0.04)"/>
+              <line x1="50" y1="100" x2="760" y2="100" stroke="rgba(255,255,255,0.04)"/>
+              <line x1="50" y1="160" x2="760" y2="160" stroke="rgba(255,255,255,0.04)"/>
+              <line x1="50" y1="220" x2="760" y2="220" stroke="rgba(255,255,255,0.04)"/>
+              <path d="M50,200 L180,188 L310,168 L440,178 L570,140 L680,148 L760,118 L760,250 L50,250 Z" fill="url(#pg)"/>
+              <path d="M50,200 L180,188 L310,168 L440,178 L570,140 L680,148 L760,118" fill="none" stroke="var(--green)" stroke-width="2"/>
+              <circle cx="50"  cy="200" r="4" fill="var(--green)"/>
+              <circle cx="310" cy="168" r="4" fill="var(--green)"/>
+              <circle cx="570" cy="140" r="4" fill="var(--green)"/>
+              <circle cx="760" cy="118" r="4" fill="var(--green)"/>
+              <text x="50"  y="268" font-size="10" fill="var(--gray3)" font-family="Barlow Condensed,sans-serif">01.03</text>
+              <text x="310" y="268" font-size="10" fill="var(--gray3)" font-family="Barlow Condensed,sans-serif">10.03</text>
+              <text x="570" y="268" font-size="10" fill="var(--gray3)" font-family="Barlow Condensed,sans-serif">17.03</text>
+              <text x="745" y="268" font-size="10" fill="var(--gray3)" font-family="Barlow Condensed,sans-serif">23.03</text>
+            </svg>
+            <div style="margin-top:14px;padding:14px;background:var(--black3);border:1px solid var(--gray1);border-radius:var(--radius)">
+              <div class="flex flex-c gap-12">
+                <div style="width:36px;height:26px;background:var(--black2);border:1px solid var(--gray1);border-radius:var(--radius);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;color:var(--orange)"><rect x="2" y="7" width="20" height="12" rx="1"/></svg></div>
+                <div style="flex:1"><div class="text-white fw700">ASUS TUF RTX 4070 Ti Super</div><div class="f11 text-muted mono">TUF-RTX4070TIS-O16G</div></div>
+                <div style="text-align:right"><div class="text-green fw700 mono">▼ −17 510 ₽</div><div class="f11 text-muted">с 01.03</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ WAREHOUSES ═══ -->
+      <div class="panel" id="panel-warehouses">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Склады</span>
+            <button class="btn btn--primary btn--sm" onclick="openWarehouseModal()">Добавить</button>
+          </div>
+          <div class="card__body">
+            <div class="warehouse-grid">
+              <div class="wh-card">
+                <div class="wh-card__top">
+                  <div><div class="wh-name">Волгоград</div><div class="wh-addr">ул. Еременко, 126</div></div>
+                  <span class="badge badge--green"><span class="badge-dot"></span>Активен</span>
+                </div>
+                <div class="wh-stats">
+                  <div class="wh-stat"><div class="wh-stat__val">847</div><div class="wh-stat__lbl">Товаров</div></div>
+                  <div class="wh-stat"><div class="wh-stat__val">312</div><div class="wh-stat__lbl">Забронировано</div></div>
+                  <div class="wh-stat"><div class="wh-stat__val">47</div><div class="wh-stat__lbl">К отгрузке</div></div>
+                </div>
+                <div class="flex gap-8 mt-16">
+                  <button class="btn btn--ghost" style="flex:1;padding:10px 16px" onclick="viewWarehouseStock('volgograd')">Остатки</button>
+                  <button class="btn btn--ghost" style="flex:1;padding:10px 16px" onclick="editWarehouse('volgograd')">Редактировать</button>
+                </div>
+              </div>
+              <div class="wh-card">
+                <div class="wh-card__top">
+                  <div><div class="wh-name">Волжский</div><div class="wh-addr">пр. Ленина, 14</div></div>
+                  <span class="badge badge--green"><span class="badge-dot"></span>Активен</span>
+                </div>
+                <div class="wh-stats">
+                  <div class="wh-stat"><div class="wh-stat__val">423</div><div class="wh-stat__lbl">Товаров</div></div>
+                  <div class="wh-stat"><div class="wh-stat__val">156</div><div class="wh-stat__lbl">Забронировано</div></div>
+                  <div class="wh-stat"><div class="wh-stat__val">28</div><div class="wh-stat__lbl">К отгрузке</div></div>
+                </div>
+                <div class="flex gap-8 mt-16">
+                  <button class="btn btn--ghost" style="flex:1;padding:10px 16px" onclick="viewWarehouseStock('volzhsky')">Остатки</button>
+                  <button class="btn btn--ghost" style="flex:1;padding:10px 16px" onclick="editWarehouse('volzhsky')">Редактировать</button>
+                </div>
+              </div>
+            </div>
+
+            <h4 style="font-family:var(--font-display);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray4);margin-bottom:14px">Распределение по складам</h4>
+            <table class="tbl">
+              <thead><tr><th>Товар</th><th>Волгоград</th><th>Волжский</th><th>Всего</th><th>Статус</th></tr></thead>
+              <tbody>
+                <tr><td>ASUS TUF RTX 4070 Ti Super</td><td class="mono">32 шт.</td><td class="mono">15 шт.</td><td class="mono fw700 text-white">47 шт.</td><td><span class="badge badge--green">В наличии</span></td></tr>
+                <tr><td>AMD Ryzen 7 7800X3D</td><td class="mono">18 шт.</td><td class="mono">14 шт.</td><td class="mono fw700 text-white">32 шт.</td><td><span class="badge badge--green">В наличии</span></td></tr>
+                <tr><td>ASUS ROG Z890 Apex</td><td class="mono">8 шт.</td><td class="mono">4 шт.</td><td class="mono fw700 text-white">12 шт.</td><td><span class="badge badge--yellow">Заканчивается</span></td></tr>
+                <tr><td>Corsair DDR5 32GB</td><td class="mono">0 шт.</td><td class="mono">0 шт.</td><td class="mono fw700 text-white">0 шт.</td><td><span class="badge badge--red">Нет в наличии</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CONFIGURATION ═══ -->
+      <div class="panel" id="panel-configuration">
+        <div class="tabs">
+          <button class="tab is-active" data-tab="general">Общие</button>
+          <button class="tab" data-tab="pricing">Ценообразование</button>
+          <button class="tab" data-tab="parsing">Парсинг</button>
+          <button class="tab" data-tab="integrations">Интеграции</button>
+        </div>
+
+        <div class="tab-panel is-active" data-panel-tab="general">
+          <div class="card"><div class="card__head"><span class="card__title">Общие настройки</span></div><div class="card__body">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Название</label><input type="text" class="form-input" value="1000FPS"></div>
+              <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" value="support@1000fps.ru"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Телефон</label><input type="tel" class="form-input" value="8-800-555-35-35"></div>
+              <div class="form-group"><label class="form-label">Валюта</label><select class="form-select"><option>RUB</option></select></div>
+            </div>
+            <div class="form-group"><label class="form-label">Режим работы</label><input type="text" class="form-input" value="Пн–Вс: 8:00–22:00"></div>
+            <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text)"><input type="checkbox" checked> Магазин включён</label></div>
+            <button class="btn btn--primary">Сохранить</button>
+          </div></div>
+        </div>
+
+        <div class="tab-panel" data-panel-tab="pricing">
+          <div class="card"><div class="card__head"><span class="card__title">Правила ценообразования</span></div><div class="card__body">
+            <div class="form-group"><label class="form-label">Наценка по умолчанию (%)</label><input type="number" class="form-input" value="25" style="max-width:200px"></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Мин. наценка (%)</label><input type="number" class="form-input" value="10"></div>
+              <div class="form-group"><label class="form-label">Макс. наценка (%)</label><input type="number" class="form-input" value="50"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Наценка по категориям</label>
+              <div style="border:1px solid var(--gray1);border-radius:var(--radius);overflow:hidden">
+                <div class="price-cat-row" style="background:rgba(0,0,0,0.2)"><span>Видеокарты</span><input type="number" class="form-input" value="30" style="width:80px"></div>
+                <div class="price-cat-row"><span>Процессоры</span><input type="number" class="form-input" value="25" style="width:80px"></div>
+                <div class="price-cat-row" style="background:rgba(0,0,0,0.2)"><span>Матплаты</span><input type="number" class="form-input" value="28" style="width:80px"></div>
+              </div>
+            </div>
+            <button class="btn btn--primary">Сохранить</button>
+          </div></div>
+        </div>
+
+        <div class="tab-panel" data-panel-tab="parsing">
+          <div class="card"><div class="card__head"><span class="card__title">Парсинг Wildberries</span></div><div class="card__body">
+            <div class="alert alert--info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <div><div class="alert__title">Парсер цен Wildberries</div><div class="alert__sub">Отслеживание цен конкурентов</div></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">API ключ WB</label><input type="password" class="form-input" placeholder="Введите ключ"></div>
+              <div class="form-group"><label class="form-label">Интервал</label><select class="form-select"><option>Каждый час</option><option>Каждые 6 часов</option><option>Раз в день</option></select></div>
+            </div>
+            <div class="form-group"><label class="form-label">Категории</label>
+              <div class="flex gap-8" style="flex-wrap:wrap">
+                <label style="padding:7px 12px;background:var(--black3);border:1px solid var(--gray1);border-radius:var(--radius);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px"><input type="checkbox" checked> Видеокарты</label>
+                <label style="padding:7px 12px;background:var(--black3);border:1px solid var(--gray1);border-radius:var(--radius);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px"><input type="checkbox" checked> Процессоры</label>
+                <label style="padding:7px 12px;background:var(--black3);border:1px solid var(--gray1);border-radius:var(--radius);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px"><input type="checkbox"> Память</label>
+              </div>
+            </div>
+            <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text)"><input type="checkbox" checked> Автокоррекция цен</label></div>
+            <div class="flex gap-10">
+              <button class="btn btn--primary">Запустить</button>
+              <button class="btn btn--ghost">Сохранить</button>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="tab-panel" data-panel-tab="integrations">
+          <div class="card"><div class="card__head"><span class="card__title">Интеграции</span></div><div class="card__body">
+            <div class="integ-grid">
+              <div class="integ-card">
+                <div class="integ-card__top">
+                  <div class="integ-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+                  <div><div class="integ-name">1С:Предприятие</div><div class="integ-sub">Обмен данными</div></div>
+                  <span class="badge badge--muted ml-auto">Откл.</span>
+                </div>
+                <button class="btn btn--ghost btn--sm" style="width:100%">Подключить</button>
+              </div>
+              <div class="integ-card">
+                <div class="integ-card__top">
+                  <div class="integ-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+                  <div><div class="integ-name">МойСклад</div><div class="integ-sub">Учёт</div></div>
+                  <span class="badge badge--green ml-auto"><span class="badge-dot"></span>Вкл.</span>
+                </div>
+                <button class="btn btn--ghost btn--sm" style="width:100%">Настроить</button>
+              </div>
+              <div class="integ-card">
+                <div class="integ-card__top">
+                  <div class="integ-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+                  <div><div class="integ-name">Telegram Бот</div><div class="integ-sub">Уведомления</div></div>
+                  <span class="badge badge--green ml-auto"><span class="badge-dot"></span>Вкл.</span>
+                </div>
+                <button class="btn btn--ghost btn--sm" style="width:100%">Настроить</button>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- ═══ USERS ═══ -->
+      <div class="panel" id="panel-users">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Пользователи</span>
+            <button class="btn btn--primary btn--sm" onclick="openUserModal()">Добавить</button>
+          </div>
+          <div class="card__body--flush">
+            <table class="tbl">
+              <thead><tr><th>Пользователь</th><th>Роль</th><th>Email</th><th>Последний вход</th><th>Статус</th><th>Действия</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><div class="flex flex-c gap-10"><div class="user-ava" style="width:28px;height:28px;font-size:11px">A</div><span class="text-white">Admin</span></div></td>
+                  <td><span class="badge badge--orange">Супер-админ</span></td>
+                  <td class="mono f11">admin@1000fps.ru</td>
+                  <td class="mono f11 text-muted">23.03.2026 15:42</td>
+                  <td><span class="badge badge--green"><span class="badge-dot"></span>Активен</span></td>
+                  <td><button class="tbl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></td>
+                </tr>
+                <tr>
+                  <td><div class="flex flex-c gap-10"><div class="user-ava" style="width:28px;height:28px;font-size:11px;background:#334">M</div><span class="text-white">Manager</span></div></td>
+                  <td><span class="badge badge--blue">Менеджер</span></td>
+                  <td class="mono f11">manager@1000fps.ru</td>
+                  <td class="mono f11 text-muted">23.03.2026 14:20</td>
+                  <td><span class="badge badge--green"><span class="badge-dot"></span>Активен</span></td>
+                  <td><div class="tbl-actions"><button class="tbl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="tbl-btn tbl-btn--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button></div></td>
+                </tr>
+                <tr>
+                  <td><div class="flex flex-c gap-10"><div class="user-ava" style="width:28px;height:28px;font-size:11px;background:#1a3a2a">W</div><span class="text-white">Warehouse</span></div></td>
+                  <td><span class="badge badge--yellow">Кладовщик</span></td>
+                  <td class="mono f11">warehouse@1000fps.ru</td>
+                  <td class="mono f11 text-muted">23.03.2026 09:15</td>
+                  <td><span class="badge badge--green"><span class="badge-dot"></span>Активен</span></td>
+                  <td><div class="tbl-actions"><button class="tbl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="tbl-btn tbl-btn--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ LOGS ═══ -->
+      <div class="panel" id="panel-logs">
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Системный журнал</span>
+            <div class="flex gap-8">
+              <select class="form-select" style="width:150px"><option>Все уровни</option><option>Инфо</option><option>Ошибки</option></select>
+              <button class="btn btn--ghost btn--sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Экспорт
+              </button>
+            </div>
+          </div>
+          <div class="card__body--flush">
+            <table class="tbl">
+              <thead><tr><th>Время</th><th>Уровень</th><th>Событие</th><th>Пользователь</th><th>Детали</th></tr></thead>
+              <tbody>
+                <tr><td class="mono f11">23.03.2026 15:42</td><td><span class="level level--info">INFO</span></td><td>Вход в систему</td><td class="text-muted">Admin</td><td class="mono f11 text-muted">IP: 192.168.1.100</td></tr>
+                <tr><td class="mono f11">23.03.2026 14:32</td><td><span class="level level--ok">OK</span></td><td>Заказ #4521</td><td class="text-muted">Иванов П.</td><td class="mono f11 text-muted">79 990 ₽</td></tr>
+                <tr><td class="mono f11">23.03.2026 12:18</td><td><span class="level level--warn">WARN</span></td><td>Мало товара</td><td class="text-muted">Система</td><td class="mono f11 text-muted">ROG Z890: 12 шт.</td></tr>
+                <tr><td class="mono f11">23.03.2026 10:45</td><td><span class="level level--ok">OK</span></td><td>Цена изменена</td><td class="text-muted">Manager</td><td class="mono f11 text-muted">RTX 4070 Ti: 97500→79990</td></tr>
+                <tr><td class="mono f11">22.03.2026 18:22</td><td><span class="level level--err">ERR</span></td><td>Ошибка оплаты</td><td class="text-muted">Козлов М.</td><td class="mono f11 text-muted">Заказ #4518</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: PRODUCT ═══ -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal__head">
+      <span class="modal__title" id="productModalTitle">Добавить товар</span>
+      <button class="modal__close" onclick="closeProductModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="form-group"><label class="form-label">Название <span class="req">*</span></label><input type="text" class="form-input" placeholder="ASUS TUF Gaming RTX 4070 Ti Super"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Артикул <span class="req">*</span></label><input type="text" class="form-input" placeholder="TUF-RTX4070TIS-O16G"></div>
+        <div class="form-group"><label class="form-label">Бренд</label><select class="form-select"><option>ASUS</option><option>MSI</option><option>Gigabyte</option><option>AMD</option><option>NVIDIA</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Категория <span class="req">*</span></label><select class="form-select"><option>Видеокарты</option><option>Процессоры</option><option>Матплаты</option></select></div>
+        <div class="form-group"><label class="form-label">Цена <span class="req">*</span></label><input type="number" class="form-input" placeholder="79990"></div>
+      </div>
+      <div class="form-row--3">
+        <div class="form-group"><label class="form-label">Волгоград</label><input type="number" class="form-input" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Волжский</label><input type="number" class="form-input" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Старая цена</label><input type="number" class="form-input" placeholder="97500"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Характеристики</label><textarea class="form-textarea" placeholder="16 ГБ / GDDR6X" rows="3"></textarea></div>
+      <div class="form-group"><label class="form-label">Фото</label>
+        <div class="upload-zone" style="padding:20px">
+          <div class="upload-zone__title" style="font-size:11px">Перетащите или нажмите</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--ghost" onclick="closeProductModal()">Отмена</button>
+      <button class="btn btn--primary">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function(e) {
+    e.preventDefault();
+    const panelId = this.dataset.panel;
+    if (!panelId) return;
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('is-active'));
+    this.classList.add('is-active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('is-active'));
+    document.getElementById('panel-' + panelId).classList.add('is-active');
+    const titles = {
+      dashboard:'Дашборд',products:'Товары',categories:'Категории',
+      gallery:'Галерея',orders:'Заказы',analytics:'Аналитика',
+      'price-history':'История цен',warehouses:'Склады',
+      configuration:'Конфигурация',users:'Пользователи',logs:'Логи'
+    };
+    document.getElementById('pageTitle').textContent = titles[panelId] || panelId;
+  });
+});
+
+// Inline "All orders" link
+document.querySelectorAll('[data-panel-nav]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const target = this.dataset.panelNav;
+    document.querySelectorAll('.nav-item').forEach(i => {
+      if (i.dataset.panel === target) i.click();
+    });
+  });
+});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    const tabName = this.dataset.tab;
+    const parent = this.closest('.panel, .card');
+    parent.querySelectorAll('.tab').forEach(t => t.classList.remove('is-active'));
+    this.classList.add('is-active');
+    parent.querySelectorAll('[data-panel-tab]').forEach(p => p.classList.remove('is-active'));
+    parent.querySelector('[data-panel-tab="' + tabName + '"]').classList.add('is-active');
+  });
+});
+
+function openProductModal(isEdit = false) {
+  document.getElementById('productModalTitle').textContent = isEdit ? 'Редактировать товар' : 'Добавить товар';
+  document.getElementById('productModal').classList.add('is-active');
+}
+function closeProductModal() {
+  document.getElementById('productModal').classList.remove('is-active');
+}
+function deleteProduct(btn) {
+  if (confirm('Удалить товар?')) btn.closest('tr').remove();
+}
+function exportProducts()        { alert('Экспорт товаров'); }
+function openCategoryModal()     { alert('Добавление категории'); }
+function openUserModal()         { alert('Добавление пользователя'); }
+function openWarehouseModal()    { alert('Добавление склада'); }
+function viewWarehouseStock(id)  { alert('Остатки: ' + id); }
+function editWarehouse(id)       { alert('Редактирование: ' + id); }
+function viewOrder(id)           { alert('Заказ ' + id); }
+
+// Close modal on overlay click
+document.getElementById('productModal').addEventListener('click', function(e) {
+  if (e.target === this) closeProductModal();
+});
+</script>
+</body>
+</html>

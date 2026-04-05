@@ -1,5 +1,0 @@
-product.html — страница товара
-profile.html — профиль пользователя
-admin.html — админ панель
-faq.html — FAQ
-configurator.html — конфигуратор ПК

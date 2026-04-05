@@ -1,0 +1,15 @@
+import { z } from 'zod';
+
+// Схема для создания заказа (клиентская)
+// Оплата только при получении, доставка только самовывоз
+export const createOrderSchema = z.object({
+  // Контактные данные
+  name: z.string().min(2, 'Имя должно содержать минимум 2 символа').max(100),
+  email: z.string().email('Некорректный email'),
+  phone: z.string().min(5, 'Укажите номер телефона').max(20),
+
+  // Комментарий к заказу
+  notes: z.string().max(1000, 'Комментарий не более 1000 символов').optional().nullable(),
+});
+
+export type CreateOrderInput = z.infer<typeof createOrderSchema>;

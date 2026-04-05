@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Конфигуратор ПК — 1000FPS</title>
+<link rel="stylesheet" href="style.css">
+<style>
+
+/* ─── CSS VARS FALLBACK ──────────────────────────────── */
+:root {
+  --black:  #0d0d0d;
+  --black2: #111111;
+  --black3: #181818;
+  --gray1:  #222222;
+  --gray2:  #333333;
+  --gray3:  #666666;
+  --gray4:  #aaaaaa;
+  --white:  #ffffff;
+  --white2: #e8e8e8;
+  --orange: #ff6a00;
+  --orange2:#e05e00;
+  --radius: 4px;
+  --tr:     0.15s ease;
+  --font-display: 'Arial Black', Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--black); color: var(--white); font-family: Arial, sans-serif; font-size: 14px; }
+a { text-decoration: none; }
+button { font-family: inherit; }
+select { font-family: inherit; }
+
+.container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius); font-size: 13px;
+  font-weight: 600; cursor: pointer; transition: var(--tr); border: none;
+}
+.btn-primary { background: var(--orange); color: #fff; }
+.btn-primary:hover { background: var(--orange2); }
+.btn-ghost {
+  background: none; color: var(--gray4);
+  border: 1px solid var(--gray2);
+}
+.btn-ghost:hover { color: var(--white); border-color: var(--gray3); background: var(--black3); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* ─── LAYOUT ─────────────────────────────────────────── */
+.cfg-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 0;
+  min-height: calc(100vh - 100px);
+  align-items: start;
+}
+
+/* ─── HEADER BAR ─────────────────────────────────────── */
+.cfg-topbar {
+  background: var(--black2);
+  border-bottom: 1px solid var(--gray1);
+  padding: 0;
+}
+.cfg-topbar__inner {
+  display: flex; align-items: center; gap: 0;
+  height: 52px;
+}
+.cfg-topbar__title {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 20px;
+  font-family: var(--font-display); font-size: 18px; font-weight: 800;
+  text-transform: uppercase; color: var(--white2);
+  border-right: 1px solid var(--gray1); height: 100%;
+}
+.cfg-topbar__title svg { width: 18px; height: 18px; color: var(--orange); }
+.cfg-topbar__presets {
+  display: flex; align-items: center; gap: 0;
+  height: 100%; flex: 1;
+}
+.cfg-topbar__preset-label {
+  font-size: 11px; color: var(--gray3); padding: 0 16px;
+  white-space: nowrap; border-right: 1px solid var(--gray1); height: 100%;
+  display: flex; align-items: center;
+}
+.cfg-preset-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 16px; height: 100%;
+  font-size: 12px; font-weight: 500; color: var(--gray4);
+  border: none; border-right: 1px solid var(--gray1);
+  cursor: pointer; transition: background var(--tr), color var(--tr);
+  white-space: nowrap; background: none;
+}
+.cfg-preset-btn:hover { background: var(--black3); color: var(--white); }
+.cfg-preset-btn.is-active { color: var(--orange); background: var(--black3); }
+.cfg-preset-btn__dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.cfg-topbar__actions {
+  margin-left: auto; display: flex; align-items: center; gap: 8px;
+  padding: 0 16px; height: 100%; border-left: 1px solid var(--gray1);
+}
+
+/* ─── PARTS LIST ─────────────────────────────────────── */
+.cfg-parts { border-right: 1px solid var(--gray1); }
+
+.cfg-section {
+  border-bottom: 1px solid var(--gray1);
+}
+.cfg-section__head {
+  display: flex; align-items: center; gap: 0;
+  height: 44px; cursor: pointer; user-select: none;
+  background: var(--black2);
+  transition: background var(--tr);
+}
+.cfg-section__head:hover { background: var(--black3); }
+.cfg-section__icon {
+  width: 44px; height: 44px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-right: 1px solid var(--gray1);
+  color: var(--gray3);
+}
+.cfg-section__icon svg { width: 18px; height: 18px; }
+.cfg-section.is-selected .cfg-section__icon { color: var(--orange); }
+.cfg-section__name {
+  padding: 0 14px; flex: 1;
+  font-size: 13px; font-weight: 600; color: var(--gray4);
+}
+.cfg-section.is-selected .cfg-section__name { color: var(--white2); }
+.cfg-section__required {
+  font-size: 10px; color: var(--gray3); padding-right: 8px;
+  font-weight: 400;
+}
+.cfg-section__required--yes { color: var(--orange); }
+.cfg-section__status {
+  width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  margin-right: 14px; border: 1px solid var(--gray2);
+  display: flex; align-items: center; justify-content: center;
+}
+.cfg-section__status--done {
+  background: #4caf50; border-color: #4caf50;
+}
+.cfg-section__status--done svg { width: 10px; height: 10px; color: #fff; }
+.cfg-section__status--warn {
+  background: var(--orange); border-color: var(--orange);
+}
+.cfg-section__chevron {
+  padding-right: 14px; color: var(--gray2);
+}
+.cfg-section__chevron svg { width: 14px; height: 14px; transition: transform var(--tr); }
+.cfg-section.is-open .cfg-section__chevron svg { transform: rotate(180deg); }
+
+/* Selected component row */
+.cfg-selected {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px 10px 58px;
+  background: var(--black3); border-bottom: 1px solid var(--gray1);
+}
+.cfg-selected__img {
+  width: 48px; height: 36px; flex-shrink: 0;
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius); display: flex; align-items: center; justify-content: center;
+}
+.cfg-selected__info { flex: 1; min-width: 0; }
+.cfg-selected__name { font-size: 12px; color: var(--white2); line-height: 1.3; }
+.cfg-selected__spec { font-size: 11px; color: var(--gray3); margin-top: 2px; }
+.cfg-selected__price {
+  font-family: var(--font-display); font-size: 15px; font-weight: 800;
+  color: var(--white2); flex-shrink: 0;
+}
+.cfg-selected__remove {
+  width: 24px; height: 24px; flex-shrink: 0;
+  background: none; border: 1px solid var(--gray1); border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gray3); cursor: pointer; transition: var(--tr);
+}
+.cfg-selected__remove:hover { border-color: #e53935; color: #e53935; }
+.cfg-selected__remove svg { width: 12px; height: 12px; }
+
+/* Component picker panel */
+.cfg-picker {
+  display: none;
+  border-bottom: 1px solid var(--gray1);
+}
+.cfg-section.is-open .cfg-picker { display: block; }
+
+.cfg-picker__toolbar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-bottom: 1px solid var(--gray1);
+  background: var(--black);
+}
+.cfg-picker__search { position: relative; flex: 1; }
+.cfg-picker__search svg {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: var(--gray3); pointer-events: none;
+}
+.cfg-picker__search input {
+  width: 100%; padding: 7px 10px 7px 32px;
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius); color: var(--white); font-size: 13px; outline: none;
+  transition: border-color var(--tr);
+}
+.cfg-picker__search input:focus { border-color: var(--orange); }
+.cfg-picker__sort {
+  background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: var(--radius); padding: 7px 26px 7px 10px;
+  color: var(--white); font-size: 12px; outline: none; cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center; background-size: 12px;
+  white-space: nowrap;
+}
+
+/* Component list */
+.cfg-component-list { max-height: 340px; overflow-y: auto; }
+.cfg-component {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--gray1);
+  cursor: pointer; transition: background var(--tr);
+  position: relative;
+}
+.cfg-component:last-child { border-bottom: none; }
+.cfg-component:hover { background: var(--black3); }
+.cfg-component.is-selected {
+  background: rgba(255,106,0,0.05);
+  outline: 1px solid var(--orange); outline-offset: -1px;
+}
+.cfg-component__img {
+  width: 56px; height: 42px; flex-shrink: 0;
+  background: var(--black3); border: 1px solid var(--gray1);
+  border-radius: var(--radius); display: flex; align-items: center; justify-content: center;
+}
+.cfg-component__info { flex: 1; min-width: 0; }
+.cfg-component__name { font-size: 12px; color: var(--white2); line-height: 1.35; margin-bottom: 3px; }
+.cfg-component__specs { font-size: 11px; color: var(--gray3); }
+.cfg-component__compat {
+  font-size: 10px; margin-top: 3px;
+  display: flex; align-items: center; gap: 4px;
+}
+.cfg-component__compat--ok  { color: #4caf50; }
+.cfg-component__compat--warn { color: var(--orange); }
+.cfg-component__compat--err  { color: #e53935; }
+.cfg-component__price-col { flex-shrink: 0; text-align: right; }
+.cfg-component__price {
+  font-family: var(--font-display); font-size: 15px; font-weight: 800; color: var(--white2);
+}
+.cfg-component__price-old { font-size: 11px; color: var(--gray3); text-decoration: line-through; }
+.cfg-component__add {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: var(--orange); border: none; border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; cursor: pointer; transition: background var(--tr);
+}
+.cfg-component__add:hover { background: var(--orange2); }
+.cfg-component__add svg { width: 14px; height: 14px; }
+.cfg-component.is-selected .cfg-component__add {
+  background: #4caf50;
+}
+
+/* Filters inside picker */
+.cfg-filters {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 8px 14px; border-bottom: 1px solid var(--gray1);
+  background: var(--black);
+}
+.cfg-filter-tag {
+  padding: 3px 10px; background: var(--black2); border: 1px solid var(--gray1);
+  border-radius: 999px; font-size: 11px; color: var(--gray4);
+  cursor: pointer; transition: var(--tr);
+}
+.cfg-filter-tag:hover { border-color: var(--orange); color: var(--orange); }
+.cfg-filter-tag.is-active { border-color: var(--orange); color: var(--orange); background: rgba(255,106,0,0.08); }
+
+/* ─── SIDEBAR SUMMARY ────────────────────────────────── */
+.cfg-summary {
+  position: sticky; top: 0;
+  background: var(--black2);
+  border-left: 1px solid var(--gray1);
+  min-height: 100vh;
+}
+.cfg-summary__head {
+  padding: 16px;
+  border-bottom: 1px solid var(--gray1);
+  font-family: var(--font-display); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--orange);
+}
+.cfg-summary__parts { padding: 4px 0; border-bottom: 1px solid var(--gray1); }
+.cfg-summary__part {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+  padding: 7px 16px; font-size: 12px;
+  border-bottom: 1px solid var(--gray1);
+  transition: background var(--tr);
+}
+.cfg-summary__part:last-child { border-bottom: none; }
+.cfg-summary__part--filled { background: rgba(255,106,0,0.03); }
+.cfg-summary__part-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cfg-summary__part-label { color: var(--gray3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.cfg-summary__part-model { color: var(--white2); font-size: 11px; line-height: 1.35; word-break: break-word; }
+.cfg-summary__part-price { color: var(--orange); font-weight: 700; white-space: nowrap; flex-shrink: 0; font-size: 12px; padding-top: 10px; }
+.cfg-summary__part-empty { color: var(--gray2); font-size: 11px; flex-shrink: 0; padding-top: 10px; }
+
+/* Compatibility block */
+.cfg-compat {
+  padding: 12px 16px; border-bottom: 1px solid var(--gray1);
+}
+.cfg-compat__title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--gray3); margin-bottom: 8px;
+}
+.cfg-compat__item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; padding: 3px 0;
+}
+.cfg-compat__dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.cfg-compat__dot--ok   { background: #4caf50; }
+.cfg-compat__dot--warn { background: var(--orange); }
+.cfg-compat__dot--na   { background: var(--gray2); }
+.cfg-compat__text { color: var(--gray4); }
+.cfg-compat__text--warn { color: var(--orange); }
+.cfg-compat__text--na   { color: var(--gray3); }
+
+/* Power estimate */
+.cfg-power {
+  padding: 12px 16px; border-bottom: 1px solid var(--gray1);
+}
+.cfg-power__title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--gray3); margin-bottom: 8px;
+}
+.cfg-power__bar-wrap { height: 6px; background: var(--gray1); border-radius: 3px; margin-bottom: 6px; overflow: hidden; }
+.cfg-power__bar { height: 100%; background: var(--orange); border-radius: 3px; transition: width 0.4s ease; }
+.cfg-power__labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray3); }
+
+/* Total */
+.cfg-total {
+  padding: 16px;
+  border-bottom: 1px solid var(--gray1);
+}
+.cfg-total__row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 6px;
+}
+.cfg-total__label { font-size: 12px; color: var(--gray3); }
+.cfg-total__val { font-size: 12px; color: var(--gray4); }
+.cfg-total__main {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--gray1);
+}
+.cfg-total__main-label {
+  font-family: var(--font-display); font-size: 14px; font-weight: 700;
+  text-transform: uppercase; color: var(--white2);
+}
+.cfg-total__main-price {
+  font-family: var(--font-display); font-size: 26px; font-weight: 800; color: var(--white2);
+}
+.cfg-total__credit { font-size: 11px; color: var(--gray3); margin-top: 4px; text-align: right; }
+
+/* Actions */
+.cfg-actions { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.cfg-actions .btn { justify-content: center; }
+
+/* Share */
+.cfg-share {
+  padding: 10px 16px; border-top: 1px solid var(--gray1);
+  display: flex; gap: 8px;
+}
+.cfg-share .btn { flex: 1; justify-content: center; font-size: 11px; padding: 7px; }
+
+/* ─── BREADCRUMB ─────────────────────────────────────── */
+.breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 0; font-size: 12px; color: var(--gray3);
+  border-bottom: 1px solid var(--gray1);
+}
+.breadcrumb a { color: var(--gray3); transition: color var(--tr); }
+.breadcrumb a:hover { color: var(--orange); }
+.breadcrumb__sep { color: var(--gray2); }
+
+/* ─── EMPTY STATE ────────────────────────────────────── */
+.cfg-empty {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 14px 14px 58px;
+  font-size: 12px; color: var(--gray3);
+  cursor: pointer; transition: background var(--tr);
+  border-bottom: 1px solid var(--gray1);
+}
+.cfg-empty:hover { background: var(--black3); color: var(--orange); }
+.cfg-empty svg { width: 14px; height: 14px; color: var(--orange); flex-shrink: 0; }
+
+/* ─── NOTIFY BADGE ───────────────────────────────────── */
+.part-count {
+  font-size: 10px; padding: 1px 6px;
+  background: var(--orange); color: #fff;
+  border-radius: 999px; font-weight: 700;
+  margin-left: 6px; font-family: var(--font-display);
+}
+
+/* ─── SCROLLBAR ──────────────────────────────────────── */
+.cfg-component-list::-webkit-scrollbar { width: 4px; }
+.cfg-component-list::-webkit-scrollbar-track { background: var(--black); }
+.cfg-component-list::-webkit-scrollbar-thumb { background: var(--gray2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- BREADCRUMB -->
+<div style="background:var(--black2);border-bottom:1px solid var(--gray1)">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Главная</a>
+      <span class="breadcrumb__sep">/</span>
+      <span style="color:var(--white)">Конфигуратор ПК</span>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="cfg-topbar">
+  <div class="container" style="padding:0;max-width:100%">
+    <div class="cfg-topbar__inner">
+      <div class="cfg-topbar__title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M9 8h6M12 6v4"/></svg>
+        Конфигуратор ПК
+      </div>
+      <div class="cfg-topbar__presets">
+        <span class="cfg-topbar__preset-label">Готовые сборки:</span>
+        <button class="cfg-preset-btn" onclick="loadPreset('office')">
+          <span class="cfg-preset-btn__dot" style="background:#4caf50"></span>
+          Офисный
+        </button>
+        <button class="cfg-preset-btn" onclick="loadPreset('gaming')">
+          <span class="cfg-preset-btn__dot" style="background:var(--orange)"></span>
+          Игровой
+        </button>
+        <button class="cfg-preset-btn" onclick="loadPreset('pro')">
+          <span class="cfg-preset-btn__dot" style="background:#9c27b0"></span>
+          Топовый
+        </button>
+        <button class="cfg-preset-btn" onclick="loadPreset('stream')">
+          <span class="cfg-preset-btn__dot" style="background:#2196f3"></span>
+          Для стриминга
+        </button>
+        <button class="cfg-preset-btn" onclick="loadPreset('work')">
+          <span class="cfg-preset-btn__dot" style="background:#ff9800"></span>
+          Рабочая станция
+        </button>
+      </div>
+      <div class="cfg-topbar__actions">
+        <button class="btn btn-ghost btn-sm" onclick="saveConfig()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Сохранить
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="shareConfig()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Поделиться
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="clearAll()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          Сбросить
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="container" style="padding:0;max-width:100%">
+  <div class="cfg-layout">
+
+    <!-- ═══ PARTS ═══ -->
+    <div class="cfg-parts" id="cfgParts">
+
+      <!-- ── CPU ─────────────────────────────────────── -->
+      <div class="cfg-section is-selected is-open" id="sec-cpu">
+        <div class="cfg-section__head" onclick="toggleSection('cpu')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg>
+          </div>
+          <div class="cfg-section__name">Процессор <span class="part-count" id="badge-cpu">1</span></div>
+          <span class="cfg-section__required cfg-section__required--yes">Обязательно</span>
+          <div class="cfg-section__status cfg-section__status--done" id="status-cpu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-cpu">
+          <div class="cfg-selected__img">
+            <svg viewBox="0 0 48 36" fill="none" style="width:36px"><rect x="8" y="6" width="32" height="24" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><rect x="14" y="12" width="20" height="12" rx="1" stroke="var(--orange)" stroke-width="1.5"/><circle cx="24" cy="18" r="4" stroke="var(--gray3)" stroke-width="1"/></svg>
+          </div>
+          <div class="cfg-selected__info">
+            <div class="cfg-selected__name" id="sel-name-cpu">AMD Ryzen 7 7800X3D AM5, 8 ядер, OEM</div>
+            <div class="cfg-selected__spec" id="sel-spec-cpu">8 ядер / 16 потоков / 5.0 ГГц / 96 МБ L3</div>
+          </div>
+          <div class="cfg-selected__price" id="sel-price-cpu">34 990 руб.</div>
+          <button class="cfg-selected__remove" onclick="removeComponent('cpu')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск процессора..." oninput="filterList('cpu', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('cpu', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'cpu','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cpu','amd')">AMD</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cpu','intel')">Intel</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cpu','am5')">AM5</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cpu','lga1700')">LGA 1700</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cpu','8core')">8 ядер</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cpu','12core')">12+ ядер</span>
+          </div>
+          <div class="cfg-component-list" id="list-cpu">
+            <!-- items rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GPU ─────────────────────────────────────── -->
+      <div class="cfg-section is-selected" id="sec-gpu">
+        <div class="cfg-section__head" onclick="toggleSection('gpu')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="7" width="22" height="12" rx="2"/><path d="M7 7V5M12 7V4M17 7V5"/><circle cx="8" cy="13" r="2"/><circle cx="16" cy="13" r="2"/><path d="M3 19h1M20 19h1"/></svg>
+          </div>
+          <div class="cfg-section__name">Видеокарта <span class="part-count" id="badge-gpu" style="display:none">1</span></div>
+          <span class="cfg-section__required cfg-section__required--yes">Обязательно</span>
+          <div class="cfg-section__status" id="status-gpu"></div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-gpu" style="display:none"></div>
+        <div class="cfg-empty" id="empty-gpu" onclick="toggleSection('gpu')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Выберите видеокарту
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск видеокарты..." oninput="filterList('gpu', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('gpu', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'gpu','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'gpu','nvidia')">NVIDIA</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'gpu','amd')">AMD</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'gpu','8gb')">8 ГБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'gpu','16gb')">16 ГБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'gpu','24gb')">24 ГБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'gpu','rtx4000')">RTX 40</span>
+          </div>
+          <div class="cfg-component-list" id="list-gpu"></div>
+        </div>
+      </div>
+
+      <!-- ── MOTHERBOARD ──────────────────────────────── -->
+      <div class="cfg-section" id="sec-mb">
+        <div class="cfg-section__head" onclick="toggleSection('mb')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="2"/><rect x="6" y="6" width="5" height="5" rx="1"/><rect x="13" y="6" width="5" height="5" rx="1"/><path d="M6 15h12M6 18h8M18 15v4"/></svg>
+          </div>
+          <div class="cfg-section__name">Материнская плата <span class="part-count" id="badge-mb" style="display:none">1</span></div>
+          <span class="cfg-section__required cfg-section__required--yes">Обязательно</span>
+          <div class="cfg-section__status" id="status-mb"></div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-mb" style="display:none"></div>
+        <div class="cfg-empty" id="empty-mb" onclick="toggleSection('mb')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Выберите материнскую плату
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск материнской платы..." oninput="filterList('mb', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('mb', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'mb','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'mb','am5')">AM5</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'mb','lga1700')">LGA 1700</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'mb','x670')">X670</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'mb','b650')">B650</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'mb','z790')">Z790</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'mb','atx')">ATX</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'mb','matx')">mATX</span>
+          </div>
+          <div class="cfg-component-list" id="list-mb"></div>
+        </div>
+      </div>
+
+      <!-- ── RAM ─────────────────────────────────────── -->
+      <div class="cfg-section" id="sec-ram">
+        <div class="cfg-section__head" onclick="toggleSection('ram')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="8" width="22" height="8" rx="1"/><path d="M6 8V6M9 8V5M12 8V6M15 8V5M18 8V6"/><path d="M6 16v2M9 16v3M12 16v2M15 16v3M18 16v2"/></svg>
+          </div>
+          <div class="cfg-section__name">Оперативная память <span class="part-count" id="badge-ram" style="display:none">1</span></div>
+          <span class="cfg-section__required cfg-section__required--yes">Обязательно</span>
+          <div class="cfg-section__status" id="status-ram"></div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-ram" style="display:none"></div>
+        <div class="cfg-empty" id="empty-ram" onclick="toggleSection('ram')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Выберите оперативную память
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск оперативной памяти..." oninput="filterList('ram', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('ram', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'ram','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ram','ddr5')">DDR5</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ram','ddr4')">DDR4</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ram','16gb')">16 ГБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ram','32gb')">32 ГБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ram','64gb')">64 ГБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ram','rgb')">RGB</span>
+          </div>
+          <div class="cfg-component-list" id="list-ram"></div>
+        </div>
+      </div>
+
+      <!-- ── SSD ─────────────────────────────────────── -->
+      <div class="cfg-section" id="sec-ssd">
+        <div class="cfg-section__head" onclick="toggleSection('ssd')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="17" cy="12" r="2"/><path d="M6 9h6M6 12h4M6 15h5"/></svg>
+          </div>
+          <div class="cfg-section__name">Накопитель (SSD) <span class="part-count" id="badge-ssd" style="display:none">1</span></div>
+          <span class="cfg-section__required cfg-section__required--yes">Обязательно</span>
+          <div class="cfg-section__status" id="status-ssd"></div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-ssd" style="display:none"></div>
+        <div class="cfg-empty" id="empty-ssd" onclick="toggleSection('ssd')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Выберите накопитель
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск накопителя..." oninput="filterList('ssd', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('ssd', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'ssd','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ssd','nvme')">NVMe</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ssd','sata')">SATA</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ssd','500gb')">500 ГБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ssd','1tb')">1 ТБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ssd','2tb')">2 ТБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'ssd','gen4')">PCIe Gen4</span>
+          </div>
+          <div class="cfg-component-list" id="list-ssd"></div>
+        </div>
+      </div>
+
+      <!-- ── HDD (опционально) ──────────────────────── -->
+      <div class="cfg-section" id="sec-hdd">
+        <div class="cfg-section__head" onclick="toggleSection('hdd')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="12" rx="10" ry="7"/><ellipse cx="12" cy="12" rx="5" ry="3"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+          </div>
+          <div class="cfg-section__name">Жёсткий диск (HDD) <span class="part-count" id="badge-hdd" style="display:none">1</span></div>
+          <span class="cfg-section__required">Опционально</span>
+          <div class="cfg-section__status" id="status-hdd"></div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-hdd" style="display:none"></div>
+        <div class="cfg-empty" id="empty-hdd" onclick="toggleSection('hdd')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Добавить жёсткий диск
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск жёсткого диска..." oninput="filterList('hdd', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('hdd', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'hdd','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'hdd','1tb')">1 ТБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'hdd','2tb')">2 ТБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'hdd','4tb')">4 ТБ</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'hdd','seagate')">Seagate</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'hdd','wd')">WD</span>
+          </div>
+          <div class="cfg-component-list" id="list-hdd"></div>
+        </div>
+      </div>
+
+      <!-- ── PSU ─────────────────────────────────────── -->
+      <div class="cfg-section" id="sec-psu">
+        <div class="cfg-section__head" onclick="toggleSection('psu')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M7 7V5M12 7V4M17 7V5M7 17v2M17 17v2"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <div class="cfg-section__name">Блок питания <span class="part-count" id="badge-psu" style="display:none">1</span></div>
+          <span class="cfg-section__required cfg-section__required--yes">Обязательно</span>
+          <div class="cfg-section__status" id="status-psu"></div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-psu" style="display:none"></div>
+        <div class="cfg-empty" id="empty-psu" onclick="toggleSection('psu')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Выберите блок питания
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск блока питания..." oninput="filterList('psu', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('psu', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'psu','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'psu','650w')">650 Вт</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'psu','750w')">750 Вт</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'psu','850w')">850 Вт</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'psu','1000w')">1000+ Вт</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'psu','gold')">80+ Gold</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'psu','platinum')">80+ Platinum</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'psu','modular')">Модульный</span>
+          </div>
+          <div class="cfg-component-list" id="list-psu"></div>
+        </div>
+      </div>
+
+      <!-- ── CASE ────────────────────────────────────── -->
+      <div class="cfg-section" id="sec-case">
+        <div class="cfg-section__head" onclick="toggleSection('case')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="1" width="16" height="22" rx="2"/><path d="M9 6h6M9 10h3M15 18v2M15 14v1"/><circle cx="15" cy="11" r="1" fill="currentColor"/></svg>
+          </div>
+          <div class="cfg-section__name">Корпус <span class="part-count" id="badge-case" style="display:none">1</span></div>
+          <span class="cfg-section__required cfg-section__required--yes">Обязательно</span>
+          <div class="cfg-section__status" id="status-case"></div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-case" style="display:none"></div>
+        <div class="cfg-empty" id="empty-case" onclick="toggleSection('case')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Выберите корпус
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск корпуса..." oninput="filterList('case', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('case', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'case','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'case','mid')">Mid Tower</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'case','full')">Full Tower</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'case','mini')">Mini ITX</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'case','glass')">Стекло</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'case','rgb')">RGB</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'case','airflow')">Airflow</span>
+          </div>
+          <div class="cfg-component-list" id="list-case"></div>
+        </div>
+      </div>
+
+      <!-- ── COOLER ───────────────────────────────────── -->
+      <div class="cfg-section" id="sec-cool">
+        <div class="cfg-section__head" onclick="toggleSection('cool')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          </div>
+          <div class="cfg-section__name">Охлаждение CPU <span class="part-count" id="badge-cool" style="display:none">1</span></div>
+          <span class="cfg-section__required cfg-section__required--yes">Обязательно</span>
+          <div class="cfg-section__status" id="status-cool"></div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-cool" style="display:none"></div>
+        <div class="cfg-empty" id="empty-cool" onclick="toggleSection('cool')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Выберите систему охлаждения
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск охлаждения..." oninput="filterList('cool', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('cool', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'cool','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cool','air')">Воздушное</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cool','aio240')">AIO 240 мм</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cool','aio280')">AIO 280 мм</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cool','aio360')">AIO 360 мм</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'cool','rgb')">RGB</span>
+          </div>
+          <div class="cfg-component-list" id="list-cool"></div>
+        </div>
+      </div>
+
+      <!-- ── FANS (опционально) ──────────────────────── -->
+      <div class="cfg-section" id="sec-fans">
+        <div class="cfg-section__head" onclick="toggleSection('fans')">
+          <div class="cfg-section__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 12c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4"/><path d="M12 12c0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4"/><path d="M12 12c2.2 0 4 1.8 4 4s-1.8 4-4 4-4-1.8-4-4"/><path d="M12 12c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <div class="cfg-section__name">Корпусные вентиляторы <span class="part-count" id="badge-fans" style="display:none">1</span></div>
+          <span class="cfg-section__required">Опционально</span>
+          <div class="cfg-section__status" id="status-fans"></div>
+          <div class="cfg-section__chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+        </div>
+        <div class="cfg-selected" id="selected-fans" style="display:none"></div>
+        <div class="cfg-empty" id="empty-fans" onclick="toggleSection('fans')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          Добавить корпусные вентиляторы
+        </div>
+        <div class="cfg-picker">
+          <div class="cfg-picker__toolbar">
+            <div class="cfg-picker__search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="Поиск вентиляторов..." oninput="filterList('fans', this.value)">
+            </div>
+            <select class="cfg-picker__sort" onchange="sortList('fans', this.value)">
+              <option value="popular">По популярности</option>
+              <option value="price-asc">Сначала дешевле</option>
+              <option value="price-desc">Сначала дороже</option>
+            </select>
+          </div>
+          <div class="cfg-filters">
+            <span class="cfg-filter-tag is-active" onclick="filterTag(this,'fans','all')">Все</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'fans','120mm')">120 мм</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'fans','140mm')">140 мм</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'fans','rgb')">ARGB</span>
+            <span class="cfg-filter-tag" onclick="filterTag(this,'fans','3pack')">Комплект 3 шт.</span>
+          </div>
+          <div class="cfg-component-list" id="list-fans"></div>
+        </div>
+      </div>
+
+    </div><!-- /cfg-parts -->
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <div class="cfg-summary">
+      <div class="cfg-summary__head">Состав сборки</div>
+
+      <div class="cfg-summary__parts" id="summaryParts">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Compatibility -->
+      <div class="cfg-compat">
+        <div class="cfg-compat__title">Совместимость</div>
+        <div id="compatList">
+          <div class="cfg-compat__item">
+            <span class="cfg-compat__dot cfg-compat__dot--na"></span>
+            <span class="cfg-compat__text cfg-compat__text--na">Добавьте компоненты</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Power -->
+      <div class="cfg-power">
+        <div class="cfg-power__title">Потребляемая мощность</div>
+        <div class="cfg-power__bar-wrap">
+          <div class="cfg-power__bar" id="powerBar" style="width:0%"></div>
+        </div>
+        <div class="cfg-power__labels">
+          <span id="powerCurrent">0 Вт</span>
+          <span id="powerPsu">— Вт (БП)</span>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="cfg-total">
+        <div class="cfg-total__row">
+          <span class="cfg-total__label">Компонентов</span>
+          <span class="cfg-total__val" id="totalParts">1 из 7</span>
+        </div>
+        <div class="cfg-total__row">
+          <span class="cfg-total__label">Доставка</span>
+          <span class="cfg-total__val">Бесплатно</span>
+        </div>
+        <div class="cfg-total__main">
+          <span class="cfg-total__main-label">Итого</span>
+          <span class="cfg-total__main-price" id="totalPrice">34 990 руб.</span>
+        </div>
+        <div class="cfg-total__credit">В кредит от <span id="creditPrice">970 руб.</span>/мес.</div>
+      </div>
+
+      <!-- Actions -->
+      <div class="cfg-actions">
+        <button class="btn btn-primary" onclick="addToCart()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Добавить всё в корзину
+        </button>
+        <button class="btn btn-ghost" onclick="orderAssembly()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          Заказать сборку (+1 490 руб.)
+        </button>
+      </div>
+
+      <!-- Share -->
+      <div class="cfg-share">
+        <button class="btn btn-ghost" onclick="saveConfig()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Сохранить
+        </button>
+        <button class="btn btn-ghost" onclick="shareConfig()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Поделиться
+        </button>
+        <button class="btn btn-ghost" onclick="printConfig()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Печать
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /cfg-layout -->
+</div><!-- /container -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+const CATALOG = {
+  cpu: [
+    { id:'r7-7800x3d', brand:'amd', tags:['amd','am5','8core'], name:'AMD Ryzen 7 7800X3D AM5, 8 ядер, OEM', specs:'8 ядер / 16 потоков / 5.0 ГГц / 96 МБ L3', price:34990, tdp:120, compat:'ok', compatText:'Совместим с AM5' },
+    { id:'r9-7950x',   brand:'amd', tags:['amd','am5','12core'], name:'AMD Ryzen 9 7950X AM5, 16 ядер, OEM',  specs:'16 ядер / 32 потока / 5.7 ГГц / 64 МБ L3', price:54990, tdp:170, compat:'ok', compatText:'Совместим с AM5' },
+    { id:'r5-7600x',   brand:'amd', tags:['amd','am5','8core'],  name:'AMD Ryzen 5 7600X AM5, 6 ядер, BOX',   specs:'6 ядер / 12 потоков / 5.3 ГГц / 32 МБ L3', price:18990, tdp:105, compat:'ok', compatText:'Совместим с AM5' },
+    { id:'i9-14900k',  brand:'intel', tags:['intel','lga1700','12core'], name:'Intel Core i9-14900K LGA1700, 24 ядра, BOX', specs:'24 ядра (8P+16E) / 5.8 ГГц / 36 МБ L3', price:49990, tdp:253, compat:'warn', compatText:'Требует Z790' },
+    { id:'i7-14700k',  brand:'intel', tags:['intel','lga1700','12core'], name:'Intel Core i7-14700K LGA1700, 20 ядер, OEM', specs:'20 ядер (8P+12E) / 5.6 ГГц / 33 МБ L3', price:32990, tdp:253, compat:'warn', compatText:'Требует Z790' },
+    { id:'i5-14600k',  brand:'intel', tags:['intel','lga1700','8core'],  name:'Intel Core i5-14600K LGA1700, 14 ядер, BOX', specs:'14 ядер (6P+8E) / 5.3 ГГц / 24 МБ L3', price:22490, tdp:181, compat:'warn', compatText:'Требует Z790/B760' },
+  ],
+  gpu: [
+    { id:'rtx4090',  brand:'nvidia', tags:['nvidia','rtx4000','24gb'], name:'NVIDIA GeForce RTX 4090 24 ГБ, ASUS ROG STRIX', specs:'24 ГБ GDDR6X / 16 384 ядра CUDA / 450 Вт TDP', price:149990, tdp:450, compat:'ok', compatText:'Совместима' },
+    { id:'rtx4080s', brand:'nvidia', tags:['nvidia','rtx4000','16gb'], name:'NVIDIA GeForce RTX 4080 Super 16 ГБ, MSI Gaming X', specs:'16 ГБ GDDR6X / 10 240 ядер CUDA / 320 Вт TDP', price:89990, tdp:320, compat:'ok', compatText:'Совместима' },
+    { id:'rtx4070ti',brand:'nvidia', tags:['nvidia','rtx4000','16gb'], name:'NVIDIA GeForce RTX 4070 Ti Super 16 ГБ, Gigabyte', specs:'16 ГБ GDDR6X / 8 448 ядер CUDA / 285 Вт TDP', price:69990, tdp:285, compat:'ok', compatText:'Совместима' },
+    { id:'rtx4070',  brand:'nvidia', tags:['nvidia','rtx4000','12gb'], name:'NVIDIA GeForce RTX 4070 12 ГБ, ASUS Dual OC', specs:'12 ГБ GDDR6X / 5 888 ядер CUDA / 200 Вт TDP', price:44990, tdp:200, compat:'ok', compatText:'Совместима' },
+    { id:'rx7900xtx', brand:'amd', tags:['amd','24gb'], name:'AMD Radeon RX 7900 XTX 24 ГБ, Sapphire Nitro+', specs:'24 ГБ GDDR6 / 6 144 шейдеров / 355 Вт TDP', price:79990, tdp:355, compat:'ok', compatText:'Совместима' },
+    { id:'rx7800xt',  brand:'amd', tags:['amd','16gb'], name:'AMD Radeon RX 7800 XT 16 ГБ, PowerColor Fighter', specs:'16 ГБ GDDR6 / 3 840 шейдеров / 263 Вт TDP', price:36990, tdp:263, compat:'ok', compatText:'Совместима' },
+  ],
+  mb: [
+    { id:'asus-x670e',  brand:'asus', tags:['am5','x670','atx'], name:'ASUS ROG Crosshair X670E Hero, AM5, ATX', specs:'AM5 / DDR5 / PCIe 5.0 / Wi-Fi 6E / 4× M.2', price:34990, tdp:0, compat:'ok', compatText:'Совместима с AM5 CPU' },
+    { id:'msi-x670',    brand:'msi',  tags:['am5','x670','atx'], name:'MSI MEG X670E ACE, AM5, ATX', specs:'AM5 / DDR5 / PCIe 5.0 / Wi-Fi 6E / 5× M.2', price:39990, tdp:0, compat:'ok', compatText:'Совместима с AM5 CPU' },
+    { id:'gigabyte-b650',brand:'gigabyte', tags:['am5','b650','atx'], name:'Gigabyte B650 AORUS Elite AX, AM5, ATX', specs:'AM5 / DDR5 / PCIe 4.0 / Wi-Fi 6 / 3× M.2', price:14990, tdp:0, compat:'ok', compatText:'Совместима с AM5 CPU' },
+    { id:'asus-b650m',  brand:'asus', tags:['am5','b650','matx'], name:'ASUS Prime B650M-A WiFi, AM5, mATX', specs:'AM5 / DDR5 / PCIe 4.0 / Wi-Fi 5 / 2× M.2', price:11990, tdp:0, compat:'ok', compatText:'Совместима с AM5 CPU' },
+    { id:'asus-z790',   brand:'asus', tags:['lga1700','z790','atx'], name:'ASUS ROG Maximus Z790 Hero, LGA1700, ATX', specs:'LGA1700 / DDR5 / PCIe 5.0 / Wi-Fi 6E / 5× M.2', price:44990, tdp:0, compat:'warn', compatText:'Для Intel CPU' },
+    { id:'msi-z790',    brand:'msi',  tags:['lga1700','z790','atx'], name:'MSI MPG Z790 Carbon WiFi, LGA1700, ATX', specs:'LGA1700 / DDR5 / PCIe 5.0 / Wi-Fi 6E / 4× M.2', price:24990, tdp:0, compat:'warn', compatText:'Для Intel CPU' },
+  ],
+  ram: [
+    { id:'corsair-32-6000', brand:'corsair', tags:['ddr5','32gb','rgb'], name:'Corsair Dominator Titanium DDR5-6000 32 ГБ (2×16 ГБ)', specs:'DDR5 / 6000 МГц / CL30 / RGB', price:14990, tdp:0, compat:'ok', compatText:'DDR5 совместима' },
+    { id:'gskill-32-6400',  brand:'gskill',  tags:['ddr5','32gb','rgb'], name:'G.Skill Trident Z5 RGB DDR5-6400 32 ГБ (2×16 ГБ)', specs:'DDR5 / 6400 МГц / CL32 / RGB', price:16490, tdp:0, compat:'ok', compatText:'DDR5 совместима' },
+    { id:'kingston-64-6000',brand:'kingston',tags:['ddr5','64gb'],      name:'Kingston Fury Beast DDR5-6000 64 ГБ (2×32 ГБ)', specs:'DDR5 / 6000 МГц / CL36', price:19990, tdp:0, compat:'ok', compatText:'DDR5 совместима' },
+    { id:'gskill-16-6000',  brand:'gskill',  tags:['ddr5','16gb'],      name:'G.Skill Flare X5 DDR5-6000 16 ГБ (2×8 ГБ)', specs:'DDR5 / 6000 МГц / CL30 / оптим. для AMD', price:7990, tdp:0, compat:'ok', compatText:'DDR5 совместима' },
+    { id:'corsair-32-3600', brand:'corsair', tags:['ddr4','32gb','rgb'], name:'Corsair Vengeance RGB DDR4-3600 32 ГБ (2×16 ГБ)', specs:'DDR4 / 3600 МГц / CL18 / RGB', price:6990, tdp:0, compat:'warn', compatText:'DDR4, нужна DDR4-мать' },
+    { id:'gskill-16-3600',  brand:'gskill',  tags:['ddr4','16gb'],      name:'G.Skill Ripjaws V DDR4-3600 16 ГБ (2×8 ГБ)', specs:'DDR4 / 3600 МГц / CL18', price:3990, tdp:0, compat:'warn', compatText:'DDR4, нужна DDR4-мать' },
+  ],
+  ssd: [
+    { id:'samsung-990pro-2tb', brand:'samsung', tags:['nvme','2tb','gen4'], name:'Samsung 990 Pro 2 ТБ, M.2 NVMe PCIe 4.0', specs:'M.2 / PCIe 4.0 / 7 450 МБ/с чт. / 6 900 МБ/с зп.', price:14990, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'samsung-990pro-1tb', brand:'samsung', tags:['nvme','1tb','gen4'], name:'Samsung 990 Pro 1 ТБ, M.2 NVMe PCIe 4.0', specs:'M.2 / PCIe 4.0 / 7 450 МБ/с чт. / 6 900 МБ/с зп.', price:8490, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'wd-sn850x-2tb',  brand:'wd',      tags:['nvme','2tb','gen4'], name:'WD Black SN850X 2 ТБ, M.2 NVMe PCIe 4.0', specs:'M.2 / PCIe 4.0 / 7 300 МБ/с чт. / 6 600 МБ/с зп.', price:13490, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'seagate-530-1tb', brand:'seagate', tags:['nvme','1tb','gen4'], name:'Seagate FireCuda 530 1 ТБ, M.2 NVMe PCIe 4.0', specs:'M.2 / PCIe 4.0 / 7 300 МБ/с чт. / 6 900 МБ/с зп.', price:7990, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'crucial-sata-1tb',brand:'crucial', tags:['sata','1tb'],       name:'Crucial MX500 1 ТБ, SATA III', specs:'2.5" / SATA III / 560 МБ/с чт. / 510 МБ/с зп.', price:3490, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'samsung-980-500', brand:'samsung', tags:['nvme','500gb','gen3'], name:'Samsung 980 500 ГБ, M.2 NVMe PCIe 3.0', specs:'M.2 / PCIe 3.0 / 3 500 МБ/с чт. / 3 000 МБ/с зп.', price:3990, tdp:0, compat:'ok', compatText:'Совместим' },
+  ],
+  hdd: [
+    { id:'seagate-4tb', brand:'seagate', tags:['seagate','4tb'], name:'Seagate Barracuda 4 ТБ, 3.5", SATA III', specs:'3.5" / SATA III / 5400 об/мин / 256 МБ кеш', price:6490, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'seagate-2tb', brand:'seagate', tags:['seagate','2tb'], name:'Seagate Barracuda 2 ТБ, 3.5", SATA III', specs:'3.5" / SATA III / 7200 об/мин / 256 МБ кеш', price:3990, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'wd-4tb',   brand:'wd',      tags:['wd','4tb'],      name:'WD Blue 4 ТБ, 3.5", SATA III', specs:'3.5" / SATA III / 5400 об/мин / 256 МБ кеш', price:7490, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'wd-2tb',   brand:'wd',      tags:['wd','2tb'],      name:'WD Blue 2 ТБ, 3.5", SATA III', specs:'3.5" / SATA III / 7200 об/мин / 256 МБ кеш', price:4490, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'seagate-1tb', brand:'seagate', tags:['seagate','1tb'], name:'Seagate Barracuda 1 ТБ, 3.5", SATA III', specs:'3.5" / SATA III / 7200 об/мин / 64 МБ кеш', price:2990, tdp:0, compat:'ok', compatText:'Совместим' },
+  ],
+  psu: [
+    { id:'seasonic-1000-plat', brand:'seasonic', tags:['platinum','modular','1000w'], name:'Seasonic Prime TX-1000, 1000 Вт, 80+ Titanium', specs:'1000 Вт / 80+ Titanium / полностью модульный / 135 мм', price:19990, tdp:0, compat:'ok', compatText:'Достаточно мощности' },
+    { id:'corsair-850-plat', brand:'corsair', tags:['platinum','modular','850w'],  name:'Corsair RM850x, 850 Вт, 80+ Gold', specs:'850 Вт / 80+ Gold / полностью модульный / 135 мм', price:10990, tdp:0, compat:'ok', compatText:'Достаточно мощности' },
+    { id:'evga-1000-plat', brand:'evga', tags:['platinum','modular','1000w'],    name:'EVGA SuperNOVA 1000 G6, 1000 Вт, 80+ Gold', specs:'1000 Вт / 80+ Gold / полностью модульный / 135 мм', price:14990, tdp:0, compat:'ok', compatText:'Достаточно мощности' },
+    { id:'bequiet-850-plat',brand:'bequiet', tags:['gold','modular','850w'],     name:'be quiet! Dark Power 13, 850 Вт, 80+ Titanium', specs:'850 Вт / 80+ Titanium / полностью модульный / 135 мм / тихий', price:17490, tdp:0, compat:'ok', compatText:'Достаточно мощности' },
+    { id:'cooler-750-gold',  brand:'coolermaster', tags:['gold','modular','750w'],name:'Cooler Master MWE Gold 750 V2, 750 Вт, 80+ Gold', specs:'750 Вт / 80+ Gold / полу-модульный / 120 мм', price:6990, tdp:0, compat:'warn', compatText:'Может не хватить для RTX 4090' },
+    { id:'thermaltake-650', brand:'thermaltake', tags:['gold','650w'],            name:'Thermaltake Toughpower GF1, 650 Вт, 80+ Gold', specs:'650 Вт / 80+ Gold / полностью модульный / 140 мм', price:5990, tdp:0, compat:'warn', compatText:'Недостаточно для топовой сборки' },
+  ],
+  case: [
+    { id:'lian-o11',  brand:'lian-li', tags:['mid','glass','rgb'], name:'Lian Li PC-O11 Dynamic EVO, Mid Tower', specs:'Mid Tower / ATX/mATX/ITX / 3× 2.5"+ 4× 3.5" / стекло', price:12990, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'fractal-7',  brand:'fractal', tags:['mid','glass','airflow'], name:'Fractal Design Define 7, Mid Tower', specs:'Mid Tower / ATX/E-ATX / 2× 2.5"+ 4× 3.5" / звукоизоляция', price:10990, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'corsair-7000d',brand:'corsair',tags:['full','glass','airflow'], name:'Corsair iCUE 7000X RGB, Full Tower', specs:'Full Tower / E-ATX / 6× 2.5"+ 4× 3.5" / стекло / RGB', price:19990, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'nzxt-h710',  brand:'nzxt',   tags:['mid','glass'],       name:'NZXT H710i, Mid Tower', specs:'Mid Tower / ATX / 4× 2.5"+ 7× 3.5" / стекло / кабель-менеджмент', price:14990, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'be-pure',    brand:'bequiet', tags:['mid','airflow'],     name:'be quiet! Pure Base 500DX, Mid Tower', specs:'Mid Tower / ATX / 2× 2.5"+ 2× 3.5" / тихий / airflow панель', price:7990, tdp:0, compat:'ok', compatText:'Совместим' },
+    { id:'cooler-td500',brand:'coolermaster', tags:['mid','glass','mesh','airflow'], name:'Cooler Master TD500 Mesh V2, Mid Tower', specs:'Mid Tower / ATX / 2× 2.5"+ 2× 3.5" / mesh + стекло', price:6490, tdp:0, compat:'ok', compatText:'Совместим' },
+  ],
+  cool: [
+    { id:'noctua-nh-d15', brand:'noctua', tags:['air'], name:'Noctua NH-D15, башенный, 2× 150 мм', specs:'Воздушное / 2× 150 мм / AM5/LGA1700 / TDP до 250 Вт', price:8490, tdp:0, compat:'ok', compatText:'Совместим с AM5' },
+    { id:'be-drk-rock-4', brand:'bequiet', tags:['air'], name:'be quiet! Dark Rock Pro 4, башенный, 2× 120 мм', specs:'Воздушное / 2× 120 мм / AM5/LGA1700 / TDP до 250 Вт / тихий', price:7490, tdp:0, compat:'ok', compatText:'Совместим с AM5' },
+    { id:'corsair-h150i', brand:'corsair', tags:['aio360','rgb'], name:'Corsair iCUE H150i ELITE LCD, 360 мм AIO', specs:'СЖО 360 мм / 3× 120 мм / LCD дисплей / AM5/LGA1700', price:19990, tdp:0, compat:'ok', compatText:'Совместим с AM5' },
+    { id:'nzxt-kraken-360',brand:'nzxt', tags:['aio360','rgb'], name:'NZXT Kraken 360, 360 мм AIO', specs:'СЖО 360 мм / 3× 120 мм / LCD крышка / AM5/LGA1700', price:17490, tdp:0, compat:'ok', compatText:'Совместим с AM5' },
+    { id:'ek-aio-240', brand:'ek',     tags:['aio240','rgb'], name:'EK AIO 240 D-RGB, 240 мм AIO', specs:'СЖО 240 мм / 2× 120 мм / ARGB / AM5/LGA1700', price:9990, tdp:0, compat:'ok', compatText:'Совместим с AM5' },
+    { id:'arctic-liq-280',brand:'arctic', tags:['aio280'], name:'Arctic Liquid Freezer III 280, 280 мм AIO', specs:'СЖО 280 мм / 2× 140 мм / AM5/LGA1700 / тихий', price:8990, tdp:0, compat:'ok', compatText:'Совместим с AM5' },
+  ],
+  fans: [
+    { id:'lian-uni3-120', brand:'lian-li', tags:['120mm','rgb','3pack'], name:'Lian Li UNI FAN SL120 ARGB 3-Pack', specs:'3× 120 мм / ARGB / подключение цепочкой / PWM', price:6990, tdp:0, compat:'ok', compatText:'Совместимы' },
+    { id:'corsair-ll140',  brand:'corsair', tags:['140mm','rgb','3pack'], name:'Corsair LL140 RGB 3-Pack, 140 мм', specs:'3× 140 мм / двойное кольцо RGB / PWM / 1200 об/мин', price:7490, tdp:0, compat:'ok', compatText:'Совместимы' },
+    { id:'noctua-nf-a12',  brand:'noctua',  tags:['120mm'], name:'Noctua NF-A12×25 PWM, 120 мм', specs:'1× 120 мм / 2000 об/мин / 18.8 дБА / PWM', price:2490, tdp:0, compat:'ok', compatText:'Совместимы' },
+    { id:'bequiet-light',  brand:'bequiet', tags:['140mm'], name:'be quiet! Light Wings 140 мм PWM', specs:'1× 140 мм / 1000 об/мин / 14.9 дБА / PWM', price:2990, tdp:0, compat:'ok', compatText:'Совместимы' },
+    { id:'arctic-p12-3pk', brand:'arctic',  tags:['120mm','3pack'], name:'Arctic P12 PWM Value Pack 3-Pack', specs:'3× 120 мм / 1800 об/мин / 22.5 дБА / PWM', price:1990, tdp:0, compat:'ok', compatText:'Совместимы' },
+  ],
+};
+
+const SECTION_LABELS = {
+  cpu:  'Процессор', gpu:  'Видеокарта', mb:   'Мат. плата',
+  ram:  'ОЗУ',       ssd:  'SSD',        hdd:  'HDD',
+  psu:  'Блок питания', case: 'Корпус',  cool: 'Охлаждение', fans: 'Вентиляторы'
+};
+
+const REQUIRED = ['cpu','gpu','mb','ram','ssd','psu','case','cool'];
+
+const PRESETS = {
+  office: { cpu:'r5-7600x', gpu:null, mb:'asus-b650m', ram:'gskill-16-3600', ssd:'samsung-980-500', hdd:null, psu:'thermaltake-650', case:'be-pure', cool:'be-drk-rock-4', fans:null },
+  gaming: { cpu:'r7-7800x3d', gpu:'rtx4070ti', mb:'gigabyte-b650', ram:'corsair-32-6000', ssd:'wd-sn850x-2tb', hdd:'seagate-2tb', psu:'corsair-850-plat', case:'lian-o11', cool:'ek-aio-240', fans:'arctic-p12-3pk' },
+  pro:    { cpu:'r9-7950x', gpu:'rtx4090', mb:'asus-x670e', ram:'gskill-32-6400', ssd:'samsung-990pro-2tb', hdd:'wd-4tb', psu:'seasonic-1000-plat', case:'corsair-7000d', cool:'corsair-h150i', fans:'lian-uni3-120' },
+  stream: { cpu:'i9-14900k', gpu:'rtx4080s', mb:'asus-z790', ram:'corsair-32-6000', ssd:'samsung-990pro-1tb', hdd:'seagate-4tb', psu:'evga-1000-plat', case:'nzxt-h710', cool:'nzxt-kraken-360', fans:'corsair-ll140' },
+  work:   { cpu:'r9-7950x', gpu:'rx7900xtx', mb:'msi-x670', ram:'kingston-64-6000', ssd:'samsung-990pro-2tb', hdd:'wd-4tb', psu:'bequiet-850-plat', case:'fractal-7', cool:'noctua-nh-d15', fans:'noctua-nf-a12' },
+};
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let selected = { cpu:'r7-7800x3d', gpu:null, mb:null, ram:null, ssd:null, hdd:null, psu:null, case:null, cool:null, fans:null };
+let openSection = 'cpu';
+let filterState = {};
+let searchState = {};
+
+/* ═══════════════════════════════════════════════════════
+   ICONS (inline SVG strings)
+═══════════════════════════════════════════════════════ */
+const ICONS = {
+  cpu:  `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><rect x="8" y="6" width="32" height="24" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><rect x="14" y="12" width="20" height="12" rx="1" stroke="var(--orange)" stroke-width="1.5"/><circle cx="24" cy="18" r="4" stroke="var(--gray3)" stroke-width="1"/></svg>`,
+  gpu:  `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><rect x="3" y="10" width="42" height="16" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><rect x="8" y="14" width="28" height="8" rx="1" stroke="var(--orange)" stroke-width="1.5"/><circle cx="12" cy="18" r="2" stroke="var(--gray3)"/><circle cx="20" cy="18" r="2" stroke="var(--gray3)"/><circle cx="28" cy="18" r="2" stroke="var(--gray3)"/></svg>`,
+  mb:   `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><rect x="4" y="2" width="40" height="32" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><rect x="10" y="8" width="12" height="10" rx="1" stroke="var(--orange)" stroke-width="1.5"/><rect x="26" y="8" width="12" height="10" rx="1" stroke="var(--gray3)" stroke-width="1"/><path d="M10 24h28M10 28h20" stroke="var(--gray2)" stroke-width="1.5"/></svg>`,
+  ram:  `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><rect x="6" y="10" width="36" height="16" rx="1" stroke="var(--gray2)" stroke-width="1.5"/><path d="M14 10V7M20 10V5M26 10V7M32 10V5" stroke="var(--gray3)" stroke-width="1.5"/><rect x="10" y="14" width="8" height="8" rx="1" fill="var(--orange)" opacity=".3"/><rect x="22" y="14" width="8" height="8" rx="1" fill="var(--gray2)" opacity=".5"/><rect x="34" y="14" width="8" height="8" rx="1" fill="var(--gray2)" opacity=".5"/></svg>`,
+  ssd:  `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><rect x="4" y="8" width="40" height="20" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><circle cx="36" cy="18" r="5" stroke="var(--orange)" stroke-width="1.5"/><path d="M10 14h18M10 18h14M10 22h16" stroke="var(--gray3)" stroke-width="1"/></svg>`,
+  hdd:  `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><ellipse cx="24" cy="18" rx="18" ry="12" stroke="var(--gray2)" stroke-width="1.5"/><ellipse cx="24" cy="18" rx="8" ry="5" stroke="var(--gray3)" stroke-width="1"/><circle cx="24" cy="18" r="2" fill="var(--orange)"/></svg>`,
+  psu:  `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><rect x="4" y="8" width="40" height="20" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><circle cx="24" cy="18" r="6" stroke="var(--orange)" stroke-width="1.5"/><path d="M24 12v3M24 21v3M18 18h3M27 18h3" stroke="var(--gray3)" stroke-width="1"/></svg>`,
+  case: `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><rect x="8" y="2" width="28" height="32" rx="2" stroke="var(--gray2)" stroke-width="1.5"/><path d="M14 10h16M14 16h10M32 26v4M32 20v2" stroke="var(--gray3)" stroke-width="1"/><circle cx="32" cy="18" r="2" fill="var(--orange)"/></svg>`,
+  cool: `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><circle cx="24" cy="18" r="5" stroke="var(--orange)" stroke-width="1.5"/><path d="M24 6v6M24 24v6M12 18H6M42 18h-6M14.1 8.1l4.2 4.2M29.7 23.7l4.2 4.2M8.1 33.9l4.2-4.2M33.7 8.3l4.2-4.2" stroke="var(--gray3)" stroke-width="1.5"/></svg>`,
+  fans: `<svg viewBox="0 0 48 36" fill="none" style="width:36px"><circle cx="24" cy="18" r="4" stroke="var(--orange)" stroke-width="1.5"/><path d="M24 18c0-4 3-6 6-5 3 1 4 4 2 7" stroke="var(--gray3)" stroke-width="1.5"/><path d="M24 18c4 0 6 3 5 6-1 3-4 4-7 2" stroke="var(--gray3)" stroke-width="1.5"/><path d="M24 18c0 4-3 6-6 5-3-1-4-4-2-7" stroke="var(--gray3)" stroke-width="1.5"/><path d="M24 18c-4 0-6-3-5-6 1-3 4-4 7-2" stroke="var(--gray3)" stroke-width="1.5"/></svg>`,
+};
+
+/* ═══════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════ */
+function getItem(type, id) {
+  return id ? CATALOG[type].find(c => c.id === id) : null;
+}
+
+function renderList(type) {
+  const el = document.getElementById('list-' + type);
+  if (!el) return;
+  const tag = filterState[type] || 'all';
+  const q   = (searchState[type] || '').toLowerCase();
+  let items = CATALOG[type].filter(c => {
+    if (tag !== 'all' && !c.tags.includes(tag)) return false;
+    if (q && !c.name.toLowerCase().includes(q) && !c.specs.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  el.innerHTML = items.map(c => {
+    const isSel = selected[type] === c.id;
+    const compatClass = c.compat === 'warn' ? 'cfg-component__compat--warn' : 'cfg-component__compat--ok';
+    const compatIcon  = c.compat === 'warn'
+      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:10px;height:10px"><polyline points="20 6 9 17 4 12"/></svg>`;
+    return `
+      <div class="cfg-component${isSel ? ' is-selected' : ''}" onclick="selectComponent('${type}','${c.id}')">
+        <div class="cfg-component__img">${ICONS[type] || ''}</div>
+        <div class="cfg-component__info">
+          <div class="cfg-component__name">${c.name}</div>
+          <div class="cfg-component__specs">${c.specs}</div>
+          <div class="cfg-component__compat ${compatClass}">${compatIcon} ${c.compatText}</div>
+        </div>
+        <div class="cfg-component__price-col">
+          <div class="cfg-component__price">${c.price.toLocaleString('ru-RU')} руб.</div>
+        </div>
+        <button class="cfg-component__add" onclick="event.stopPropagation();selectComponent('${type}','${c.id}')">
+          ${isSel
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>`
+          }
+        </button>
+      </div>`;
+  }).join('') || `<div style="padding:20px 14px;font-size:12px;color:var(--gray3)">Ничего не найдено</div>`;
+}
+
+function renderSelected(type) {
+  const selEl   = document.getElementById('selected-' + type);
+  const emptyEl = document.getElementById('empty-' + type);
+  const badge   = document.getElementById('badge-' + type);
+  const status  = document.getElementById('status-' + type);
+  const section = document.getElementById('sec-' + type);
+  const item    = getItem(type, selected[type]);
+
+  if (!selEl) return;
+
+  if (item) {
+    selEl.style.display = 'flex';
+    if (emptyEl) emptyEl.style.display = 'none';
+    selEl.innerHTML = `
+      <div class="cfg-selected__img">${ICONS[type] || ''}</div>
+      <div class="cfg-selected__info">
+        <div class="cfg-selected__name">${item.name}</div>
+        <div class="cfg-selected__spec">${item.specs}</div>
+      </div>
+      <div class="cfg-selected__price">${item.price.toLocaleString('ru-RU')} руб.</div>
+      <button class="cfg-selected__remove" onclick="removeComponent('${type}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>`;
+    if (badge) { badge.textContent = '1'; badge.style.display = 'inline'; }
+    if (status) { status.className = 'cfg-section__status cfg-section__status--done'; status.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`; }
+    if (section) section.classList.add('is-selected');
+  } else {
+    selEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'flex';
+    if (badge) badge.style.display = 'none';
+    if (status) { status.className = 'cfg-section__status'; status.innerHTML = ''; }
+    if (section) section.classList.remove('is-selected');
+  }
+}
+
+function renderSummary() {
+  const parts = document.getElementById('summaryParts');
+  const total = document.getElementById('totalPrice');
+  const credit = document.getElementById('creditPrice');
+  const totalParts = document.getElementById('totalParts');
+  if (!parts) return;
+
+  let sum = 0, count = 0;
+  let html = '';
+  Object.keys(selected).forEach(type => {
+    const label = SECTION_LABELS[type];
+    const item  = getItem(type, selected[type]);
+    if (item) { sum += item.price; count++; }
+    html += `<div class="cfg-summary__part${item ? ' cfg-summary__part--filled' : ''}">
+      <div class="cfg-summary__part-left">
+        <span class="cfg-summary__part-label">${label}</span>
+        ${item ? `<span class="cfg-summary__part-model">${item.name}</span>` : ''}
+      </div>
+      ${item
+        ? `<span class="cfg-summary__part-price">${item.price.toLocaleString('ru-RU')} р.</span>`
+        : `<span class="cfg-summary__part-empty">—</span>`}
+    </div>`;
+  });
+  parts.innerHTML = html;
+  if (total) total.textContent = sum.toLocaleString('ru-RU') + ' руб.';
+  if (credit) credit.textContent = Math.round(sum / 36).toLocaleString('ru-RU') + ' руб.';
+  if (totalParts) totalParts.textContent = count + ' из ' + REQUIRED.length;
+
+  renderPower();
+  renderCompat();
+}
+
+function renderPower() {
+  let tdp = 0;
+  Object.keys(selected).forEach(type => {
+    const item = getItem(type, selected[type]);
+    if (item) tdp += (item.tdp || 0);
+  });
+  const psuItem = getItem('psu', selected.psu);
+  const psuW = psuItem ? parseInt(psuItem.name.match(/\d{3,4} Вт/)?.[0]) || 850 : 850;
+  const pct = Math.min(Math.round(tdp / psuW * 100), 100);
+
+  const bar  = document.getElementById('powerBar');
+  const cur  = document.getElementById('powerCurrent');
+  const psuEl = document.getElementById('powerPsu');
+  if (bar)  { bar.style.width = pct + '%'; bar.style.background = pct > 90 ? '#e53935' : pct > 75 ? 'var(--orange)' : 'var(--orange)'; }
+  if (cur)  cur.textContent = tdp + ' Вт';
+  if (psuEl) psuEl.textContent = (psuItem ? psuW : '—') + ' Вт (БП)';
+}
+
+function renderCompat() {
+  const list = document.getElementById('compatList');
+  if (!list) return;
+  const checks = [];
+
+  const cpu = getItem('cpu', selected.cpu);
+  const mb  = getItem('mb',  selected.mb);
+  const ram = getItem('ram', selected.ram);
+  const psu = getItem('psu', selected.psu);
+  const gpu = getItem('gpu', selected.gpu);
+
+  if (!cpu && !mb && !ram && !gpu) {
+    list.innerHTML = `<div class="cfg-compat__item"><span class="cfg-compat__dot cfg-compat__dot--na"></span><span class="cfg-compat__text cfg-compat__text--na">Добавьте компоненты</span></div>`;
+    return;
+  }
+
+  // Socket check
+  if (cpu && mb) {
+    const cpuAm5 = cpu.tags.includes('am5'), mbAm5 = mb.tags.includes('am5');
+    const cpuLga = cpu.tags.includes('lga1700'), mbLga = mb.tags.includes('lga1700');
+    const ok = (cpuAm5 && mbAm5) || (cpuLga && mbLga);
+    checks.push({ ok: ok ? 'ok' : 'err', text: ok ? 'Сокет CPU совместим' : 'Несовместимый сокет CPU/MB' });
+  }
+
+  // RAM type check
+  if (mb && ram) {
+    const mbDdr5 = mb.tags.includes('am5') || mb.tags.includes('z790') || mb.tags.includes('x670') || mb.tags.includes('b650');
+    const ramDdr5 = ram.tags.includes('ddr5');
+    const ok = mbDdr5 === ramDdr5;
+    checks.push({ ok: ok ? 'ok' : 'err', text: ok ? 'Тип памяти совместим' : 'Несовместимый тип памяти DDR4/DDR5' });
+  }
+
+  // PSU check
+  if (psu && gpu && cpu) {
+    let tdp = 0;
+    Object.keys(selected).forEach(t => { const i = getItem(t, selected[t]); if (i) tdp += (i.tdp || 0); });
+    const psuW = parseInt(psu.name.match(/\d{3,4} Вт/)?.[0]) || 650;
+    const ok   = psuW >= tdp * 1.2;
+    checks.push({ ok: ok ? 'ok' : 'warn', text: ok ? 'Мощности БП достаточно' : 'Рекомендуется БП мощнее' });
+  }
+
+  if (checks.length === 0) {
+    list.innerHTML = `<div class="cfg-compat__item"><span class="cfg-compat__dot cfg-compat__dot--na"></span><span class="cfg-compat__text cfg-compat__text--na">Добавьте больше компонентов</span></div>`;
+    return;
+  }
+
+  list.innerHTML = checks.map(c => `
+    <div class="cfg-compat__item">
+      <span class="cfg-compat__dot cfg-compat__dot--${c.ok}"></span>
+      <span class="cfg-compat__text${c.ok !== 'ok' ? ' cfg-compat__text--warn' : ''}">${c.text}</span>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   ACTIONS
+═══════════════════════════════════════════════════════ */
+function toggleSection(type) {
+  const sec = document.getElementById('sec-' + type);
+  if (!sec) return;
+  const isOpen = sec.classList.contains('is-open');
+  // Close all
+  document.querySelectorAll('.cfg-section.is-open').forEach(s => s.classList.remove('is-open'));
+  if (!isOpen) {
+    sec.classList.add('is-open');
+    openSection = type;
+    renderList(type);
+  } else {
+    openSection = null;
+  }
+}
+
+function selectComponent(type, id) {
+  selected[type] = id;
+  renderSelected(type);
+  renderList(type);
+  renderSummary();
+}
+
+function removeComponent(type) {
+  selected[type] = null;
+  renderSelected(type);
+  renderList(type);
+  renderSummary();
+}
+
+function filterList(type, q) {
+  searchState[type] = q;
+  renderList(type);
+}
+
+function sortList(type, val) {
+  CATALOG[type].sort((a, b) => {
+    if (val === 'price-asc') return a.price - b.price;
+    if (val === 'price-desc') return b.price - a.price;
+    return 0;
+  });
+  renderList(type);
+}
+
+function filterTag(el, type, tag) {
+  el.closest('.cfg-filters').querySelectorAll('.cfg-filter-tag').forEach(t => t.classList.remove('is-active'));
+  el.classList.add('is-active');
+  filterState[type] = tag;
+  renderList(type);
+}
+
+function loadPreset(name) {
+  const preset = PRESETS[name];
+  if (!preset) return;
+  Object.assign(selected, preset);
+  document.querySelectorAll('.cfg-preset-btn').forEach(b => b.classList.remove('is-active'));
+  event.currentTarget.classList.add('is-active');
+  Object.keys(selected).forEach(type => {
+    renderSelected(type);
+    renderList(type);
+  });
+  renderSummary();
+}
+
+function clearAll() {
+  Object.keys(selected).forEach(k => selected[k] = null);
+  document.querySelectorAll('.cfg-preset-btn').forEach(b => b.classList.remove('is-active'));
+  Object.keys(selected).forEach(type => {
+    renderSelected(type);
+    renderList(type);
+  });
+  renderSummary();
+}
+
+function addToCart()      { alert('Товары добавлены в корзину!'); }
+function orderAssembly()  { alert('Заявка на сборку оформлена!'); }
+function saveConfig()     { alert('Конфигурация сохранена!'); }
+function shareConfig()    { navigator.clipboard && navigator.clipboard.writeText(location.href); alert('Ссылка скопирована!'); }
+function printConfig()    { window.print(); }
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+(function init() {
+  // Render all selected states
+  Object.keys(selected).forEach(type => renderSelected(type));
+  // Render open section list
+  renderList('cpu');
+  renderSummary();
+})();
+</script>
+</body>
+</html>
