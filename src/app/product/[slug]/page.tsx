@@ -294,6 +294,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     length: product.length ? Number(product.length) : null,
     width: product.width ? Number(product.width) : null,
     height: product.height ? Number(product.height) : null,
+    metaTitle: product.metaTitle,
     metaDescription: product.metaDescription,
     metaKeywords: product.metaKeywords,
     isFeatured: product.isFeatured,
@@ -323,10 +324,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       slug: product.brand.slug,
     } : null,
     badges: [] as Array<{ text: string; variant: 'orange' | 'green' | 'blue' | 'gray' | 'yellow' }>,
-    warehouses: undefined as Array<{
-      id: string; name: string; address: string; city: string; phone: string | null;
-      inStock: boolean; quantity: number; price: number; formattedPrice: string;
-    }> | undefined,
+    warehouses: undefined,
   };
 
   if (discountedPrice < price) {
