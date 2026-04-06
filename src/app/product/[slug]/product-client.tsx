@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { toast } from 'sonner';
 
-interface Product {
+export interface Product {
   id: string;
   name: string;
   slug: string;
