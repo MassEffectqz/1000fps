@@ -523,11 +523,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Error adding to wishlist:', error);
       await refreshWishlist();
-      
-      if (isAuthenticated === false) {
-        // Для гостевой корзины сохраняем в localStorage
+
+      // Гостевой режим (или демо) — сохраняем в localStorage
+      if (isAuthenticated !== true) {
         const guestWishlist = getGuestWishlist();
-        
+
         if (!guestWishlist.items.some(item => item.productId === productId)) {
           guestWishlist.items.push({
             id: `temp_${Date.now()}`,
@@ -555,10 +555,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
           saveGuestWishlist(guestWishlist);
           setWishlist(guestWishlist);
         }
-        
-        toast.success('Товар добавлен в вишлист (гостевой режим)');
+
+        toast.success('Товар добавлен в вишлист');
       } else {
-        toast.error('Ошибка при добавлении в вишлист. Требуется авторизация.');
+        toast.error('Ошибка при добавлении в вишлист');
       }
     }
   }, [refreshWishlist, isAuthenticated]);
