@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1000FPS - Трекер цен Wildberries</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="tracker-body">
+  <div class="tracker-container">
+    <!-- Header -->
+    <header class="tracker-header">
+      <div class="header-left">
+        <h1 class="tracker-title">
+          <span class="title-accent">1000FPS</span>
+          Трекер цен WB
+        </h1>
+        <span class="header-badge" id="productCount">0 товаров</span>
+      </div>
+      <div class="header-right">
+        <button class="header-btn" id="refreshBtn" title="Обновить все цены">
+          &#8635; Обновить
+        </button>
+        <button class="header-btn" id="exportBtn" title="Экспорт данных">
+          &#128230; Экспорт
+        </button>
+        <button class="header-btn primary" id="backToPopupBtn" title="Вернуться к popup">
+          &#8592; Назад
+        </button>
+      </div>
+    </header>
+
+    <!-- Filters -->
+    <section class="filters-section">
+      <div class="filters-row">
+        <div class="search-box">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" id="searchInput" placeholder="Поиск по артикулу или названию...">
+        </div>
+        <div class="filter-group">
+          <select id="sortSelect" class="filter-select">
+            <option value="addedAt-desc">Сначала новые</option>
+            <option value="addedAt-asc">Сначала старые</option>
+            <option value="price-asc">Цена: по возрастанию</option>
+            <option value="price-desc">Цена: по убыванию</option>
+            <option value="name-asc">Название: А-Я</option>
+            <option value="change-desc">Сначала подорожавшие</option>
+            <option value="change-asc">Сначала подешевевшие</option>
+          </select>
+          <select id="statusFilter" class="filter-select">
+            <option value="all">Все статусы</option>
+            <option value="in-stock">В наличии</option>
+            <option value="out-of-stock">Нет в наличии</option>
+            <option value="price-changed">Цена изменилась</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-value" id="totalProducts">0</span>
+        <span class="stat-label">Всего</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value success" id="inStockCount">0</span>
+        <span class="stat-label">В наличии</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value warning" id="outOfStockCount">0</span>
+        <span class="stat-label">Нет в наличии</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value accent" id="priceChangedCount">0</span>
+        <span class="stat-label">Изменений цен</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="lastUpdate">-</span>
+        <span class="stat-label">Обновлено</span>
+      </div>
+    </section>
+
+    <!-- Products Table -->
+    <section class="table-section">
+      <div class="table-wrapper">
+        <table class="products-table" id="productsTable">
+          <thead>
+            <tr>
+              <th class="col-article">Артикул</th>
+              <th class="col-name">Название</th>
+              <th class="col-price">Цена</th>
+              <th class="col-old-price">Старая цена</th>
+              <th class="col-change">Изменение</th>
+              <th class="col-stock">Остаток</th>
+              <th class="col-delivery">Доставка</th>
+              <th class="col-date">Добавлен</th>
+              <th class="col-actions">Действия</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody">
+            <!-- Dynamic content -->
+          </tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">&#128230;</div>
+          <h3>Нет отслеживаемых товаров</h3>
+          <p>Откройте страницу товара на Wildberries для автоматического парсинга</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Price History Modal -->
+    <div class="modal-overlay" id="historyModal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">История цен</h3>
+          <button class="modal-close" id="historyModalClose">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="product-info" id="historyProductInfo"></div>
+          <div class="price-history-chart" id="priceHistoryChart">
+            <canvas id="priceCanvas"></canvas>
+          </div>
+          <div class="price-history-list" id="priceHistoryList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="tracker.js"></script>
+</body>
+</html>

@@ -1,0 +1,866 @@
+Приложение № 1
+к Договору № ____ от «____» ____________ 2026 г.
+
+ТЕХНИЧЕСКОЕ ЗАДАНИЕ
+на разработку интернет-магазина компьютерной техники «1000FPS»
+
+1. ОБЩИЕ СВЕДЕНИЯ
+
+1.1. Наименование проекта: Интернет-магазин компьютерной техники «1000FPS».
+
+1.2. Цель проекта: Создание современного интернет-магазина по продаже компьютерной техники, комплектующих и готовых сборок с функционалом каталога, конфигуратора ПК, системы заказов, личным кабинетом пользователя, административной панелью и автоматизированной системой парсинга цен.
+
+1.3. Заказчик: _________________________________________________
+
+1.4. Исполнитель: _________________________________________________
+
+
+2. ОБЪЁМ РАБОТ
+
+В рамках настоящего Договора Исполнитель выполняет следующие работы:
+
+2.1. Проектирование архитектуры системы:
+— Разработка архитектуры веб-приложения на базе Next.js 15 (App Router);
+— Проектирование структуры базы данных PostgreSQL с использованием Prisma ORM;
+— Проектирование API для взаимодействия фронтенда и бэкенда;
+— Разработка архитектуры системы парсинга цен;
+— Проектирование контейнеризации (Docker) для развёртывания.
+
+2.2. Разработка пользовательского интерфейса (Frontend):
+— Вёрстка и реализация главной страницы (лендинг с промо-блоками, хитами продаж, категориями);
+— Разработка каталога товаров с фильтрами, сортировкой, поиском;
+— Разработка карточки товара с изображениями, характеристиками, отзывами;
+— Разработка конфигуратора ПК с проверкой совместимости комплектующих;
+— Разработка системы аутентификации и регистрации пользователей;
+— Разработка личного кабинета пользователя (профиль, заказы, вишлист, адреса, сборки);
+— Разработка корзины и оформления заказа;
+— Разработка административной панели (управление товарами, категориями, брендами, заказами, пользователями, отзывами, настройка парсинга);
+— Адаптивная вёрстка для мобильных устройств и планшетов.
+
+2.3. Разработка серверной части (Backend):
+— Реализация API для каталога товаров (REST API);
+— Реализация API для работы с корзиной и вишлистом;
+— Реализация API для системы заказов (создание, просмотр статусов);
+— Реализация API для управления профилем пользователя;
+— Реализация API для конфигуратора ПК (сохранение, загрузка сборок);
+— Реализация API для системы отзывов и рейтингов;
+— Реализация API для административной панели (CRUD товаров, категорий, брендов, заказов, пользователей);
+— Реализация API для системы парсинга цен (webhook, приоритетное определение цены, логи парсинга);
+— Реализация системы аутентификации на базе JWT-сессий (httpOnly cookies);
+— Реализация системы ролей и прав доступа (ADMIN, MANAGER, CUSTOMER).
+
+2.4. Разработка системы парсинга цен:
+— Разработка сервера парсинга на Node.js (parser-server);
+— Разработка Chrome-расширения для пакетного парсинга товаров с Wildberries;
+— Реализация механизма автоматического обновления цен на основе данных парсера;
+— Реализация приоритетного определения цены (multiple sources с приоритетами);
+— Реализация логирования всех задач парсинга;
+— Интеграция парсинга с основным сайтом через webhook API.
+
+2.5. Настройка базы данных:
+— Проектирование Prisma-схемы (модели: User, Product, Category, Brand, Order, OrderItem, Cart, CartItem, Wishlist, WishlistItem, Review, Configuration, ConfigItem, Address, ParserLog, PriceHistory и др.);
+— Создание и применение миграций базы данных;
+— Создание seed-скрипта для начального наполнения тестовыми данными;
+— Настройка индексации для оптимизации запросов.
+
+2.6. Контейнеризация и развёртывание:
+— Создание Dockerfile для основного приложения (multi-stage build);
+— Создание Dockerfile для сервера парсинга;
+— Настройка Docker Compose для локальной разработки (Next.js + PostgreSQL + Parser);
+— Настройка Docker Compose для продакшен-окружения (с Nginx reverse proxy, SSL);
+— Настройка CI/CD pipeline через GitHub Actions (автотесты, сборка, деплой);
+— Настройка SSL/TLS шифрования (Let's Encrypt);
+— Настройка конфигурации Nginx (reverse proxy, rate limiting, security headers);
+— Настройка systemd сервисов для автозапуска на сервере.
+
+2.7. Оптимизация и безопасность:
+— Настройка заголовков безопасности (HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy);
+— Хеширование паролей алгоритмом bcryptjs (salt rounds: 10);
+— Rate limiting через Nginx;
+— SSR для SEO-оптимизации каталога;
+— Оптимизация изображений через Next/Image;
+— Настройка кэширования.
+
+2.8. Тестирование:
+— Написание unit-тестов для серверной логики (Vitest);
+— Написание компонентных тестов для React-компонентов (@testing-library/react);
+— Написание тестов для системы парсинга;
+— Проверка типизации TypeScript (strict mode).
+
+
+3. ТЕХНИЧЕСКИЙ СТЕК
+
+3.1. Фронтенд:
+
+| Технология            | Версия       | Назначение                              |
+|-----------------------|--------------|------------------------------------------|
+| Next.js               | 15.x         | React-фреймворк с App Router, SSR       |
+| React                 | 19.x         | Библиотека пользовательского интерфейса  |
+| TypeScript            | 5.x          | Строгая типизация JavaScript (strict)    |
+| Tailwind CSS          | 4.x          | Утилитарные CSS-стили                   |
+| Zod                   | latest       | Валидация данных (схемы)                 |
+| Sonner                | latest       | Toast-уведомления                        |
+| clsx / tailwind-merge | latest       | Условная стилизация                      |
+
+3.2. Бэкенд:
+
+| Технология   | Версия     | Назначение                           |
+|--------------|------------|---------------------------------------|
+| Next.js API  | 15.x       | API Routes (App Router)               |
+| Server Actions | 15.x     | Серверные действия для форм           |
+| Prisma ORM   | 6.x/7.x    | ORM для работы с PostgreSQL           |
+| Zod          | latest     | Валидация входящих данных             |
+| JWT (jose)   | latest     | Аутентификация и сессии               |
+| bcryptjs     | 3.x        | Хеширование паролей                   |
+
+3.3. База данных и хранилище:
+
+| Технология   | Версия     | Назначение                           |
+|--------------|------------|---------------------------------------|
+| PostgreSQL   | 15+        | Основная реляционная база данных      |
+| Prisma       | 6.x/7.x    | Миграции, сидирование, клиент         |
+
+3.4. Парсер:
+
+| Технология   | Версия     | Назначение                           |
+|--------------|------------|---------------------------------------|
+| Node.js      | 18+        | Сервер парсинга                       |
+| Express.js   | latest     | HTTP-сервер для парсера               |
+| Playwright   | latest     | Автоматизация браузера (парсинг WB)   |
+| Chrome Extension API | Manifest V3 | Расширение для пакетного парсинга |
+
+3.5. Инфраструктура и деплой:
+
+| Технология     | Назначение                               |
+|----------------|-------------------------------------------|
+| Docker         | Контейнеризация приложений                |
+| Docker Compose | Оркестрация контейнеров (dev/prod)        |
+| Nginx          | Reverse proxy, SSL, rate limiting         |
+| GitHub Actions | CI/CD pipeline (тесты, сборка, деплой)    |
+| Let's Encrypt  | SSL/TLS сертификаты                       |
+| systemd        | Автозапуск сервисов на VPS                |
+
+3.6. Тестирование:
+
+| Технология          | Назначение                        |
+|---------------------|------------------------------------|
+| Vitest              | Unit и integration тесты           |
+| @testing-library/react | Компонентные тесты              |
+| Happy-DOM / jsdom   | Среда выполнения тестов            |
+
+3.7. Разработка:
+
+| Технология   | Назначение                               |
+|--------------|-------------------------------------------|
+| ESLint       | Линтинг и статический анализ кода         |
+| Prettier     | Форматирование кода                       |
+| tsx          | Запуск TypeScript-скриптов (seed)         |
+
+
+4. ФУНКЦИОНАЛЬНЫЕ МОДУЛИ
+
+4.1. Модуль каталога товаров:
+
+4.1.1. Описание:
+Каталог товаров обеспечивает навигацию по товарам, фильтрацию, сортировку и поиск. Поддерживает иерархическую структуру категорий.
+
+4.1.2. Функциональность:
+— Отображение списка товаров с пагинацией;
+— Фильтрация по параметрам: категория, бренд, цена, наличие, характеристики;
+— Сортировка: по цене, по популярности, по рейтингу, по новизне;
+— Поиск товаров (интеграция с Meilisearch/Typesense — опционально);
+— Карточка товара: изображения, название, артикул, цена, старая цена, скидка, наличие, характеристики, отзывы;
+— Хлебные крошки (breadcrumbs) для навигации;
+— SSR-рендеринг для SEO-оптимизации.
+
+4.1.3. Модели данных:
+— Product: id, name, slug, description, price, oldPrice, discount, stock, rating, categoryId, brandId, images[], characteristics[], parserPrice, parserSources, useParserPrice и др.;
+— Category: id, name, slug, parentId, order, icon;
+— Brand: id, name, slug, logo, description.
+
+---
+
+4.2. Модуль парсинга цен:
+
+4.2.1. Описание:
+Автоматизированная система сбора и обновления цен с маркетплейса Wildberries. Состоит из сервера парсинга (parser-server), Chrome-расширения и интеграции с основным приложением.
+
+4.2.2. Функциональность:
+— Chrome-расширение: пакетный парсинг товаров по URL (извлечение nmId, получение данных через WB API);
+— Отправка результатов парсинга webhook на сервер (http://<server>/api/admin/parser/webhook);
+— Сервер парсинга (parser-server): Node.js + Express сервер (порт 3005), API endpoints;
+— Приоритетное определение цены: несколько источников с приоритетами (0 = главный), перебор по порядку, проверка наличия;
+— Автоматическое обновление цены товара: при useParserPrice = true цена обновляется автоматически;
+— История цен (PriceHistory): все изменения цен с указанием причины;
+— Логи парсинга: хранение всех задач парсинга со статусами, фильтрация и пагинация;
+— Админ-интерфейс: вкладка «Парсинг» в редактировании товара (добавление источников, приоритеты, запуск парсинга);
+— Страница логов парсинга в админке (/admin/parser/logs).
+
+4.2.3. Модели данных:
+— Product.parserSources: JSON массив [{url, priority, isActive}];
+— Product.parserPrice, parserOldPrice, parserUpdatedAt, parserInStock, parserDelivery, parserName;
+— Product.useParserPrice: Boolean — флаг использования цен с парсера;
+— PriceHistory: id, productId, oldPrice, newPrice, reason («parser_auto»), createdAt;
+— ParserLog: id, taskId, productId, status, url, result, error, createdAt.
+
+4.2.4. Chrome-расширение (extension/):
+— manifest.json (Manifest V3);
+— popup.html / popup.js — интерфейс пакетного парсинга;
+— background.js — service worker;
+— tracker.html / tracker.js — трекер процесса парсинга;
+— permissions: storage, tabs, notifications, alarms, scripting;
+— host_permissions: https://*.wildberries.ru/*, http://localhost:3002/*.
+
+---
+
+4.3. Модуль конфигуратора ПК:
+
+4.3.1. Описание:
+Интерактивный конфигуратор позволяет пользователю собрать собственный ПК из совместимых комплектующих по категориям.
+
+4.3.2. Функциональность:
+— Выбор комплектующих по категориям (CPU, GPU, Motherboard, RAM, Storage, PSU, Case, Cooling и др.);
+— Проверка совместимости компонентов (сокет CPU и motherboard, форм-фактор, TDP, объём RAM и др.);
+— Расчёт требуемой мощности блока питания (TDP);
+— Отображение итоговой стоимости и характеристик сборки;
+— Сохранение сборки в профиль пользователя;
+— Загрузка сохранённой сборки;
+— Публикация сборки (shareCode) — опционально;
+— Пресеты сборок (готовые конфигурации).
+
+4.3.3. Модели данных:
+— Configuration: id, userId, name, isPreset, total, power, isPublic, shareCode, createdAt;
+— ConfigItem: id, configId, categoryId, productId, quantity, price.
+
+---
+
+4.4. Модуль корзины и оформления заказа:
+
+4.4.1. Описание:
+Корзина позволяет добавлять товары, изменять количество, переходить к оформлению заказа.
+
+4.4.2. Функциональность:
+— Добавление/удаление товаров из корзины;
+— Изменение количества товаров;
+— Расчёт итоговой стоимости;
+— Корзина сохраняется в базе данных (привязка к пользователю);
+— Оформление заказа: выбор адреса доставки, комментарий;
+— Создание заказа в базе данных;
+— Генерация номера заказа (orderNumber).
+
+4.4.3. Модели данных:
+— Cart: id, userId;
+— CartItem: id, cartId, productId, quantity;
+— Order: id, userId, orderNumber, status, paymentStatus, total, deliveryAddress, comment, createdAt;
+— OrderItem: id, orderId, productId, quantity, price.
+
+---
+
+4.5. Модуль вишлиста:
+
+4.5.1. Описание:
+Список желаний — позволяет пользователю сохранять понравившиеся товары.
+
+4.5.2. Функциональность:
+— Добавление/удаление товаров из вишлиста;
+— Отображение списка сохранённых товаров;
+— Интеграция с карточками товаров (иконка «сердце»).
+
+4.5.3. Модели данных:
+— Wishlist: id, userId;
+— WishlistItem: id, wishlistId, productId, createdAt.
+
+---
+
+4.6. Модуль системы отзывов:
+
+4.6.1. Описание:
+Система позволяет пользователям оставлять отзывы и оценки товаров.
+
+4.6.2. Функциональность:
+— Создание отзыва: текст, рейтинг (1–5 звёзд);
+— Отображение отзывов на странице товара;
+— Расчёт среднего рейтинга товара;
+— Администрирование отзывов (удаление, модерация).
+
+4.6.3. Модели данных:
+— Review: id, productId, userId, rating, text, createdAt, updatedAt.
+
+---
+
+4.7. Модуль аутентификации и профилей пользователей:
+
+4.7.1. Описание:
+Система регистрации, входа и управления профилем пользователя с ролевой моделью.
+
+4.7.2. Функциональность:
+— Регистрация: email, password, name, phone;
+— Вход по email/password (JWT в httpOnly cookies);
+— Выход из системы (logout);
+— Сброс пароля (forgot-password / reset-password) — с возможностью интеграции email;
+— Смена пароля (change-password);
+— Обновление профиля: name, phone, avatar;
+— Удаление аккаунта;
+— Роли: ADMIN, MANAGER, CUSTOMER;
+— Уровни лояльности: BRONZE, SILVER, GOLD, PLATINUM;
+— Бонусные баллы (bonusPoints).
+
+4.7.3. Адресная книга:
+— Добавление/редактирование/удаление адресов доставки;
+— Установка адреса по умолчанию;
+— Поля: name, city, street, building, apartment, postalCode, phone, isDefault.
+
+4.7.4. История заказов:
+— Просмотр всех заказов пользователя;
+— Фильтрация по статусу;
+— Детали заказа: состав, статус, сумма, дата;
+— Пагинация списка заказов.
+
+4.7.5. Модели данных:
+— User: id, email, password, name, phone, avatar, role, bonusPoints, level, emailVerified, createdAt;
+— Address: id, userId, name, city, street, building, apartment, postalCode, phone, isDefault.
+
+---
+
+4.8. Модуль административной панели:
+
+4.8.1. Описание:
+Веб-интерфейс для управления всеми аспектами интернет-магазина: товарами, заказами, пользователями, отзывами, настройками парсинга.
+
+4.8.2. Функциональность:
+— Управление товарами: создание, редактирование, удаление, массовые операции;
+— Форма товара: базовые данные, изображения, характеристики, SEO, поставщики, парсинг;
+— Управление категориями: иерархическая структура, порядок сортировки;
+— Управление брендами: логотип, описание;
+— Управление заказами: просмотр, изменение статусов, фильтрация;
+— Управление пользователями: просмотр, редактирование ролей;
+— Управление отзывами: модерация, удаление;
+— Управление парсингом: настройка источников, запуск, логи;
+— Боковое меню навигации;
+— Защита роутов: доступ только для ADMIN/MANAGER.
+
+4.8.3. API Endpoints админки:
+— POST/GET/PUT/DELETE /api/admin/products/*;
+— POST/GET/PUT/DELETE /api/admin/categories/*;
+— POST/GET/PUT/DELETE /api/admin/brands/*;
+— GET/PUT /api/admin/orders/*;
+— GET/PUT /api/admin/users/*;
+— GET/DELETE /api/admin/reviews/*;
+— POST/GET/DELETE /api/admin/parser/products/[id]/auto-parse;
+— POST/GET/DELETE /api/admin/parser/products/[id]/sources;
+— POST /api/admin/parser/webhook;
+— GET /api/admin/parser/logs.
+
+---
+
+4.9. Модуль развёртывания и инфраструктуры:
+
+4.9.1. Описание:
+Полная настройка контейнеризации, CI/CD и продакшен-окружения.
+
+4.9.2. Функциональность:
+— Dockerfile (multi-stage build) для Next.js приложения;
+— Dockerfile для parser-server;
+— docker-compose.yml: локальная разработка (app + postgres + parser + parser-ui);
+— docker-compose.prod.yml: продакшен-сборка (app + postgres + nginx);
+— docker-compose.redis.yml: Redis для кэширования и очередей (опционально);
+— Nginx конфигурация: reverse proxy, SSL, rate limiting, security headers;
+— GitHub Actions: CI pipeline (lint, tsc, test, build);
+— GitHub Actions: CD pipeline (deploy на Hetzner VPS через SSH);
+— railway.toml: конфигурация для деплоя на Railway;
+— netlify.toml: конфигурация для деплоя на Netlify (frontend);
+— PowerShell/Bash скрипты для запуска всех сервисов (start-all.ps1, start-all.sh);
+— systemd сервис для автозапуска на VPS.
+
+
+5. СТРУКТУРА ПРОЕКТА
+
+5.1. Корневая директория:
+
+```
+1000fps-backup/
+├── src/                          # Исходный код приложения
+│   ├── app/                      # Страницы и API Routes (App Router)
+│   │   ├── layout.tsx            # Корневой layout
+│   │   ├── page.tsx              # Главная страница
+│   │   ├── catalog/              # Каталог товаров
+│   │   ├── product/[slug]/       # Страница товара
+│   │   ├── configurator/         # Конфигуратор ПК
+│   │   ├── profile/              # Профиль пользователя
+│   │   ├── admin/                # Административная панель
+│   │   ├── cart/                 # Корзина
+│   │   ├── login/                # Страница входа
+│   │   ├── register/             # Страница регистрации
+│   │   └── api/                  # API Routes
+│   ├── components/               # React-компоненты
+│   │   ├── layout/               # Header, Footer
+│   │   ├── sections/             # Hero, Promo, Hot Products, Brands, Features
+│   │   ├── catalog/              # Filters, Product Grid
+│   │   └── ui/                   # Button, Input, Badge, ProductCard, и др.
+│   ├── lib/                      # Утилиты и хелперы
+│   │   ├── prisma.ts             # Prisma клиент (singleton)
+│   │   ├── actions/              # Server Actions
+│   │   └── validations/          # Zod схемы валидации
+│   └── types/                    # TypeScript типы
+├── extension/                    # Chrome-расширение для парсинга
+│   ├── manifest.json
+│   ├── popup.html / popup.js
+│   ├── background.js
+│   ├── tracker.html / tracker.js
+│   └── styles.css
+├── parser-server/                # Сервер парсинга (Node.js + Express)
+│   ├── server.js
+│   ├── Dockerfile
+│   └── package.json
+├── prisma/                       # Prisma ORM
+│   ├── schema.prisma             # Схема базы данных
+│   ├── migrations/               # Миграции
+│   └── seed.ts                   # Seed-скрипт
+├── public/                       # Статические файлы
+├── nginx/                        # Nginx конфигурация
+│   └── nginx.conf
+├── scripts/                      # Скрипты развёртывания
+├── .github/workflows/            # GitHub Actions CI/CD
+├── maket/                        # HTML-макеты (исходники вёрстки)
+├── Dockerfile                    # Dockerfile для Next.js
+├── docker-compose.yml            # Локальная разработка
+├── docker-compose.prod.yml       # Продакшен
+├── docker-compose.redis.yml      # Redis
+├── railway.toml                  # Railway конфигурация
+├── netlify.toml                  # Netlify конфигурация
+├── next.config.ts                # Next.js конфигурация
+├── tailwind.config.ts            # Tailwind CSS конфигурация
+├── tsconfig.json                 # TypeScript конфигурация
+├── eslint.config.mjs             # ESLint конфигурация
+├── postcss.config.mjs            # PostCSS конфигурация
+├── vitest.config.ts              # Vitest конфигурация
+├── middleware.ts                 # Next.js middleware (auth, роуты)
+├── start-all.ps1                 # PowerShell скрипт запуска
+└── start-all.sh                  # Bash скрипт запуска
+```
+
+
+6. МОДЕЛИ БАЗЫ ДАННЫХ
+
+6.1. Основные модели Prisma:
+
+6.1.1. User (Пользователи):
+— id (String, CUID)
+— email (String, unique)
+— password (String, hashed)
+— name (String)
+— phone (String, nullable)
+— avatar (String, nullable)
+— role (Enum: CUSTOMER, MANAGER, ADMIN)
+— bonusPoints (Int, default: 0)
+— level (Enum: BRONZE, SILVER, GOLD, PLATINUM)
+— emailVerified (Boolean, default: false)
+— createdAt, updatedAt (DateTime)
+
+6.1.2. Product (Товары):
+— id (String, CUID)
+— name (String)
+— slug (String, unique)
+— description (String, nullable)
+— price (Decimal)
+— oldPrice (Decimal, nullable)
+— discount (Int, nullable)
+— stock (Int, default: 0)
+— rating (Float, default: 0)
+— categoryId (String, foreign key)
+— brandId (String, foreign key)
+— images (JSON array)
+— characteristics (JSON object)
+— suppliers (JSON array, nullable)
+— useParserPrice (Boolean, default: false)
+— parserSources (JSON array, nullable)
+— parserPrice (Decimal, nullable)
+— parserOldPrice (Decimal, nullable)
+— parserDelivery (String, nullable)
+— parserName (String, nullable)
+— parserInStock (Boolean, default: true)
+— parserUpdatedAt (DateTime, nullable)
+— createdAt, updatedAt (DateTime)
+
+6.1.3. Category (Категории):
+— id (String, CUID)
+— name (String)
+— slug (String, unique)
+— parentId (String, nullable, self-reference)
+— order (Int, default: 0)
+— icon (String, nullable)
+
+6.1.4. Brand (Бренды):
+— id (String, CUID)
+— name (String)
+— slug (String, unique)
+— logo (String, nullable)
+— description (String, nullable)
+
+6.1.5. Order (Заказы):
+— id (String, CUID)
+— orderNumber (String, unique)
+— userId (String, foreign key)
+— status (Enum: PENDING, CONFIRMED, PAID, SHIPPING, DELIVERED, CANCELLED, REFUNDED)
+— paymentStatus (Enum: PENDING, PAID, REFUNDED)
+— total (Decimal)
+— deliveryAddress (JSON, nullable)
+— comment (String, nullable)
+— createdAt, updatedAt (DateTime)
+
+6.1.6. OrderItem (Элементы заказа):
+— id (String, CUID)
+— orderId (String, foreign key)
+— productId (String, foreign key)
+— quantity (Int)
+— price (Decimal)
+
+6.1.7. Cart / CartItem (Корзина):
+— Cart: id, userId (unique)
+— CartItem: id, cartId, productId, quantity
+
+6.1.8. Wishlist / WishlistItem (Вишлист):
+— Wishlist: id, userId (unique)
+— WishlistItem: id, wishlistId, productId, createdAt
+
+6.1.9. Review (Отзывы):
+— id (String, CUID)
+— productId (String, foreign key)
+— userId (String, foreign key)
+— rating (Int: 1–5)
+— text (String, nullable)
+— createdAt, updatedAt (DateTime)
+
+6.1.10. Configuration / ConfigItem (Сборки ПК):
+— Configuration: id, userId, name, isPreset, total, power, isPublic, shareCode, createdAt
+— ConfigItem: id, configId, categoryId, productId, quantity, price
+
+6.1.11. Address (Адреса):
+— id (String, CUID)
+— userId (String, foreign key)
+— name (String)
+— city, street, building, apartment, postalCode, phone
+— isDefault (Boolean, default: false)
+
+6.1.12. PriceHistory (История цен):
+— id (String, CUID)
+— productId (String, foreign key)
+— oldPrice (Decimal)
+— newPrice (Decimal)
+— reason (String: «parser_auto», «manual», и др.)
+— createdAt (DateTime)
+
+6.1.13. ParserLog (Логи парсинга):
+— id (String, CUID)
+— taskId (String)
+— productId (String, nullable)
+— status (Enum: PENDING, RUNNING, COMPLETED, FAILED)
+— url (String)
+— result (JSON, nullable)
+— error (String, nullable)
+— createdAt (DateTime)
+
+
+7. API ENDPOINTS
+
+7.1. Публичные API:
+— GET /api/products — список товаров (с фильтрами, пагинацией)
+— GET /api/products/[slug] — товар по slug
+— GET /api/categories — список категорий
+— GET /api/brands — список брендов
+— GET /api/reviews — отзывы товара
+
+7.2. API аутентификации:
+— POST /api/auth/register — регистрация
+— POST /api/auth/login — вход
+— POST /api/auth/logout — выход
+— POST /api/auth/forgot-password — сброс пароля
+— POST /api/auth/reset-password — установка нового пароля
+
+7.3. API профиля пользователя (требует авторизации):
+— GET/PUT/DELETE /api/profile — профиль
+— PUT /api/profile/change-password — смена пароля
+— GET/POST/PUT/DELETE /api/profile/addresses — адреса
+— GET /api/profile/orders — заказы
+— GET /api/profile/orders/[id] — детали заказа
+— GET/POST/DELETE /api/profile/wishlist — вишлист
+— GET/POST/DELETE /api/profile/configs — сборки
+
+7.4. API корзины:
+— GET/POST/PUT/DELETE /api/cart — корзина
+
+7.5. API административной панели (требует роль ADMIN/MANAGER):
+— Полный CRUD для товаров, категорий, брендов, заказов, пользователей, отзывов
+— POST /api/admin/parser/webhook — webhook парсинга
+— GET/POST/DELETE /api/admin/parser/products/[id]/auto-parse — настройки автопарсинга
+— GET/POST/DELETE /api/admin/parser/products/[id]/sources — источники парсинга
+— GET /api/admin/parser/logs — логи парсинга
+
+7.6. Health Check:
+— GET /api/health — проверка работоспособности
+
+
+8. СТРАНИЦЫ ПРИЛОЖЕНИЯ
+
+8.1. Публичные страницы:
+— / — Главная страница (лендинг)
+— /catalog — Каталог товаров
+— /product/[slug] — Страница товара
+— /configurator — Конфигуратор ПК
+— /cart — Корзина
+— /login — Вход
+— /register — Регистрация
+
+8.2. Профиль пользователя (требует авторизации):
+— /profile — Профиль (обзор)
+— /profile/orders — Мои заказы
+— /profile/wishlist — Вишлист
+— /profile/addresses — Адреса
+— /profile/configs — Мои сборки
+— /profile/settings — Настройки
+
+8.3. Административная панель (требует роль ADMIN/MANAGER):
+— /admin — Дашборд
+— /admin/products — Управление товарами
+— /admin/products/new — Создание товара
+— /admin/products/[id] — Редактирование товара
+— /admin/categories — Управление категориями
+— /admin/brands — Управление брендами
+— /admin/orders — Управление заказами
+— /admin/orders/[id] — Детали заказа
+— /admin/users — Управление пользователями
+— /admin/reviews — Управление отзывами
+— /admin/parser/logs — Логи парсинга
+
+
+9. ДИЗАЙН И СТИЛИ
+
+9.1. Дизайн-система:
+— Цветовая палитра определена через CSS переменные в globals.css;
+--background / --foreground — основные цвета;
+— --primary / --primary-hover — акцентный цвет (синий);
+— --success, --warning, --error, --info — цвета состояний;
+— --border — цвет границ.
+
+9.2. Типографика:
+— --font-sans — системный шрифт (основной);
+— --font-mono — моноширинный шрифт (код);
+— Размеры: --text-xs ... --text-4xl.
+
+9.3. Скругления и тени:
+— --radius-sm ... --radius-full;
+— --shadow-sm ... --shadow-xl.
+
+9.4. Базовые UI-компоненты:
+— Button (варианты: primary, secondary, outline, ghost, danger);
+— Input (text, email, password, number, textarea);
+— Badge (статусы: success, warning, error, info);
+— ProductCard (карточка товара);
+— Breadcrumbs (хлебные крошки);
+— Select, Checkbox, Radio, Toggle.
+
+
+10. ТРЕБОВАНИЯ К БЕЗОПАСНОСТИ
+
+10.1. Аутентификация:
+— JWT-токены в httpOnly cookies (недоступны из JavaScript);
+— Время жизни токена: 24 часа;
+— Автоматическое продление сессии при истечении < 2 часов;
+— Хеширование паролей: bcryptjs (10 salt rounds).
+
+10.2. Заголовки безопасности (Next.js headers):
+— Strict-Transport-Security (HSTS);
+— X-Frame-Options (DENY);
+— X-Content-Type-Options (nosniff);
+— X-XSS-Protection;
+— Referrer-Policy (strict-origin-when-cross-origin).
+
+10.3. Роуты и авторизация:
+— Middleware (middleware.ts) проверяет JWT-токен;
+— /profile/* — только авторизованные;
+— /admin/* — только ADMIN/MANAGER;
+— Валидация всех входящих данных через Zod.
+
+10.4. Инфраструктура:
+— Non-root пользователь в Docker-контейнерах;
+— SSL/TLS шифрование (Let's Encrypt);
+— Rate limiting через Nginx;
+— .dockerignore для исключения чувствительных файлов.
+
+
+11. ТРЕБОВАНИЯ К РАЗВЁРТЫВАНИЮ
+
+11.1. Локальная разработка:
+— Docker Compose (app + postgres + parser + parser-ui);
+— Команда: docker compose up -d;
+— Порты: Next.js (3000), Parser (3005), Parser UI (3006), PostgreSQL (5432).
+
+11.2. Продакшен:
+— Docker Compose с multi-stage build;
+— Nginx reverse proxy + SSL;
+— Команда: docker compose -f docker-compose.prod.yml up -d;
+— Применение миграций: npx prisma migrate deploy;
+— Автозапуск через systemd.
+
+11.3. CI/CD:
+— GitHub Actions: CI pipeline (lint, tsc, test, build) при каждом push/PR;
+— GitHub Actions: CD pipeline (деплой на Hetzner VPS) при merge в main;
+— Требуемые секреты: VPS_HOST, VPS_USER, VPS_SSH_KEY, JWT_SECRET, COOKIE_SECRET, POSTGRES_PASSWORD.
+
+11.4. Альтернативные платформы:
+— Railway: автоматический деплой при push (railway.toml);
+— Netlify: деплой фронтенда (netlify.toml);
+— Hetzner VPS: Ubuntu 22.04/24.04, Docker, Nginx.
+
+
+12. ТРЕБОВАНИЯ К ТЕСТИРОВАНИЮ
+
+12.1. Unit-тесты:
+— Фреймворк: Vitest;
+— Покрытие: серверная логика, утилиты, валидации, парсер;
+— Команды: npm run test, npm run test:parser.
+
+12.2. Компонентные тесты:
+— Фреймворк: @testing-library/react;
+— Среда: Happy-DOM / jsdom;
+— Тестирование React-компонентов.
+
+12.3. Проверка качества кода:
+— ESLint: npm run lint;
+— TypeScript: строгая типизация (strict mode), tsc --noEmit;
+— Code review через GitHub Pull Requests.
+
+
+13. ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+
+13.1. Обязательные переменные:
+
+| Переменная              | Описание                              | Пример                         |
+|-------------------------|----------------------------------------|--------------------------------|
+| DATABASE_URL            | Подключение к PostgreSQL               | postgresql://user:pass@...     |
+| JWT_SECRET              | Секрет для JWT (мин. 32 символа)       | openssl rand -base64 32        |
+| COOKIE_SECRET           | Секрет для cookies (мин. 32 символа)   | openssl rand -base64 32        |
+| NEXT_PUBLIC_APP_URL     | Публичный URL приложения               | https://yourdomain.com         |
+| PARSER_URL              | URL сервера парсинга                   | http://parser:3005             |
+| NODE_ENV                | Среда (development/production)         | production                     |
+| POSTGRES_USER           | Пользователь PostgreSQL                 | postgres                       |
+| POSTGRES_PASSWORD       | Пароль PostgreSQL                       | <secure-password>              |
+| POSTGRES_DB             | Имя базы данных                         | fps1000                        |
+
+
+14. ЭТАПЫ РАЗРАБОТКИ
+
+14.1. Этап 1: Инициализация проекта и архитектура
+— Настройка Next.js проекта, TypeScript, Tailwind CSS;
+— Настройка Prisma, схемы базы данных, миграции;
+— Настройка Docker, Docker Compose;
+— Базовая структура папок и компонентов.
+
+14.2. Этап 2: Каталог и базовый UI
+— Главная страница, Header, Footer;
+— Каталог товаров с фильтрами и сортировкой;
+— Страница товара;
+— Базовые UI-компоненты.
+
+14.3. Этап 3: Аутентификация и профили
+— Регистрация, вход, JWT-сессии;
+— Личный кабинет (профиль, заказы, адреса, вишлист, сборки);
+— Middleware и защита роутов.
+
+14.4. Этап 4: Корзина и заказы
+— Корзина, оформление заказа;
+— API заказов, статусы заказов.
+
+14.5. Этап 5: Конфигуратор ПК
+— Интерфейс конфигуратора;
+— Логика совместимости;
+— Сохранение/загрузка сборок.
+
+14.6. Этап 6: Система парсинга
+— Сервер парсинга (parser-server);
+— Chrome-расширение;
+— Интеграция с основным приложением;
+— Приоритетное определение цены, логи.
+
+14.7. Этап 7: Административная панель
+— CRUD товаров, категорий, брендов;
+— Управление заказами, пользователями, отзывами;
+— Настройка парсинга, логи.
+
+14.8. Этап 8: Оптимизация и деплой
+— CI/CD pipeline;
+— Продакшен-деплой (Hetzner VPS / Railway);
+— SSL, Nginx, мониторинг;
+— Тестирование, код-ревью.
+
+
+15. РЕЗУЛЬТАТ РАБОТ
+
+По завершении работ Исполнитель передаёт Заказчику:
+
+15.1. Исходный код проекта в Git-репозитории (GitHub);
+15.2. Полностью развёрнутое рабочее приложение (продакшен-окружение);
+15.3. Docker-контейнеры для всех компонентов (app, parser, postgres, nginx);
+15.4. Настроенный CI/CD pipeline (GitHub Actions);
+15.5. Документацию:
+— README.md — общее описание и инструкции по запуску;
+— ARCHITECTURE.md — архитектура проекта;
+— STACK.md — стек технологий;
+— DEPLOYMENT.md — руководство по развёртыванию;
+— USER_PROFILES_API.md — документация API профилей;
+— PARSER_V3_IMPLEMENTATION.md — документация системы парсинга;
+— CART_WISHLIST_IMPLEMENTATION.md — документация корзины и вишлиста;
+— REVIEWS_SYSTEM.md — документация системы отзывов;
+— API_ENDPOINTS_CREATED.md — документация API endpoints;
+— QUICKSTART_DOCKER.md — быстрый старт с Docker;
+— REDIS_INTEGRATION.md — документация интеграции Redis (опционально);
+— PERFORMANCE.md — рекомендации по оптимизации;
+— TESTS.md — описание тестов.
+
+15.6. Chrome-расширение для парсинга (готовое к установке в браузер);
+15.7. Seed-данные для тестирования (тестовые пользователи, товары, заказы);
+15.8. Инструкции по администрированию и поддержке.
+
+
+16. ПРИЁМКА РАБОТ
+
+16.1. Приёмка работ осуществляется по следующим критериям:
+— Все функциональные модули работают в соответствии с настоящим Техническим заданием;
+— Приложение развёрнуто на продакшен-сервере и доступно по указанному URL;
+— Docker-контейнеры запускаются без ошибок;
+— CI/CD pipeline проходит успешно;
+— Тесты проходят успешно;
+— Документация предоставлена в полном объёме.
+
+16.2. Заказчик вправе внести замечания и потребовать исправления выявленных недостатков в сроки, согласованные Сторонами.
+
+16.3. По результатам приёмки Стороны подписывают Акт сдачи-приёмки работ.
+
+
+17. СРОКИ И ПОРЯДОК СДАЧИ РАБОТ
+
+17.1. Сроки выполнения работ определяются Календарным планом, являющимся неотъемлемой частью настоящего Договора.
+
+17.2. Сдача каждого этапа оформляется Актом сдачи-приёмки работ по этапу.
+
+17.3. Исполнитель обязуется предоставить Заказчику доступ к тестовому серверу для промежуточной приёмки результатов.
+
+
+18. ОСОБЫЕ УСЛОВИЯ
+
+18.1. Исполнитель гарантирует работоспособность системы в течение ____ месяцев с момента сдачи работ.
+
+18.2. Исполнитель обязуется оказать консультационную поддержку Заказчику в порядке и сроки, согласованные Сторонами.
+
+18.3. Все изменения и дополнения к настоящему Техническому заданию оформляются дополнительным соглашением.
+
+
+ПОДПИСИ СТОРОН:
+
+Заказчик:                                      Исполнитель:
+___________________                            ___________________
+ФИО:                                           ФИО:
+Должность:                                     Должность:
+Подпись:                                       Подпись:
+Дата:                                          Дата:
+М.П.                                           М.П.

@@ -291,8 +291,7 @@ async function main() {
         },
         images: {
           create: [
-            { url: '/images/products/rtx-4070-ti-super-1.jpg', isMain: true, order: 0 },
-            { url: '/images/products/rtx-4070-ti-super-2.jpg', isMain: false, order: 1 },
+            { url: '/uploads/products/cmndndc2f001hv4sgjyzejz2y/1774959737384-55je1r.webp', isMain: true, order: 0 },
           ],
         },
         warehouseStocks: {
@@ -330,7 +329,9 @@ async function main() {
           ],
         },
         images: {
-          create: [{ url: '/images/products/rtx-4090.jpg', isMain: true, order: 0 }],
+          create: [
+            { url: '/uploads/products/cmndndc2f001hv4sgjyzejz2y/1774959737384-55je1r.webp', isMain: true, order: 0 },
+          ],
         },
         warehouseStocks: {
           create: { warehouseId: warehouses[0].id, quantity: 12, reserved: 2 },
@@ -376,8 +377,10 @@ async function main() {
             { name: 'Кэш L3', value: '96', unit: 'МБ', order: 6 },
           ],
         },
-        images: {
-          create: [{ url: '/images/products/ryzen-7800x3d.jpg', isMain: true, order: 0 }],
+images: {
+          create: [
+            { url: '/uploads/products/cmndndc2f001hv4sgjyzejz2y/1774959737384-55je1r.webp', isMain: true, order: 0 },
+          ],
         },
         warehouseStocks: {
           create: { warehouseId: warehouses[0].id, quantity: 85, reserved: 10 },
@@ -411,7 +414,9 @@ async function main() {
           ],
         },
         images: {
-          create: [{ url: '/images/products/z890-apex.jpg', isMain: true, order: 0 }],
+          create: [
+            { url: '/uploads/products/cmndndc2f001hv4sgjyzejz2y/1774959737384-55je1r.webp', isMain: true, order: 0 },
+          ],
         },
         warehouseStocks: {
           create: { warehouseId: warehouses[0].id, quantity: 23, reserved: 3 },
@@ -448,7 +453,9 @@ async function main() {
           ],
         },
         images: {
-          create: [{ url: '/images/products/corsair-vengeance-ddr5.jpg', isMain: true, order: 0 }],
+          create: [
+            { url: '/uploads/products/cmndndc2f001hv4sgjyzejz2y/1774959737384-55je1r.webp', isMain: true, order: 0 },
+          ],
         },
         warehouseStocks: {
           create: { warehouseId: warehouses[0].id, quantity: 156, reserved: 20 },
@@ -485,7 +492,9 @@ async function main() {
           ],
         },
         images: {
-          create: [{ url: '/images/products/samsung-990-pro.jpg', isMain: true, order: 0 }],
+          create: [
+            { url: '/uploads/products/cmndndc2f001hv4sgjyzejz2y/1774959737384-55je1r.webp', isMain: true, order: 0 },
+          ],
         },
         warehouseStocks: {
           create: { warehouseId: warehouses[0].id, quantity: 89, reserved: 15 },
