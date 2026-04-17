@@ -137,9 +137,14 @@ async function cacheFirst(request, cacheName, maxSize) {
     const networkResponse = await fetch(request);
     
     if (networkResponse && networkResponse.status === 200) {
-      const cache = await caches.open(cacheName);
-      cache.put(request, networkResponse.clone());
-      trimCache(cacheName, maxSize);
+      try {
+        const cache = await caches.open(cacheName);
+        cache.put(request, networkResponse.clone());
+        trimCache(cacheName, maxSize);
+      } catch (cacheError) {
+        console.error('[SW] Cache put failed:', cacheError);
+        // Continue to return the network response even if caching fails
+      }
     }
     
     return networkResponse;
