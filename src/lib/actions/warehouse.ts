@@ -1,8 +1,6 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { isDemoMode } from '@/lib/demo-mode';
-import { mockWarehouses } from '@/lib/mock-data';
 
 export interface WarehouseWithStock {
   id: string;
@@ -28,29 +26,6 @@ export interface WarehousesResponse {
  */
 export async function getWarehousesWithStock(productId: string): Promise<WarehousesResponse | null> {
   try {
-    // Демо-режим
-    if (isDemoMode()) {
-      const formattedWarehouses: WarehouseWithStock[] = mockWarehouses.map((warehouse) => ({
-        id: warehouse.id,
-        name: warehouse.name,
-        address: warehouse.address,
-        city: warehouse.city,
-        phone: warehouse.phone,
-        inStock: true,
-        quantity: 10,
-        price: 0,
-        formattedPrice: '0 ₽',
-      }));
-
-      return {
-        productId,
-        price: 0,
-        formattedPrice: '0 ₽',
-        warehouses: formattedWarehouses,
-      };
-    }
-
-    // Продакшн-режим
     // Получаем товар для получения цены
     const product = await prisma.product.findUnique({
       where: { id: productId },

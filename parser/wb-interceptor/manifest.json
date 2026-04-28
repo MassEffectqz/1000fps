@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "1000fps WB Парсер",
+  "version": "1.1.0",
+  "description": "Парсер цен Wildberries с отправкой на сервер",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://www.wildberries.ru/*",
+    "http://localhost:3000/*",
+    "http://host.docker.internal:3000/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "WB Парсер 1000fps"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

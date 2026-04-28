@@ -3,96 +3,7 @@
 import { Decimal } from '@prisma/client/runtime/library';
 import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
-import { isDemoMode } from '@/lib/demo-mode';
-import { 
-  mockProducts,
-  filterMockProducts,
-  getMockCategoriesWithCount,
-  getMockBrands,
-  type MockProduct
-} from '@/lib/mock-data';
 import { prisma } from '@/lib/prisma';
-
-/**
- * Helper: format product for catalog display
- */
-function formatMockProduct(product: MockProduct | Record<string, unknown>) {
-  const price = (product as MockProduct).price || 0;
-  const discountValue = (product as MockProduct).discountValue || 0;
-  let discountedPrice = price;
-
-  if (discountValue > 0) {
-    if ((product as MockProduct).discountType === 'PERCENT') {
-      discountedPrice = price * (1 - discountValue / 100);
-    } else {
-      discountedPrice = Math.max(0, price - discountValue);
-    }
-  }
-
-  const images = (product as MockProduct).images as Array<{ isMain: boolean; url: string }> | undefined;
-  const mainImage = images?.find((img) => img.isMain) || images?.[0];
-  
-  const specs = (product as MockProduct).specs as Array<{ value: string; unit?: string }> | undefined;
-  const specsString = specs
-    ?.slice(0, 3)
-    .map((spec) => `${spec.value}${spec.unit || ''}`)
-    .join(' / ');
-
-  const badges: Array<{ text: string; variant: 'orange' | 'green' | 'blue' | 'gray' | 'yellow' }> = [];
-
-  if (discountedPrice < price) {
-    const discountPercent = product.discountType === 'PERCENT'
-      ? discountValue
-      : Math.round((discountValue / price) * 100);
-    badges.push({ text: `-${discountPercent}%`, variant: 'orange' });
-  }
-
-  if ((product as MockProduct).isHit) {
-    badges.push({ text: 'Хит', variant: 'gray' });
-  }
-
-  if ((product as MockProduct).isNew) {
-    badges.push({ text: 'NEW', variant: 'orange' });
-  }
-
-  if ((product as MockProduct).isFeatured) {
-    badges.push({ text: 'Рекомендуем', variant: 'blue' });
-  }
-
-  if ((product as MockProduct).stock > 0) {
-    badges.push({ text: 'В наличии', variant: 'green' });
-  }
-
-  return {
-    id: (product as MockProduct).id,
-    name: (product as MockProduct).name,
-    slug: (product as MockProduct).slug,
-    sku: (product as MockProduct).sku,
-    price: Math.round(price),
-    oldPrice: price !== discountedPrice ? Math.round(price) : null,
-    discountedPrice: Math.round(discountedPrice),
-    discount: discountValue > 0 ? discountValue : null,
-    discountType: (product as MockProduct).discountType,
-    rating: (product as MockProduct).rating,
-    reviewCount: (product as MockProduct).reviewCount,
-    salesCount: (product as MockProduct).salesCount,
-    stock: (product as MockProduct).stock,
-    specs: specsString || '',
-    badges,
-    category: (product as MockProduct).category ? {
-      id: String(((product as MockProduct).category as unknown as Record<string, unknown>).id),
-      name: String(((product as MockProduct).category as unknown as Record<string, unknown>).name),
-      slug: String(((product as MockProduct).category as unknown as Record<string, unknown>).slug),
-    } : { id: '', name: 'Без категории', slug: '' },
-    brand: (product as MockProduct).brand ? {
-      id: String(((product as MockProduct).brand as unknown as Record<string, unknown>).id),
-      name: String(((product as MockProduct).brand as unknown as Record<string, unknown>).name),
-      slug: String(((product as MockProduct).brand as unknown as Record<string, unknown>).slug),
-    } : null,
-    image: mainImage?.url || null,
-    href: `/product/${(product as MockProduct).slug}`,
-  };
-}
 
 /**
  * Получить товары с кэшированием
@@ -112,56 +23,6 @@ export const getProducts = cache(
       sortBy?: 'popular' | 'price-asc' | 'price-desc' | 'newest' | 'rating' | 'sales';
       sortOrder?: 'asc' | 'desc';
     }) => {
-      // Демо-режим
-      if (isDemoMode()) {
-        const {
-          page = 1,
-          limit = 20,
-          categoryId,
-          brandId,
-          minPrice,
-          maxPrice,
-          isInStock,
-          sortBy = 'popular',
-        } = options || {};
-
-        const filtered = filterMockProducts({
-          categoryId,
-          brandId,
-          priceMin: minPrice,
-          priceMax: maxPrice,
-          inStock: isInStock,
-          sort: sortBy,
-        });
-
-        // Поиск
-        let result = filtered;
-        if (options?.search) {
-          const query = options.search.toLowerCase();
-          result = filtered.filter(
-            (p) =>
-              p.name.toLowerCase().includes(query) ||
-              p.description?.toLowerCase().includes(query) ||
-              p.sku.toLowerCase().includes(query)
-          );
-        }
-
-        const total = result.length;
-        const skip = (page - 1) * limit;
-        const paginated = result.slice(skip, skip + limit);
-
-        return {
-          products: paginated.map(formatMockProduct),
-          pagination: {
-            page,
-            limit,
-            total,
-            totalPages: Math.ceil(total / limit),
-          },
-        };
-      }
-
-      // Продакшн-режим (Prisma)
       const {
         page = 1,
         limit = 20,
@@ -383,15 +244,6 @@ export const getProducts = cache(
 export const getHotProducts = cache(
   unstable_cache(
     async (limit: number = 5) => {
-      // Демо-режим
-      if (isDemoMode()) {
-        const hotProducts = mockProducts
-          .filter((p) => p.isHit)
-          .sort((a, b) => b.salesCount - a.salesCount)
-          .slice(0, limit);
-        return hotProducts.map(formatMockProduct);
-      }
-
       // Продакшн-режим
       const products = await prisma.product.findMany({
         where: {
@@ -487,27 +339,6 @@ export const getHotProducts = cache(
 export const getNewProducts = cache(
   unstable_cache(
     async (limit: number = 10) => {
-      // Демо-режим
-      if (isDemoMode()) {
-        const newProducts = mockProducts
-          .filter((p) => p.isNew)
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-          .slice(0, limit);
-        return newProducts.map((product) => {
-          const price = product.price;
-          const mainImage = product.images?.find((img) => img.isMain) || product.images?.[0];
-          return {
-            id: product.id,
-            name: product.name,
-            slug: product.slug,
-            price: Math.round(price),
-            rating: product.rating,
-            image: mainImage?.url || null,
-            href: `/product/${product.slug}`,
-          };
-        });
-      }
-
       // Продакшн-режим
       const products = await prisma.product.findMany({
         where: {
@@ -562,31 +393,6 @@ export const getNewProducts = cache(
 export const getProductBySlug = cache(
   unstable_cache(
     async (slug: string) => {
-      // Демо-режим
-      if (isDemoMode()) {
-        const mockProduct = mockProducts.find((p) => p.slug === slug);
-        if (!mockProduct) return null;
-
-        const price = mockProduct.price;
-        const discountValue = mockProduct.discountValue || 0;
-        let discountedPrice = price;
-
-        if (discountValue > 0) {
-          if (mockProduct.discountType === 'PERCENT') {
-            discountedPrice = price * (1 - discountValue / 100);
-          } else {
-            discountedPrice = Math.max(0, price - discountValue);
-          }
-        }
-
-        return {
-          ...mockProduct,
-          price,
-          discountedPrice,
-          discountValue,
-        };
-      }
-
       // Продакшн-режим
       const product = await prisma.product.findUnique({
         where: { slug, isActive: true, isDraft: false },
@@ -663,11 +469,6 @@ export const getProductBySlug = cache(
 export const getCategoriesWithCount = cache(
   unstable_cache(
     async () => {
-      // Демо-режим
-      if (isDemoMode()) {
-        return getMockCategoriesWithCount();
-      }
-
       // Продакшн-режим
       const categories = await prisma.category.findMany({
         where: {
@@ -725,17 +526,6 @@ export const getCategoriesWithCount = cache(
 export const getBrandsWithCount = cache(
   unstable_cache(
     async () => {
-      // Демо-режим
-      if (isDemoMode()) {
-        return getMockBrands().map((brand) => ({
-          id: brand.id,
-          name: brand.name,
-          slug: brand.slug,
-          logo: brand.logo,
-          count: mockProducts.filter((p) => p.brandId === brand.id).length,
-        }));
-      }
-
       // Продакшн-режим
       const brands = await prisma.brand.findMany({
         where: {

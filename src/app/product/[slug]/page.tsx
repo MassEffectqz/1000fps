@@ -4,7 +4,6 @@ import { getProducts, getProductBySlug } from '@/lib/actions/catalog';
 import { getWarehousesWithStock } from '@/lib/actions/warehouse';
 import { ProductPageClient } from './product-client';
 import type { Product } from './product-client';
-import { isDemoMode } from '@/lib/demo-mode';
 import { Metadata } from 'next';
 import type { Review } from './product-client';
 
@@ -16,27 +15,6 @@ interface ProductPageProps {
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
 
-  // Демо-режим
-  if (isDemoMode()) {
-    const product = await getProductBySlug(slug);
-    if (!product) {
-      return { title: 'Товар не найден' };
-    }
-    const price = product.price;
-    const discountValue = product.discountValue || 0;
-    let finalPrice = price;
-    if (discountValue > 0) {
-      finalPrice = product.discountType === 'PERCENT'
-        ? price * (1 - discountValue / 100)
-        : Math.max(0, price - discountValue);
-    }
-    return {
-      title: product.metaTitle || `${product.name} — купить в интернет-магазине 1000FPS`,
-      description: product.metaDescription || `${product.name} — ${Math.round(finalPrice).toLocaleString('ru-RU')} ₽`,
-    };
-  }
-
-  // Продакшн-режим (Prisma)
   const { prisma } = await import('@/lib/prisma');
   const product = await prisma.product.findUnique({
     where: { slug, isActive: true, isDraft: false },
@@ -88,136 +66,6 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
 
-  // Демо-режим — используем Server Action
-  if (isDemoMode()) {
-    const product = await getProductBySlug(slug);
-    if (!product) {
-      return notFound();
-    }
-
-    // Похожие товары
-    const relatedProductsData = await getProducts({
-      categoryId: (product as any).categoryId,
-      limit: 5,
-      sortBy: 'popular',
-    });
-
-    const price = product.price;
-    const discountValue = product.discountValue || 0;
-    let discountedPrice = price;
-    if (discountValue > 0) {
-      discountedPrice = product.discountType === 'PERCENT'
-        ? price * (1 - discountValue / 100)
-        : Math.max(0, price - discountValue);
-    }
-
-    const mainImage = (product as any).images?.find((img: any) => img.isMain) || (product as any).images?.[0];
-
-    const formattedProduct: Product = {
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      sku: product.sku,
-      description: product.description,
-      fullDescription: product.fullDescription,
-      price: price,
-      discountedPrice: Math.round(discountedPrice),
-      oldPrice: discountedPrice !== price ? price : null,
-      discountValue: discountValue,
-      discountType: product.discountType,
-      rating: product.rating,
-      reviewCount: product.reviewCount,
-      salesCount: product.salesCount,
-      stock: product.stock,
-      warrantyPeriod: product.warrantyPeriod || 36,
-      warrantyType: product.warrantyType || 'MANUFACTURER',
-      weight: product.weight != null ? Number(product.weight) : null,
-      length: product.length != null ? Number(product.length) : null,
-      width: product.width != null ? Number(product.width) : null,
-      height: product.height != null ? Number(product.height) : null,
-      metaTitle: product.metaTitle,
-      metaDescription: product.metaDescription,
-      metaKeywords: product.metaKeywords,
-      isFeatured: product.isFeatured,
-      isNew: product.isNew,
-      isHit: product.isHit,
-      isActive: product.isActive,
-      image: mainImage?.url || null,
-      images: ((product as any).images || []).map((img: any) => img.url),
-      specs: ((product as any).specs || []).map((spec: any) => ({
-        name: spec.name,
-        value: spec.value,
-        unit: spec.unit,
-      })),
-      variants: ((product as any).variants || []).map((variant: any) => ({
-        id: variant.id,
-        name: variant.name,
-        value: variant.value,
-        priceMod: Number(variant.priceMod || 0),
-        stock: variant.stock || 0,
-        sku: variant.sku,
-        order: variant.order || 0,
-      })),
-      category: (product as any).category ? {
-        id: (product as any).category.id,
-        name: (product as any).category.name,
-        slug: (product as any).category.slug,
-      } : { id: '', name: 'Каталог', slug: 'catalog' },
-      brand: (product as any).brand ? {
-        id: (product as any).brand.id,
-        name: (product as any).brand.name,
-        slug: (product as any).brand.slug,
-      } : null,
-      badges: [] as Array<{ text: string; variant: 'orange' | 'green' | 'blue' | 'gray' | 'yellow' }>,
-      warehouses: undefined,
-    };
-
-    // Бейджи
-    if (discountedPrice < price) {
-      const pct = product.discountType === 'PERCENT' ? discountValue : Math.round((discountValue / price) * 100);
-      formattedProduct.badges.push({ text: `-${pct}%`, variant: 'orange' });
-    }
-    if (product.isHit) formattedProduct.badges.push({ text: 'Хит', variant: 'gray' });
-    if (product.isNew) formattedProduct.badges.push({ text: 'NEW', variant: 'orange' });
-    if (product.isFeatured) formattedProduct.badges.push({ text: 'Рекомендуем', variant: 'blue' });
-    if (product.stock > 0) formattedProduct.badges.push({ text: 'В наличии', variant: 'green' });
-
-    // Похожие товары
-    const relatedProducts = relatedProductsData.products
-      .filter(p => p.id !== product.id)
-      .slice(0, 5)
-      .map(p => ({
-        id: p.id,
-        name: p.name,
-        price: p.discountedPrice,
-        oldPrice: p.oldPrice || undefined,
-        image: p.image || undefined,
-        rating: p.rating,
-        reviewCount: p.reviewCount,
-        specs: p.specs,
-        badges: p.badges,
-        href: p.href,
-      }));
-
-    const catName = (product as any).category?.name || 'Каталог';
-    const breadcrumbItems = [
-      { label: 'Главная', href: '/' },
-      { label: 'Каталог', href: '/catalog' },
-      { label: catName, href: `/catalog?categoryId=${(product as any).categoryId}` },
-      { label: product.name },
-    ];
-
-    return (
-      <ProductPageClient
-        product={formattedProduct}
-        breadcrumbItems={breadcrumbItems}
-        reviews={[]}
-        relatedProducts={relatedProducts}
-      />
-    );
-  }
-
-  // ===== ПРОДАКШН-РЕЖИМ (Prisma) =====
   const { prisma } = await import('@/lib/prisma');
 
   const product = await prisma.product.findUnique({

@@ -1,0 +1,571 @@
+01:00:41 | INFO     | ============================================================
+01:00:41 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+01:00:41 | INFO     | ============================================================
+01:00:41 | INFO     | Webhook порт: 8080
+01:00:41 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+01:00:41 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+01:00:41 | INFO     | Интервал: 3 мин
+01:00:41 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+01:00:41 | INFO     | ============================================================
+01:00:41 | INFO     | ✅ Расширение найдено
+01:00:41 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+01:00:41 | INFO     | Запуск сервера на http://0.0.0.0:8080
+01:00:41 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+01:04:15 | INFO     | ============================================================
+01:04:15 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+01:04:15 | INFO     | ============================================================
+01:04:15 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+01:04:15 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+01:04:15 | INFO     | Poll interval: 5 сек
+01:04:15 | INFO     | Check interval: 30 мин
+01:04:15 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+01:04:15 | INFO     | ============================================================
+01:04:15 | INFO     | ✅ Расширение найдено
+01:04:15 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+01:04:15 | INFO     | Запуск сервера на http://0.0.0.0:8080
+01:04:15 | INFO     | Ожидание pending товаров...
+01:04:15 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+01:04:22 | INFO     | 📥 Найдено 13 новых pending товаров: {'286480108', '742970716', '177181881', '578892869', '579145701', '664419672', '754937202', '216460505', '420299592', '860607319', '303440380', '21655948', '198661083'}
+01:04:22 | INFO     | Запуск парсера для 13 товаров: ['286480108', '742970716', '177181881', '578892869', '579145701', '664419672', '754937202', '216460505', '420299592', '860607319', '303440380', '21655948', '198661083']
+01:04:23 | INFO     | Открытие wildberries.ru...
+01:04:24 | INFO     | Ожидание проверки цен (30 сек)...
+01:04:54 | INFO     | ✅ Проверка завершена
+01:04:54 | ERROR    | Ошибка парсинга: name 'check_lock' is not defined
+01:04:54 | ERROR    | Parse error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 113, in parse_wb_prices
+    async with check_lock:
+               ^^^^^^^^^^
+NameError: name 'check_lock' is not defined
+01:05:01 | INFO     | 📥 Найдено 1 новых pending товаров: {'169627914'}
+01:05:01 | INFO     | Запуск парсера для 1 товаров: ['169627914']
+01:05:02 | INFO     | Открытие wildberries.ru...
+01:05:02 | INFO     | Ожидание проверки цен (30 сек)...
+01:05:32 | INFO     | ✅ Проверка завершена
+01:05:32 | ERROR    | Ошибка парсинга: name 'check_lock' is not defined
+01:05:32 | ERROR    | Parse error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 113, in parse_wb_prices
+    parser_logger.error(f"Ошибка парсинга: {e}")
+               ^^^^^^^^^^
+NameError: name 'check_lock' is not defined
+01:06:18 | INFO     | ============================================================
+01:06:18 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+01:06:18 | INFO     | ============================================================
+01:06:18 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+01:06:18 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+01:06:18 | INFO     | Poll interval: 5 сек
+01:06:18 | INFO     | Check interval: 30 мин
+01:06:18 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+01:06:18 | INFO     | ============================================================
+01:06:18 | INFO     | ✅ Расширение найдено
+01:06:18 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+01:06:18 | INFO     | Запуск сервера на http://0.0.0.0:8080
+01:06:18 | INFO     | Ожидание pending товаров...
+01:06:18 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+01:06:24 | INFO     | 📥 Найдено 14 новых pending товаров: {'420299592', '216460505', '21655948', '579145701', '578892869', '742970716', '860607319', '177181881', '303440380', '754937202', '198661083', '286480108', '664419672', '169627914'}
+01:06:24 | INFO     | Запуск парсера для 14 товаров: ['420299592', '216460505', '21655948', '579145701', '578892869', '742970716', '860607319', '177181881', '303440380', '754937202', '198661083', '286480108', '664419672', '169627914']
+01:06:25 | INFO     | Открытие wildberries.ru...
+01:06:26 | INFO     | Ожидание проверки цен (30 сек)...
+01:06:56 | INFO     | ✅ Проверка завершена
+01:19:02 | INFO     | ============================================================
+01:19:02 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+01:19:02 | INFO     | ============================================================
+01:19:02 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+01:19:02 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+01:19:02 | INFO     | Poll interval: 5 сек
+01:19:02 | INFO     | Check interval: 30 мин
+01:19:02 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+01:19:02 | INFO     | ============================================================
+01:19:02 | INFO     | ✅ Расширение найдено
+01:19:02 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+01:19:02 | INFO     | Запуск сервера на http://0.0.0.0:8080
+01:19:02 | INFO     | Ожидание pending товаров...
+01:19:02 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+01:19:08 | INFO     | 📥 Найдено 14 новых pending товаров: {'578892869', '664419672', '286480108', '177181881', '169627914', '754937202', '420299592', '303440380', '21655948', '742970716', '216460505', '198661083', '860607319', '579145701'}
+01:19:08 | INFO     | Запуск парсера для 14 товаров: ['578892869', '664419672', '286480108', '177181881', '169627914', '754937202', '420299592', '303440380', '21655948', '742970716', '216460505', '198661083', '860607319', '579145701']
+01:19:09 | INFO     | Открытие wildberries.ru...
+01:19:10 | INFO     | Ожидание проверки цен (30 сек)...
+01:19:40 | INFO     | ✅ Проверка завершена
+02:02:15 | INFO     | ============================================================
+02:02:15 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+02:02:15 | INFO     | ============================================================
+02:02:15 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+02:02:15 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+02:02:15 | INFO     | Poll interval: 60 сек
+02:02:15 | INFO     | Check interval: 30 мин
+02:02:15 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+02:02:15 | INFO     | ============================================================
+02:02:15 | INFO     | ✅ Расширение найдено
+02:02:15 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+02:02:15 | INFO     | Запуск сервера на http://0.0.0.0:8080
+02:02:15 | INFO     | Ожидание pending товаров...
+02:02:15 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+02:03:15 | INFO     | 📥 Найдено 4 новых pending товаров: {'409941415', '444522785', '754937202', '506067673'}
+02:03:15 | INFO     | Запуск парсера для 4 товаров: ['409941415', '444522785', '754937202', '506067673']
+02:03:17 | INFO     | Открытие wildberries.ru...
+02:03:17 | INFO     | Ожидание проверки цен (30 сек)...
+02:03:47 | INFO     | ✅ Проверка завершена
+02:04:47 | INFO     | 📥 Найдено 1 новых pending товаров: {'270047305'}
+02:04:47 | INFO     | Запуск парсера для 1 товаров: ['270047305']
+02:04:48 | INFO     | Открытие wildberries.ru...
+02:04:48 | INFO     | Ожидание проверки цен (30 сек)...
+02:05:18 | INFO     | ✅ Проверка завершена
+02:10:22 | INFO     | 📥 Найдено 1 новых pending товаров: {'1111111'}
+02:10:22 | INFO     | Запуск парсера для 1 товаров: ['1111111']
+02:10:23 | INFO     | Открытие wildberries.ru...
+02:10:23 | INFO     | Ожидание проверки цен (30 сек)...
+02:10:53 | INFO     | ✅ Проверка завершена
+02:12:54 | INFO     | 📥 Найдено 1 новых pending товаров: {'217947828'}
+02:12:54 | INFO     | Запуск парсера для 1 товаров: ['217947828']
+02:12:55 | INFO     | Открытие wildberries.ru...
+02:12:55 | INFO     | Ожидание проверки цен (30 сек)...
+02:13:25 | INFO     | ✅ Проверка завершена
+02:20:31 | INFO     | 📥 Найдено 4 новых pending товаров: {'376489954', '465971500', '556516395', '98008424'}
+02:20:31 | INFO     | Запуск парсера для 4 товаров: ['376489954', '465971500', '556516395', '98008424']
+02:20:32 | INFO     | Открытие wildberries.ru...
+02:20:32 | INFO     | Ожидание проверки цен (30 сек)...
+02:21:02 | INFO     | ✅ Проверка завершена
+02:32:15 | INFO     | 🔄 Периодическая проверка...
+02:32:16 | INFO     | Найдено 1 товаров без цен
+02:32:16 | INFO     | Запуск парсера для 1 товаров: ['1111111']
+02:32:16 | INFO     | Открытие wildberries.ru...
+02:32:17 | INFO     | Ожидание проверки цен (30 сек)...
+02:32:47 | INFO     | ✅ Проверка завершена
+02:39:23 | INFO     | 📥 Найдено 2 новых pending товаров: {'676816314', '322462337'}
+02:39:23 | INFO     | Запуск парсера для 2 товаров: ['676816314', '322462337']
+02:39:24 | INFO     | Открытие wildberries.ru...
+02:39:25 | INFO     | Ожидание проверки цен (30 сек)...
+02:39:55 | INFO     | ✅ Проверка завершена
+02:40:56 | INFO     | 📥 Найдено 1 новых pending товаров: {'330642138'}
+02:40:56 | INFO     | Запуск парсера для 1 товаров: ['330642138']
+02:40:57 | INFO     | Открытие wildberries.ru...
+02:40:57 | INFO     | Ожидание проверки цен (30 сек)...
+02:41:27 | INFO     | ✅ Проверка завершена
+03:02:47 | INFO     | 🔄 Периодическая проверка...
+03:02:47 | INFO     | Найдено 1 товаров без цен
+03:02:47 | INFO     | Запуск парсера для 1 товаров: ['1111111']
+03:02:48 | INFO     | Открытие wildberries.ru...
+03:02:48 | INFO     | Ожидание проверки цен (30 сек)...
+03:03:18 | INFO     | ✅ Проверка завершена
+03:33:18 | INFO     | 🔄 Периодическая проверка...
+03:33:19 | INFO     | Найдено 1 товаров без цен
+03:33:19 | INFO     | Запуск парсера для 1 товаров: ['1111111']
+03:33:20 | INFO     | Открытие wildberries.ru...
+03:33:20 | INFO     | Ожидание проверки цен (30 сек)...
+03:33:50 | INFO     | ✅ Проверка завершена
+04:03:50 | INFO     | 🔄 Периодическая проверка...
+04:03:51 | INFO     | Найдено 1 товаров без цен
+04:03:51 | INFO     | Запуск парсера для 1 товаров: ['1111111']
+04:03:53 | INFO     | Открытие wildberries.ru...
+04:03:53 | INFO     | Ожидание проверки цен (30 сек)...
+04:04:23 | INFO     | ✅ Проверка завершена
+04:34:23 | INFO     | 🔄 Периодическая проверка...
+04:34:23 | INFO     | Найдено 1 товаров без цен
+04:34:23 | INFO     | Запуск парсера для 1 товаров: ['1111111']
+04:34:24 | INFO     | Открытие wildberries.ru...
+04:34:25 | INFO     | Ожидание проверки цен (30 сек)...
+04:34:55 | INFO     | ✅ Проверка завершена
+05:01:33 | INFO     | ============================================================
+05:01:33 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+05:01:33 | INFO     | ============================================================
+05:01:33 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+05:01:33 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+05:01:33 | INFO     | Poll interval: 60 сек
+05:01:33 | INFO     | Check interval: 30 мин
+05:01:33 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+05:01:33 | INFO     | ============================================================
+05:01:33 | INFO     | ✅ Расширение найдено
+05:01:33 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+05:01:33 | INFO     | Запуск сервера на http://0.0.0.0:8080
+05:01:33 | INFO     | Ожидание pending товаров...
+05:01:33 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+05:02:34 | INFO     | 📥 Найдено 13 новых pending товаров: {'676816314', '754937202', '322462337', '465971500', '98008424', '217947828', '409941415', '444522785', '330642138', '506067673', '556516395', '376489954', '270047305'}
+05:02:34 | INFO     | Запуск парсера для 13 товаров: ['676816314', '754937202', '322462337', '465971500', '98008424', '217947828', '409941415', '444522785', '330642138', '506067673', '556516395', '376489954', '270047305']
+05:02:35 | INFO     | Открытие wildberries.ru...
+05:02:36 | INFO     | Ожидание проверки цен (30 сек)...
+05:03:06 | INFO     | ✅ Проверка завершена
+05:06:07 | ERROR    | Ошибка опроса pending: 'list' object has no attribute 'get'
+05:06:07 | ERROR    | Poll pending error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 172, in poll_pending
+    if p.get('pending') == True or not p.get('price')
+       ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+05:07:09 | ERROR    | Ошибка опроса pending: 'list' object has no attribute 'get'
+05:07:09 | ERROR    | Poll pending error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 172, in poll_pending
+    if p.get('pending') == True or not p.get('price')
+       ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+05:08:09 | ERROR    | Ошибка опроса pending: 'list' object has no attribute 'get'
+05:08:09 | ERROR    | Poll pending error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 172, in poll_pending
+    if p.get('pending') == True or not p.get('price')
+       ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+05:09:10 | ERROR    | Ошибка опроса pending: 'list' object has no attribute 'get'
+05:09:10 | ERROR    | Poll pending error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 172, in poll_pending
+    logger.debug(f"Unexpected data type: {type(data)}")
+       ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+05:11:10 | INFO     | ============================================================
+05:11:10 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+05:11:10 | INFO     | ============================================================
+05:11:10 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+05:11:10 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+05:11:10 | INFO     | Poll interval: 60 сек
+05:11:10 | INFO     | Check interval: 30 мин
+05:11:10 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+05:11:10 | INFO     | ============================================================
+05:11:10 | INFO     | ✅ Расширение найдено
+05:11:10 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+05:11:10 | INFO     | Запуск сервера на http://0.0.0.0:8080
+05:11:10 | INFO     | Ожидание pending товаров...
+05:11:10 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+05:12:11 | INFO     | 📥 Найдено 20 новых pending товаров: {'710034004', '465971500', '789193396', '409941415', '186619934', '754937202', '556516395', '420746810', '322462337', '330642138', '676816314', '853804012', '482620260', '376489954', '270047305', '217947828', '421538510', '506067673', '98008424', '444522785'}
+05:12:11 | INFO     | Запуск парсера для 20 товаров: ['710034004', '465971500', '789193396', '409941415', '186619934', '754937202', '556516395', '420746810', '322462337', '330642138', '676816314', '853804012', '482620260', '376489954', '270047305', '217947828', '421538510', '506067673', '98008424', '444522785']
+05:12:11 | INFO     | Открытие wildberries.ru...
+05:12:12 | INFO     | Ожидание проверки цен (30 сек)...
+05:12:42 | INFO     | ✅ Проверка завершена
+05:14:12 | INFO     | ============================================================
+05:14:12 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+05:14:12 | INFO     | ============================================================
+05:14:12 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+05:14:12 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+05:14:12 | INFO     | Poll interval: 60 сек
+05:14:12 | INFO     | Check interval: 30 мин
+05:14:12 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+05:14:12 | INFO     | ============================================================
+05:14:12 | INFO     | ✅ Расширение найдено
+05:14:12 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+05:14:12 | INFO     | Запуск сервера на http://0.0.0.0:8080
+05:14:12 | INFO     | Ожидание pending товаров...
+05:14:12 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+05:15:12 | INFO     | 📥 Найдено 20 новых pending товаров: {'409941415', '444522785', '482620260', '330642138', '710034004', '98008424', '217947828', '754937202', '676816314', '421538510', '186619934', '376489954', '420746810', '322462337', '853804012', '556516395', '789193396', '506067673', '465971500', '270047305'}
+05:15:12 | INFO     | Запуск парсера для 20 товаров: ['409941415', '444522785', '482620260', '330642138', '710034004', '98008424', '217947828', '754937202', '676816314', '421538510', '186619934', '376489954', '420746810', '322462337', '853804012', '556516395', '789193396', '506067673', '465971500', '270047305']
+05:15:13 | INFO     | Открытие wildberries.ru...
+05:15:14 | INFO     | Ожидание проверки цен (30 сек)...
+05:15:44 | INFO     | ✅ Проверка завершена
+05:44:12 | INFO     | 🔄 Периодическая проверка...
+05:44:13 | ERROR    | Ошибка периодической проверки: 'list' object has no attribute 'get'
+05:44:13 | ERROR    | Periodic check error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 220, in periodic_check
+    if not p.get('price')
+           ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+05:46:51 | INFO     | ============================================================
+05:46:51 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+05:46:51 | INFO     | ============================================================
+05:46:51 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+05:46:51 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+05:46:51 | INFO     | Poll interval: 60 сек
+05:46:51 | INFO     | Check interval: 30 мин
+05:46:51 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+05:46:51 | INFO     | ============================================================
+05:46:51 | INFO     | ✅ Расширение найдено
+05:46:51 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+05:46:51 | INFO     | Запуск сервера на http://0.0.0.0:8080
+05:46:51 | INFO     | Ожидание pending товаров...
+05:46:51 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+05:47:53 | INFO     | 📥 Найдено 20 новых pending товаров: {'409941415', '789193396', '676816314', '754937202', '322462337', '853804012', '556516395', '376489954', '270047305', '506067673', '420746810', '421538510', '330642138', '98008424', '465971500', '217947828', '444522785', '710034004', '186619934', '482620260'}
+05:47:53 | INFO     | Запуск парсера для 20 товаров: ['409941415', '789193396', '676816314', '754937202', '322462337', '853804012', '556516395', '376489954', '270047305', '506067673', '420746810', '421538510', '330642138', '98008424', '465971500', '217947828', '444522785', '710034004', '186619934', '482620260']
+05:47:54 | INFO     | Открытие wildberries.ru...
+05:47:55 | INFO     | Ожидание проверки цен (30 сек)...
+05:48:25 | INFO     | ✅ Проверка завершена
+06:16:51 | INFO     | 🔄 Периодическая проверка...
+06:16:52 | ERROR    | Ошибка периодической проверки: 'list' object has no attribute 'get'
+06:16:52 | ERROR    | Periodic check error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 220, in periodic_check
+    if isinstance(products_list, list):
+               ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+06:46:52 | INFO     | 🔄 Периодическая проверка...
+06:46:52 | ERROR    | Ошибка периодической проверки: 'list' object has no attribute 'get'
+06:46:52 | ERROR    | Periodic check error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 220, in periodic_check
+    if isinstance(products_list, list):
+               ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+07:16:52 | INFO     | 🔄 Периодическая проверка...
+07:16:53 | ERROR    | Ошибка периодической проверки: 'list' object has no attribute 'get'
+07:16:53 | ERROR    | Periodic check error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 220, in periodic_check
+    if isinstance(products_list, list):
+               ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+07:46:53 | INFO     | 🔄 Периодическая проверка...
+07:46:53 | ERROR    | Ошибка периодической проверки: 'list' object has no attribute 'get'
+07:46:53 | ERROR    | Periodic check error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 220, in periodic_check
+    if isinstance(products_list, list):
+               ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+08:16:53 | INFO     | 🔄 Периодическая проверка...
+08:16:53 | ERROR    | Ошибка периодической проверки: 'list' object has no attribute 'get'
+08:16:53 | ERROR    | Periodic check error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 220, in periodic_check
+    if isinstance(products_list, list):
+               ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+08:46:53 | INFO     | 🔄 Периодическая проверка...
+08:46:54 | ERROR    | Ошибка периодической проверки: 'list' object has no attribute 'get'
+08:46:54 | ERROR    | Periodic check error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 220, in periodic_check
+    if isinstance(products_list, list):
+               ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+09:16:54 | INFO     | 🔄 Периодическая проверка...
+09:16:54 | ERROR    | Ошибка периодической проверки: 'list' object has no attribute 'get'
+09:16:54 | ERROR    | Periodic check error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 220, in periodic_check
+    if isinstance(products_list, list):
+               ^^^^^
+AttributeError: 'list' object has no attribute 'get'
+09:46:54 | INFO     | 🔄 Периодическая проверка...
+11:22:52 | INFO     | ============================================================
+11:22:52 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+11:22:52 | INFO     | ============================================================
+11:22:52 | INFO     | Worker URL: https://wb-price-tracker.hatikohakki.workers.dev
+11:22:52 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+11:22:52 | INFO     | Poll interval: 60 сек
+11:22:52 | INFO     | Check interval: 30 мин
+11:22:52 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+11:22:52 | INFO     | ============================================================
+11:22:52 | INFO     | ✅ Расширение найдено
+11:22:52 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+11:22:52 | INFO     | Запуск сервера на http://0.0.0.0:8080
+11:22:52 | INFO     | Ожидание pending товаров...
+11:22:52 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+11:52:52 | INFO     | 🔄 Периодическая проверка...
+12:22:53 | INFO     | 🔄 Периодическая проверка...
+12:52:53 | INFO     | 🔄 Периодическая проверка...
+13:22:53 | INFO     | 🔄 Периодическая проверка...
+13:52:53 | INFO     | 🔄 Периодическая проверка...
+14:22:53 | INFO     | 🔄 Периодическая проверка...
+14:52:54 | INFO     | 🔄 Периодическая проверка...
+15:22:54 | INFO     | 🔄 Периодическая проверка...
+15:52:55 | INFO     | 🔄 Периодическая проверка...
+16:22:56 | INFO     | 🔄 Периодическая проверка...
+16:52:56 | INFO     | 🔄 Периодическая проверка...
+17:22:56 | INFO     | 🔄 Периодическая проверка...
+17:52:57 | INFO     | 🔄 Периодическая проверка...
+18:07:03 | ERROR    | Unclosed connection
+client_connection: Connection<ConnectionKey(host='wb-price-tracker.hatikohakki.workers.dev', port=443, is_ssl=True, ssl=None, proxy=None, proxy_auth=None, proxy_headers_hash=None)>
+18:07:30 | ERROR    | Ошибка опроса pending: Server disconnected
+18:07:30 | ERROR    | Poll pending error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 175, in poll_pending
+    response = await session.get(f'{WORKER_URL}/api/products')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\client.py", line 601, in _request
+    await resp.start(conn)
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\client_reqrep.py", line 965, in start
+    message, payload = await protocol.read()  # type: ignore[union-attr]
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\streams.py", line 622, in read
+    await self._waiter
+aiohttp.client_exceptions.ServerDisconnectedError: Server disconnected
+18:13:50 | INFO     | 127.0.0.1 [12/Mar/2026:18:13:50 +0300] "GET / HTTP/1.1" 404 173 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+18:13:50 | INFO     | 127.0.0.1 [12/Mar/2026:18:13:50 +0300] "GET /favicon.ico HTTP/1.1" 404 173 "http://localhost:8080/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+18:13:51 | INFO     | 127.0.0.1 [12/Mar/2026:18:13:51 +0300] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 173 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
+18:13:51 | ERROR    | Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Python314\Lib\asyncio\events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] Удаленный хост принудительно разорвал существующее подключение
+18:15:21 | ERROR    | Ошибка опроса pending: Cannot connect to host wb-price-tracker.hatikohakki.workers.dev:443 ssl:default [None]
+18:15:21 | ERROR    | Poll pending error details
+Traceback (most recent call last):
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 992, in _wrap_create_connection
+    return await self._loop.create_connection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 1198, in create_connection
+    transport, protocol = await self._create_connection_transport(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        ssl_shutdown_timeout=ssl_shutdown_timeout)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 1231, in _create_connection_transport
+    await waiter
+  File "C:\Python314\Lib\asyncio\sslproto.py", line 581, in _on_handshake_complete
+    raise handshake_exc
+ConnectionResetError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 175, in poll_pending
+    response = await session.get(f'{WORKER_URL}/api/products')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\client.py", line 574, in _request
+    conn = await self._connector.connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        req, traces=traces, timeout=real_timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 544, in connect
+    proto = await self._create_connection(req, traces, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 911, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 1235, in _create_direct_connection
+    raise last_exc
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 1204, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 1000, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host wb-price-tracker.hatikohakki.workers.dev:443 ssl:default [None]
+18:22:58 | INFO     | 🔄 Периодическая проверка...
+18:51:32 | INFO     | 127.0.0.1 [12/Mar/2026:18:51:32 +0300] "POST /webhook HTTP/1.1" 404 173 "-" "node"
+18:52:58 | INFO     | 127.0.0.1 [12/Mar/2026:18:52:58 +0300] "POST /webhook HTTP/1.1" 404 173 "-" "node"
+18:53:19 | INFO     | 🔄 Периодическая проверка...
+18:53:50 | INFO     | 127.0.0.1 [12/Mar/2026:18:53:50 +0300] "POST /webhook HTTP/1.1" 404 173 "-" "node"
+18:54:51 | INFO     | 127.0.0.1 [12/Mar/2026:18:54:51 +0300] "POST /webhook HTTP/1.1" 404 173 "-" "node"
+18:58:27 | INFO     | 127.0.0.1 [12/Mar/2026:18:58:27 +0300] "POST /webhook HTTP/1.1" 404 173 "-" "node"
+19:23:23 | INFO     | 🔄 Периодическая проверка...
+19:53:24 | INFO     | 🔄 Периодическая проверка...
+19:54:20 | ERROR    | Ошибка опроса pending: Cannot connect to host wb-price-tracker.hatikohakki.workers.dev:443 ssl:default [Превышен таймаут семафора]
+19:54:20 | ERROR    | Poll pending error details
+Traceback (most recent call last):
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 992, in _wrap_create_connection
+    return await self._loop.create_connection(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 1168, in create_connection
+    raise exceptions[0]
+  File "C:\Python314\Lib\asyncio\base_events.py", line 1143, in create_connection
+    sock = await self._connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+        exceptions, addrinfo, laddr_infos)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 1042, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Python314\Lib\asyncio\proactor_events.py", line 726, in sock_connect
+    return await self._proactor.connect(sock, address)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\windows_events.py", line 804, in _poll
+    value = callback(transferred, key, ov)
+  File "C:\Python314\Lib\asyncio\windows_events.py", line 600, in finish_connect
+    ov.getresult()
+    ~~~~~~~~~~~~^^
+OSError: [WinError 121] Превышен таймаут семафора
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 175, in poll_pending
+    response = await session.get(f'{WORKER_URL}/api/products')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\client.py", line 574, in _request
+    conn = await self._connector.connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        req, traces=traces, timeout=real_timeout
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 544, in connect
+    proto = await self._create_connection(req, traces, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 911, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 1235, in _create_direct_connection
+    raise last_exc
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 1204, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\aiohttp\connector.py", line 1000, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host wb-price-tracker.hatikohakki.workers.dev:443 ssl:default [Превышен таймаут семафора]
+20:23:24 | INFO     | 🔄 Периодическая проверка...
+20:53:25 | INFO     | 🔄 Периодическая проверка...
+21:23:46 | INFO     | 🔄 Периодическая проверка...
+21:53:47 | INFO     | 🔄 Периодическая проверка...
+22:23:47 | INFO     | 🔄 Периодическая проверка...
+22:26:38 | INFO     | 127.0.0.1 [12/Mar/2026:22:26:38 +0300] "POST /webhook HTTP/1.1" 404 173 "-" "node"
+22:28:23 | INFO     | 127.0.0.1 [12/Mar/2026:22:28:23 +0300] "POST /webhook HTTP/1.1" 404 173 "-" "node"
+22:28:33 | INFO     | ============================================================
+22:28:33 | INFO     | WB Parser Auto - Telegram + Chrome Extension
+22:28:33 | INFO     | ============================================================
+22:28:33 | INFO     | Worker URL: http://localhost:3000
+22:28:33 | INFO     | Расширение: C:\Users\danya\Documents\питончек\парсер\wb-interceptor
+22:28:33 | INFO     | Poll interval: 60 сек
+22:28:33 | INFO     | Check interval: 30 мин
+22:28:33 | INFO     | Логирование: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\logs
+22:28:33 | INFO     | ============================================================
+22:28:33 | INFO     | ✅ Расширение найдено
+22:28:33 | INFO     | Профиль Chrome: C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\chrome_profile
+22:28:33 | INFO     | Запуск сервера на http://0.0.0.0:8080
+22:28:33 | INFO     | Ожидание pending товаров...
+22:28:33 | INFO     | ======== Running on http://0.0.0.0:8080 ========
+(Press CTRL+C to quit)
+22:29:33 | INFO     | 📥 Найдено 1 новых pending товаров: {'866997724'}
+22:29:33 | INFO     | Запуск парсера для 1 товаров: ['866997724']
+22:29:41 | INFO     | Открытие wildberries.ru...
+22:30:11 | ERROR    | Ошибка парсинга: Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigating to "https://www.wildberries.ru/", waiting until "load"
+
+22:30:11 | ERROR    | Parse error details
+Traceback (most recent call last):
+  File "C:\Users\danya\Documents\питончек\парсер\wb-parser-auto\parser.py", line 93, in parse_wb_prices
+    await page.goto('https://www.wildberries.ru/', timeout=30000)
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\playwright\async_api\_generated.py", line 9045, in goto
+    await self._impl_obj.goto(
+        url=url, timeout=timeout, waitUntil=wait_until, referer=referer
+    )
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_page.py", line 552, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_frame.py", line 153, in goto
+    await self._channel.send(
+        "goto", self._navigation_timeout, locals_to_params(locals())
+    )
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\danya\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.goto: Timeout 30000ms exceeded.
+Call log:
+  - navigating to "https://www.wildberries.ru/", waiting until "load"
+

@@ -1,16 +1,8 @@
-import { isDemoMode } from '@/lib/demo-mode';
-
 export default async function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Демо-режим — пропускаем проверку сессии
-  if (isDemoMode()) {
-    return <>{children}</>;
-  }
-
-  // Продакшн-режим (Prisma)
   const { cookies } = await import('next/headers');
   const { redirect } = await import('next/navigation');
   const { verifySession } = await import('@/lib/session');

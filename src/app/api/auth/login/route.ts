@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { loginSchema } from '@/lib/validations/auth';
-import { isDemoMode } from '@/lib/demo-mode';
 import { createSession } from '@/lib/session';
 
 /**
@@ -12,40 +11,6 @@ import { createSession } from '@/lib/session';
  */
 export async function POST(request: NextRequest) {
   try {
-    // Демо-режим — фейковый логин
-    if (isDemoMode()) {
-      const token = await createSession({
-        userId: 'demo-user-001',
-        email: 'demo@1000fps.ru',
-        role: 'CUSTOMER',
-      });
-
-      const response = NextResponse.json({
-        success: true,
-        user: {
-          id: 'demo-user-001',
-          email: 'demo@1000fps.ru',
-          name: 'Демо Пользователь',
-          phone: '+7 (999) 123-45-67',
-          avatar: null,
-          role: 'CUSTOMER',
-          level: 'GOLD',
-        },
-        token,
-      });
-
-      response.cookies.set('session', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 86400,
-        path: '/',
-      });
-
-      return response;
-    }
-
-    // Продакшн-режим (Prisma)
     const { prisma } = await import('@/lib/prisma');
     const bcrypt = await import('bcryptjs');
 

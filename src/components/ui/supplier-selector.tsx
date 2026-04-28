@@ -153,7 +153,7 @@ export function SupplierSelector({
         isCollapsed ? 'max-h-0' : 'max-h-[800px]'
       )}>
         {suppliers.map((supplier) => {
-          const sourceName = getSourceName(supplier.url || '');
+          const sourceName = supplier.source || supplier.url || 'Поставщик';
           const formattedPrice = supplier.price.toLocaleString('ru-RU') + ' ₽';
 
           return (
@@ -162,78 +162,72 @@ export function SupplierSelector({
               className="px-3 py-3"
             >
               {/* Desktop layout */}
-              <div className="hidden sm:flex items-center gap-3">
-                {/* Supplier name + icon */}
-                <div className="flex-shrink-0 w-[130px] flex items-center gap-1.5">
-                  <div className="text-orange flex-shrink-0">
-                    {getSourceIcon(supplier.url || '')}
+              <div className="hidden sm:grid sm:grid-cols-[180px_1fr_130px_auto] gap-3 items-center">
+                {/* Supplier name + Rating */}
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="text-orange flex-shrink-0">
+                      {getSourceIcon(supplier.url || '')}
+                    </div>
+                    <div className="font-body text-[13px] font-semibold text-white2 truncate">
+                      {supplier.source || 'Поставщик'}
+                    </div>
                   </div>
-                  <div className="font-body text-[13px] font-semibold text-white2 leading-tight truncate">
-                    {sourceName}
-                  </div>
-                </div>
-
-                {/* Rating + Stock + Delivery */}
-                <div className="flex-shrink-0 w-[180px] flex items-center gap-1.5 text-[11px]">
                   {supplier.rating && (
-                    <>
+                    <div className="text-[11px] flex items-center gap-1">
                       <span className="text-orange">
                         {'★'.repeat(Math.floor(supplier.rating))}
                         {'☆'.repeat(5 - Math.floor(supplier.rating))}
                       </span>
                       {supplier.reviewsCount && (
-                        <span className="text-gray3">
-                          ({supplier.reviewsCount})
-                        </span>
+                        <span className="text-gray3">({supplier.reviewsCount})</span>
                       )}
-                      <span className="text-gray3">•</span>
-                    </>
+                    </div>
                   )}
-                  {supplier.inStock ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3 h-3 text-green-500 flex-shrink-0">
-                      <polyline points="20 6 9 17 4 12" />
+                </div>
+
+                {/* Stock + Delivery */}
+                <div className="flex items-center gap-3 text-[12px]">
+                  <div className="flex items-center gap-1">
+                    {supplier.inStock ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4 text-green-500">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4 text-red-500">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    )}
+                    <span className={supplier.inStock ? 'text-green-500' : 'text-red-500'}>
+                      {supplier.inStock ? 'В наличии' : 'Нет'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 text-gray3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                      <rect x="3" y="4" width="18" height="18" rx="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3 h-3 text-red-500 flex-shrink-0">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  )}
-                  <span className={cn(
-                    'font-medium whitespace-nowrap',
-                    supplier.inStock ? 'text-green-500' : 'text-red-500'
-                  )}>
-                    {supplier.inStock ? 'В наличии' : 'Нет'}
-                  </span>
-                  <span className="text-gray3 flex-shrink-0">•</span>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-2.5 h-2.5 text-gray3 flex-shrink-0">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                  <span className="text-gray3 whitespace-nowrap">
-                    {supplier.deliveryTime}
-                  </span>
+                    <span>{supplier.deliveryTime}</span>
+                  </div>
                 </div>
 
                 {/* Price */}
-                <div className="flex-shrink-0 w-[100px]">
-                  <span className="font-display text-[16px] font-extrabold text-white2">
+                <div className="text-right">
+                  <span className="font-display text-[18px] font-bold text-white2">
                     {formattedPrice}
                   </span>
                 </div>
 
-                {/* Spacer */}
-                <div className="flex-1" />
-
                 {/* Actions */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => handleAddToCart(supplier.id)}
                     disabled={!supplier.inStock || isAdding !== null}
-                    className="h-[38px] px-4 bg-black3 border border-gray1 rounded-[var(--radius)] text-[12px] font-medium text-gray4 hover:text-white hover:border-orange transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="h-[36px] px-4 bg-black3 border border-gray1 rounded-[var(--radius)] text-[12px] font-medium text-gray4 hover:text-white hover:border-orange disabled:opacity-40"
                   >
                     {isAdding === supplier.id ? '...' : 'В корзину'}
                   </button>
@@ -241,7 +235,7 @@ export function SupplierSelector({
                     type="button"
                     onClick={() => handleBuyNow(supplier.id)}
                     disabled={!supplier.inStock || isAdding !== null}
-                    className="h-[38px] px-5 bg-orange rounded-[var(--radius)] text-[12px] font-bold text-white hover:bg-orange2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="h-[36px] px-5 bg-orange rounded-[var(--radius)] text-[12px] font-bold text-white hover:bg-orange2 disabled:opacity-40"
                   >
                     {isAdding === supplier.id ? '...' : 'Купить'}
                   </button>
@@ -256,7 +250,7 @@ export function SupplierSelector({
                     {getSourceIcon(supplier.url || '')}
                   </div>
                   <div className="font-body text-[13px] font-semibold text-white2 leading-tight">
-                    {sourceName}
+                    {supplier.source || 'Поставщик'}
                   </div>
                   {supplier.rating && (
                     <>

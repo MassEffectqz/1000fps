@@ -1,0 +1,15 @@
+# ngrok configuration for WB Price Tracker
+# https://ngrok.com/docs/ngrok-agent/config/
+
+version: "2"
+
+authtoken: 3AoNLamVMUMyDGLhgqYBaXMtHM7_7AZnN3L2LrbQWQoL4GkV2
+
+tunnels:
+  wb-server:
+    addr: 3000
+    proto: http
+    domain: wb-price-tracker.ngrok-free.app
+    labels:
+      description: "WB Price Tracker - Local Server"
+      owner: "wb-interceptor"

@@ -2,24 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/session';
 import { addToWishlistSchema } from '@/lib/validations/cart';
-import { isDemoMode } from '@/lib/demo-mode';
 
 /**
  * GET /api/wishlist - получить вишлист текущего пользователя
  */
 export async function GET() {
   try {
-    // Демо-режим
-    if (isDemoMode()) {
-      return NextResponse.json({
-        wishlist: {
-          id: null,
-          items: [],
-          totalItems: 0,
-        },
-      });
-    }
-
     const session = await getSession();
 
     if (!session?.userId) {
@@ -176,11 +164,6 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Демо-режим — возвращаем успех без БД
-    if (isDemoMode()) {
-      return NextResponse.json({ success: true }, { status: 201 });
-    }
-
     const session = await getSession();
 
     if (!session?.userId) {

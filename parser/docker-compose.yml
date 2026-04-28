@@ -1,0 +1,23 @@
+# Docker Compose for WB Parser
+version: '3.8'
+
+services:
+  parser:
+    build:
+      context: ./parser
+      dockerfile: Dockerfile
+    container_name: wb-parser
+    ports:
+      - "3005:3005"
+    environment:
+      - PARSER_PORT=3005
+      - SITE_WEBHOOK_URL=http://host.docker.internal:3000/api/admin/parser/webhook
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: 1000fps-network

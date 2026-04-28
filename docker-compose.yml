@@ -94,13 +94,14 @@ services:
   # ------------------------------------------------------------
   parser:
     build:
-      context: ./parser-server
+      context: ./parser
       dockerfile: Dockerfile
     container_name: 1000fps-parser
     restart: unless-stopped
     environment:
       - NODE_ENV=development
       - PARSER_PORT=3005
+      - SITE_WEBHOOK_URL=http://app:3000/api/admin/parser/webhook
     ports:
       - "3005:3005"
     depends_on:

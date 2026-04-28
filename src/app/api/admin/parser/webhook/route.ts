@@ -67,18 +67,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Проверяем существование товара
-    const product = await prisma.product.findUnique({
+    // Проверяем существование товара или создаём новый
+    let product = await prisma.product.findUnique({
       where: { id: productId },
       select: { id: true, useParserPrice: true, parserSources: true, name: true, price: true },
     });
 
     if (!product) {
-      console.error('[WEBHOOK] Product not found:', productId);
-      return NextResponse.json(
-        { error: 'Товар не найден' },
-        { status: 404, headers: corsHeaders }
-      );
+      console.log('[WEBHOOK] Product not found, creating new:', productId);
+      const defaultCategory = await prisma.category.findFirst({ select: { id: true } });
+      product = await prisma.product.create({
+        data: {
+          id: productId,
+          slug: `product-${productId}`,
+          name: `Товар ${productId}`,
+          sku: `SKU-${productId}`,
+          price: 0,
+          useParserPrice: true,
+          parserSources: [],
+          categoryId: defaultCategory?.id || 'default',
+        },
+        select: { id: true, useParserPrice: true, parserSources: true, name: true, price: true },
+      });
+      console.log('[WEBHOOK] Created product:', productId);
     }
 
     // Атомарное создание или обновление задачи
@@ -141,6 +152,7 @@ export async function POST(request: NextRequest) {
       if (resultsArray.length > 0) {
         try {
           // Оборачиваем сохранение поставщиков, обновление цены и источников в транзакцию
+          console.log(`[WEBHOOK] Saving suppliers for ${productId}:`, JSON.stringify(resultsArray));
           const transactionResult = await prisma.$transaction(async (tx) => {
             const suppliersResult = await saveSuppliers(productId, resultsArray, tx as unknown as Omit<typeof prisma, '$extends' | '$transaction'>);
             if (!suppliersResult.success) {
@@ -373,17 +385,34 @@ async function saveSuppliers(
   try {
     const db = tx || prisma;
     let savedCount = 0;
+    let supplierIndex = 1;
 
     for (const result of results) {
       // Try to normalize as WB parser result first (from background.js)
-      const wbResult = result as { article?: string; source?: string; name?: string; brand?: string; price?: number | null; originalPrice?: number | null; stockQuantity?: number; deliveryMin?: number; deliveryMax?: number; inStock?: boolean; rating?: number | null; feedbacks?: number; imageUrl?: string };
+      const wbResult = result as { 
+        article?: string; 
+        source?: string; 
+        url?: string;
+        name?: string; 
+        brand?: string; 
+        price?: number | null; 
+        originalPrice?: number | null; 
+        stockQuantity?: number; 
+        deliveryMin?: number; 
+        deliveryMax?: number; 
+        inStock?: boolean; 
+        outOfStock?: boolean;
+        rating?: number | null; 
+        feedbacks?: number; 
+        imageUrl?: string 
+      };
 
-      if (!wbResult.source) continue;
+      const source = wbResult.source || wbResult.url || '';
+      if (!source) continue;
 
-      const source = wbResult.source;
       const price = wbResult.price ?? null;
       const oldPrice = wbResult.originalPrice ?? null;
-      const inStock = wbResult.inStock ?? (price !== null);
+      const inStock = (wbResult.inStock ?? true) && !wbResult.outOfStock && price !== null;
       const stockQuantity = wbResult.stockQuantity ?? 0;
       const deliveryMin = wbResult.deliveryMin ?? null;
       const deliveryMax = wbResult.deliveryMax ?? null;
@@ -392,14 +421,10 @@ async function saveSuppliers(
       const name = wbResult.name || wbResult.brand || 'Поставщик';
       const imageUrl = wbResult.imageUrl || '';
 
-      // Извлекаем имя источника из URL
-      let sourceName = 'WB';
-      try {
-        const url = new URL(source);
-        sourceName = url.hostname.replace('www.', '').split('.')[0].toUpperCase();
-      } catch {
-        sourceName = name || 'Поставщик';
-      }
+      // Генерируем имя поставщика
+      const sourceName = `Поставщик ${supplierIndex}`;
+      supplierIndex++;
+      console.log('[SUPPLIERS] Saving supplier:', sourceName, 'for product', productId);
 
       // Формируем срок доставки
       let deliveryTime: string | null = null;
@@ -427,6 +452,7 @@ async function saveSuppliers(
           reviewsCount: feedbacks,
         },
         update: {
+          name: sourceName,
           price: new Decimal(priceValue),
           oldPrice: oldPrice ? new Decimal(oldPrice) : null,
           deliveryTime,
@@ -477,6 +503,18 @@ async function updateProductPriceFromParser(
     // Сортируем по приоритету
     sources.sort((a, b) => a.priority - b.priority);
 
+    // Если sources пустой (новый товар) — создаём из результатов
+    if (sources.length === 0 && results.length > 0) {
+      sources = results
+        .filter((r) => (r as { price?: number })?.price)
+        .map((r, i) => ({
+          url: (r as { source?: string })?.source || (r as { url?: string })?.url || '',
+          priority: i,
+          isActive: true,
+        }))
+        .filter((s) => s.url) as typeof sources;
+    }
+
     // Создаём карту результатов по URL
     const resultMap = new Map<
       string,
@@ -512,7 +550,7 @@ async function updateProductPriceFromParser(
       }
     }
 
-    // Ищем первый доступный источник с товаром в наличии
+    // Ищем источник с минимальной ценой
     let selectedSource: { url: string; priority: number } | null = null;
     let selectedData: {
       price?: number | null;
@@ -527,23 +565,25 @@ async function updateProductPriceFromParser(
       feedbacks?: number;
     } | null = null;
 
+    let minPrice = Infinity;
+
     for (const source of sources) {
       if (!source.isActive) continue;
 
       const data = resultMap.get(source.url);
-      if (!data) continue;
+      if (!data || !data.price || data.price <= 0) continue;
 
-      const inStock = data.inStock ?? true;
-      if (inStock && data.price && data.price > 0) {
+      // Берём минимальную цену
+      if (data.price < minPrice) {
+        minPrice = data.price;
         selectedSource = { url: source.url, priority: source.priority };
         selectedData = data;
-        break;
       }
     }
 
     // Если ни один источник не доступен — не обновляем
     if (!selectedSource || !selectedData) {
-      console.log(`[PRICE UPDATE] No available source found for ${productId}`);
+      console.log(`[PRICE UPDATE] No available source with price > 0 for ${productId}`);
 
       // Обновляем статус товара — не в наличии
       await db.product.update({
@@ -582,6 +622,7 @@ async function updateProductPriceFromParser(
       parserName: data.name || data.brand || null,
       parserInStock: true,
       parserUpdatedAt: new Date(),
+      name: data.name || `Товар ${productId}`,
     };
 
     // Если цена получена от парсера — обновляем основную цену

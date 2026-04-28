@@ -4,7 +4,7 @@ import { z } from 'zod';
  * Схема для создания отзыва
  */
 export const createReviewSchema = z.object({
-  productId: z.string().cuid('Некорректный ID товара'),
+  productId: z.string().min(1, 'Некорректный ID товара'),
   rating: z.number()
     .min(1, 'Минимальный рейтинг 1')
     .max(5, 'Максимальный рейтинг 5'),
@@ -86,7 +86,7 @@ export type ModerateReviewInput = z.infer<typeof moderateReviewSchema>;
  * Схема для получения отзывов с пагинацией и фильтрами
  */
 export const getReviewsSchema = z.object({
-  productId: z.string().cuid('Некорректный ID товара').optional(),
+  productId: z.string().min(1, 'Некорректный ID товара').optional(),
   page: z.number().int().positive('Номер страницы должен быть положительным').default(1),
   limit: z.number().int().min(1).max(50).default(10),
   rating: z.number().int().min(1).max(5).optional(),

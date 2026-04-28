@@ -833,508 +833,185 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         ))}
       </div>
 
-      {/* 3-Column Layout */}
-      <div className="grid grid-cols-12 gap-6">
-        {/* Левая колонка (25%) - Основная информация + Парсинг */}
-        <div className="col-span-12 lg:col-span-3 space-y-6">
-          {/* Основная информация */}
+{/* 2-Column: Left = Основная информация, Right = Tab content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ЛЕВАЯ КОЛОНКА - Основная информация (всегда показывается) */}
+        <div className="space-y-6">
           <Card title="Основная информация">
             <div className="space-y-4">
-              <Input
-                label="Название товара"
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                required
-                placeholder="Введите название товара"
-              />
-
-              <Input
-                label="Slug (URL)"
-                value={formData.slug}
-                onChange={(e) => handleChange('slug', e.target.value)}
-                required
-                placeholder="product-url"
-                hint={slugError ? '' : 'Автогенерация'}
-                error={slugError}
-              />
-
-              <Input
-                label="Артикул"
-                value={formData.sku}
-                onChange={(e) => handleChange('sku', e.target.value)}
-                required
-                placeholder="SKU-12345"
-              />
-
-              <Select
-                label="Категория"
-                value={formData.categoryId}
-                onChange={(e) => handleChange('categoryId', e.target.value)}
-                options={categoryOptions}
-                required
-              />
-
+              <Input label="Название" value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required placeholder="Название товара" />
+              <Input label="Slug" value={formData.slug} onChange={(e) => handleChange('slug', e.target.value)} required placeholder="product-url" error={slugError} />
+              <Input label="Артикул" value={formData.sku} onChange={(e) => handleChange('sku', e.target.value)} required placeholder="SKU-12345" />
+              <Select label="Категория" value={formData.categoryId} onChange={(e) => handleChange('categoryId', e.target.value)} options={categoryOptions} required />
               <div>
                 <Label>Бренд</Label>
-                <select
-                  value={formData.brandId}
-                  onChange={(e) => {
-                    if (e.target.value === '__new__') {
-                      setShowNewBrand(true);
-                    } else {
-                      handleChange('brandId', e.target.value);
-                      setShowNewBrand(false);
-                    }
-                  }}
-                  className="w-full bg-black3 border border-gray1 rounded-[var(--radius)] px-4 py-[8px] text-white text-[13px] outline-none focus:border-orange transition-colors appearance-none cursor-pointer"
-                >
-                  {brandOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value} disabled={'disabled' in opt ? opt.disabled : false}>
-                      {opt.label}
-                    </option>
-                  ))}
+                <select value={formData.brandId} onChange={(e) => { if (e.target.value === '__new__') { setShowNewBrand(true); } else { handleChange('brandId', e.target.value); setShowNewBrand(false); } }} className="w-full bg-black3 border border-gray1 rounded-[var(--radius)] px-3 py-2 text-white text-[13px]">
+                  {brandOptions.map((opt) => (<option key={opt.value} value={opt.value} disabled={'disabled' in opt ? opt.disabled : false}>{opt.label}</option>))}
                 </select>
-
-                {showNewBrand && (
-                  <div className="mt-2 flex gap-2">
-                    <input
-                      type="text"
-                      value={newBrandName}
-                      onChange={(e) => setNewBrandName(e.target.value)}
-                      placeholder="Название бренда"
-                      className="flex-1 bg-black3 border border-gray1 rounded-[var(--radius)] px-3 py-[6px] text-white text-[12px] outline-none focus:border-orange"
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => {
-                        handleChange('brandId', newBrandName);
-                        setNewBrandName('');
-                        setShowNewBrand(false);
-                      }}
-                    >
-                      OK
-                    </Button>
-                  </div>
-                )}
+                {showNewBrand && (<div className="mt-2 flex gap-2"><input type="text" value={newBrandName} onChange={(e) => setNewBrandName(e.target.value)} placeholder="Новый бренд" className="flex-1 bg-black3 border border-gray1 rounded px-2 py-1 text-white text-xs" /><Button size="sm" onClick={() => { handleChange('brandId', newBrandName); setNewBrandName(''); setShowNewBrand(false); }}>OK</Button></div>)}
               </div>
             </div>
           </Card>
 
-          {/* Статусы товара */}
-          <Card title="Статусы товара">
+          <Card title="Статусы">
             <div className="grid grid-cols-2 gap-3">
-              <Checkbox
-                label="Активен"
-                checked={formData.isActive}
-                onChange={(e) => handleChange('isActive', e.target.checked)}
-              />
-              <Checkbox
-                label="Рекомендуем"
-                checked={formData.isFeatured}
-                onChange={(e) => handleChange('isFeatured', e.target.checked)}
-              />
-              <Checkbox
-                label="Новинка"
-                checked={formData.isNew}
-                onChange={(e) => handleChange('isNew', e.target.checked)}
-              />
-              <Checkbox
-                label="Хит"
-                checked={formData.isHit}
-                onChange={(e) => handleChange('isHit', e.target.checked)}
-              />
+              <Checkbox label="Активен" checked={formData.isActive} onChange={(e) => handleChange('isActive', e.target.checked)} />
+              <Checkbox label="Рекоменд." checked={formData.isFeatured} onChange={(e) => handleChange('isFeatured', e.target.checked)} />
+              <Checkbox label="Новинка" checked={formData.isNew} onChange={(e) => handleChange('isNew', e.target.checked)} />
+              <Checkbox label="Хит" checked={formData.isHit} onChange={(e) => handleChange('isHit', e.target.checked)} />
             </div>
           </Card>
         </div>
 
-        {/* Центральная колонка (50%) - Описание, характеристики, изображения */}
-        <div className="col-span-12 lg:col-span-6 space-y-6">
+        {/* ПРАВАЯ КОЛОНКА - Контент вкладки */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* ОСНОВНОЕ */}
           {activeTab === 'general' && (
             <>
-              <Card title="Описание товара">
+              <Card title="Описание">
                 <div className="space-y-4">
-                  <Textarea
-                    label="Краткое описание"
-                    value={formData.description || ''}
-                    onChange={(e) => handleChange('description', e.target.value)}
-                    placeholder="Краткое описание для карточки товара"
-                    rows={3}
-                    maxLength={1000}
-                    hint={`${(formData.description || '').length}/1000`}
-                  />
-
-                  <Textarea
-                    label="Полное описание"
-                    value={formData.fullDescription || ''}
-                    onChange={(e) => handleChange('fullDescription', e.target.value)}
-                    placeholder="Полное описание с поддержкой Markdown"
-                    rows={10}
-                    hint="Поддерживается Markdown синтаксис"
-                  />
+                  <Textarea label="Краткое" value={formData.description || ''} onChange={(e) => handleChange('description', e.target.value)} rows={3} maxLength={1000} hint={`${(formData.description || '').length}/1000`} />
+                  <Textarea label="Полное" value={formData.fullDescription || ''} onChange={(e) => handleChange('fullDescription', e.target.value)} rows={10} placeholder="Markdown" />
                 </div>
               </Card>
-
-              <Card title="Характеристики" description="Динамические характеристики товара">
-                <SpecificationEditor
-                  specifications={formData.specifications}
-                  onChange={(specs) => handleChange('specifications', specs)}
-                  categorySpecs={currentCategorySpecs.map(s => ({ ...s, unit: s.unit ?? undefined, options: s.options ?? undefined }))}
-                />
+              <Card title="Характеристики">
+                <SpecificationEditor specifications={formData.specifications} onChange={(specs) => handleChange('specifications', specs)} categorySpecs={currentCategorySpecs.map(s => ({ ...s, unit: s.unit ?? undefined, options: s.options ?? undefined }))} />
               </Card>
-
-              <Card title="Теги" description="Добавьте теги для лучшей поисковой оптимизации">
-                <TagInput
-                  tags={formData.tags}
-                  onChange={(tags) => handleChange('tags', tags)}
-                  popularTags={popularTags.map(t => ({ ...t, color: t.color ?? undefined }))}
-                />
+              <Card title="Теги">
+                <TagInput tags={formData.tags} onChange={(tags) => handleChange('tags', tags)} popularTags={popularTags.map(t => ({ ...t, color: t.color ?? undefined }))} />
               </Card>
-
-              <Card title="Габариты и вес">
-                <div className="grid grid-cols-4 gap-4">
-                  <Input
-                    label="Вес (кг)"
-                    type="number"
-                    step="0.001"
-                    value={formData.weight || ''}
-                    onChange={(e) => handleChange('weight', e.target.value ? parseFloat(e.target.value) : null)}
-                    placeholder="0.000"
-                  />
-                  <Input
-                    label="Длина (см)"
-                    type="number"
-                    step="0.01"
-                    value={formData.length || ''}
-                    onChange={(e) => handleChange('length', e.target.value ? parseFloat(e.target.value) : null)}
-                    placeholder="0.00"
-                  />
-                  <Input
-                    label="Ширина (см)"
-                    type="number"
-                    step="0.01"
-                    value={formData.width || ''}
-                    onChange={(e) => handleChange('width', e.target.value ? parseFloat(e.target.value) : null)}
-                    placeholder="0.00"
-                  />
-                  <Input
-                    label="Высота (см)"
-                    type="number"
-                    step="0.01"
-                    value={formData.height || ''}
-                    onChange={(e) => handleChange('height', e.target.value ? parseFloat(e.target.value) : null)}
-                    placeholder="0.00"
-                  />
+              <Card title="Габариты">
+                <div className="grid grid-cols-4 gap-3">
+                  <Input label="Вес (кг)" type="number" step="0.001" value={formData.weight || ''} onChange={(e) => handleChange('weight', e.target.value ? parseFloat(e.target.value) : null)} />
+                  <Input label="Длина" type="number" step="0.01" value={formData.length || ''} onChange={(e) => handleChange('length', e.target.value ? parseFloat(e.target.value) : null)} />
+                  <Input label="Ширина" type="number" step="0.01" value={formData.width || ''} onChange={(e) => handleChange('width', e.target.value ? parseFloat(e.target.value) : null)} />
+                  <Input label="Высота" type="number" step="0.01" value={formData.height || ''} onChange={(e) => handleChange('height', e.target.value ? parseFloat(e.target.value) : null)} />
                 </div>
               </Card>
-
               <Card title="Гарантия">
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    label="Срок гарантии (мес)"
-                    type="number"
-                    value={formData.warrantyPeriod}
-                    onChange={(e) => handleChange('warrantyPeriod', parseInt(e.target.value) || 0)}
-                  />
-                  <Select
-                    label="Тип гарантии"
-                    value={formData.warrantyType}
-                    onChange={(e) => handleChange('warrantyType', e.target.value as 'MANUFACTURER' | 'SELLER')}
-                    options={[
-                      { value: 'MANUFACTURER', label: 'От производителя' },
-                      { value: 'SELLER', label: 'От магазина' },
-                    ]}
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <Input label="Срок (мес)" type="number" value={formData.warrantyPeriod} onChange={(e) => handleChange('warrantyPeriod', parseInt(e.target.value) || 0)} />
+                  <Select label="Тип" value={formData.warrantyType} onChange={(e) => handleChange('warrantyType', e.target.value as 'MANUFACTURER' | 'SELLER')} options={[{ value: 'MANUFACTURER', label: 'От производителя' }, { value: 'SELLER', label: 'От магазина' }]} />
                 </div>
               </Card>
             </>
           )}
 
+          {/* ИЗОБРАЖЕНИЯ */}
           {activeTab === 'media' && (
-            <Card title="Изображения товара">
-              <ProductImageUploader
-                images={formData.images}
-                onChange={(images) => handleChange('images', images)}
-                productId={initialData?.id}
-              />
+            <Card title="Изображения">
+              <ProductImageUploader images={formData.images} onChange={(images) => handleChange('images', images)} productId={initialData?.id} />
             </Card>
           )}
 
-          {activeTab === 'variants' && (
-            <Card title="Варианты товара" description="Различные варианты товара (цвет, размер и т.д.)">
-              <ProductVariantEditor
-                variants={formData.variants}
-                onChange={(variants) => handleChange('variants', variants)}
-              />
-            </Card>
-          )}
-        </div>
-
-        {/* Правая колонка (25%) - Цены, остатки, SEO - Sticky */}
-        <div className="col-span-12 lg:col-span-3">
-          <div className="sticky top-6 space-y-6">
-            {activeTab === 'pricing' && (
-              <>
-                <Card title="Ценообразование">
-                  <div className="space-y-4">
-                    <Input
-                      label="Базовая цена (₽)"
-                      type="number"
-                      value={formData.price}
-                      onChange={(e) => handleChange('price', parseFloat(e.target.value) || 0)}
-                      required
-                    />
-                    <Input
-                      label="Старая цена (₽)"
-                      type="number"
-                      value={formData.oldPrice || ''}
-                      onChange={(e) => handleChange('oldPrice', e.target.value ? parseFloat(e.target.value) : null)}
-                      placeholder="0"
-                    />
-                  </div>
-                </Card>
-
-                <Card title="Скидка">
-                  <div className="space-y-4">
-                    <Select
-                      label="Тип скидки"
-                      value={formData.discountType}
-                      onChange={(e) => handleChange('discountType', e.target.value as 'PERCENT' | 'FIXED')}
-                      options={[
-                        { value: 'PERCENT', label: 'Процент (%)' },
-                        { value: 'FIXED', label: 'Фиксированная сумма (₽)' },
-                      ]}
-                    />
-                    <Input
-                      label={`Значение (${formData.discountType === 'PERCENT' ? '%' : '₽'})`}
-                      type="number"
-                      value={formData.discountValue}
-                      onChange={(e) => handleChange('discountValue', parseFloat(e.target.value) || 0)}
-                      min="0"
-                    />
-                  </div>
-
-                  {/* Предпросмотр цены со скидкой */}
-                  <div className="mt-5 p-4 bg-gradient-to-br from-orange/10 to-orange/5 border border-orange/20 rounded-[var(--radius)]">
-                    <div className="text-[10px] text-gray3 uppercase tracking-wider font-bold mb-2">
-                      Цена со скидкой
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-display text-[24px] font-extrabold text-orange">
-                        {Math.round(discountedPrice).toLocaleString('ru-RU')} ₽
-                      </span>
-                      {formData.discountValue > 0 && (
-                        <>
-                          <span className="text-[13px] text-gray4 line-through">
-                            {formData.price.toLocaleString('ru-RU')} ₽
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 bg-green-500/10 text-green-500 border border-green-500/20 rounded-[var(--radius-sm)] font-bold">
-                            -{formData.discountType === 'PERCENT' ? formData.discountValue : Math.round((formData.discountValue / formData.price) * 100)}%
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    {formData.discountValue > 0 && (
-                      <div className="mt-3 pt-3 border-t border-orange/20 flex items-center justify-between">
-                        <span className="text-[10px] text-gray4">Выгода</span>
-                        <span className="font-display text-[16px] font-bold text-green-500">
-                          {formData.discountType === 'PERCENT'
-                            ? `${Math.round(formData.price * formData.discountValue / 100)} ₽`
-                            : `${formData.discountValue.toLocaleString('ru-RU')} ₽`
-                          }
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-              </>
-            )}
-
-            {activeTab === 'inventory' && (
-              <Card title="Склады">
+          {/* ЦЕНА И СКИДКИ */}
+          {activeTab === 'pricing' && (
+            <>
+              <Card title="Цена">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-gray1">
-                    <span className="text-[10px] text-gray4">Всего</span>
-                    <span className="font-display text-[20px] font-extrabold text-orange">
-                      {totalStock} ед.
-                    </span>
-                  </div>
-
-                  <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-                    {warehouses.map((warehouse) => {
-                      const stock = formData.warehouseStocks.find(ws => ws.warehouseId === warehouse.id);
-                      const quantity = stock?.quantity || 0;
-                      const reserved = stock?.reserved || 0;
-                      const available = quantity - reserved;
-
-                      return (
-                        <div
-                          key={warehouse.id}
-                          className={cn(
-                            'p-3 rounded-[var(--radius)] border transition-colors',
-                            quantity > 0 
-                              ? 'bg-black3 border-gray1' 
-                              : 'bg-black3/50 border-gray1/50'
-                          )}
-                        >
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className={cn(
-                              'w-2 h-2 rounded-full',
-                              warehouse.isActive ? 'bg-green-500' : 'bg-gray-500'
-                            )} />
-                            <span className={cn(
-                              'text-[12px] font-bold',
-                              quantity > 0 ? 'text-white' : 'text-gray4'
-                            )}>
-                              {warehouse.name}
-                            </span>
-                          </div>
-
-                          <div className="text-[10px] text-gray4 mb-2">{warehouse.city}</div>
-
-                          <div className="space-y-2">
-                            <div>
-                              <div className="flex items-center justify-between text-[9px] text-gray4 mb-1">
-                                <span>В наличии</span>
-                                <span className="text-white font-semibold">{quantity}</span>
-                              </div>
-                              <input
-                                type="number"
-                                min="0"
-                                value={quantity}
-                                onChange={(e) => handleWarehouseChange(warehouse.id, parseInt(e.target.value) || 0)}
-                                className="w-full bg-black2 border border-gray1 rounded-[var(--radius-sm)] px-2 py-1.5 text-center text-white text-[11px] outline-none focus:border-orange"
-                                disabled={!warehouse.isActive}
-                              />
-                            </div>
-
-                            <div>
-                              <div className="flex items-center justify-between text-[9px] text-gray4 mb-1">
-                                <span>Зарезервировано</span>
-                                <span className="text-gray3 font-semibold">{reserved}</span>
-                              </div>
-                              <input
-                                type="number"
-                                min="0"
-                                max={quantity}
-                                value={reserved}
-                                onChange={(e) => handleReservedChange(warehouse.id, parseInt(e.target.value) || 0)}
-                                className="w-full bg-black2 border border-gray1 rounded-[var(--radius-sm)] px-2 py-1.5 text-center text-gray3 text-[11px] outline-none focus:border-orange"
-                                disabled={quantity === 0 || !warehouse.isActive}
-                              />
-                            </div>
-
-                            <div className="pt-2 border-t border-gray1">
-                              <div className="flex items-center justify-between text-[9px]">
-                                <span className="text-gray4">Доступно</span>
-                                <span className={cn(
-                                  'text-[12px] font-bold',
-                                  available > 0 ? 'text-green-500' : 'text-gray4'
-                                )}>
-                                  {available}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <Input label="Базовая (₽)" type="number" value={formData.price} onChange={(e) => handleChange('price', parseFloat(e.target.value) || 0)} required />
+                  <Input label="Старая (₽)" type="number" value={formData.oldPrice || ''} onChange={(e) => handleChange('oldPrice', e.target.value ? parseFloat(e.target.value) : null)} />
                 </div>
               </Card>
-            )}
-
-            {activeTab === 'seo' && (
-              <>
-                <Card title="SEO настройки">
-                  <div className="space-y-4">
-                    <Input
-                      label="Meta Title"
-                      value={formData.metaTitle}
-                      onChange={(e) => handleChange('metaTitle', e.target.value)}
-                      placeholder="Заголовок для поисковых систем"
-                      maxLength={255}
-                      hint={`${(formData.metaTitle || '').length}/255`}
-                    />
-
-                    <Textarea
-                      label="Meta Description"
-                      value={formData.metaDescription}
-                      onChange={(e) => handleChange('metaDescription', e.target.value)}
-                      placeholder="Описание для поисковых систем"
-                      rows={4}
-                      maxLength={500}
-                      hint={`${(formData.metaDescription || '').length}/500`}
-                    />
-
-                    <Input
-                      label="Meta Keywords"
-                      value={formData.metaKeywords}
-                      onChange={(e) => handleChange('metaKeywords', e.target.value)}
-                      placeholder="Ключевые слова через запятую"
-                    />
-                  </div>
-                </Card>
-
-                {/* Предпросмотр сниппета */}
-                {(formData.metaTitle || formData.metaDescription) && (
-                  <Card title="Предпросмотр в Google">
-                    <div className="space-y-1.5">
-                      <div className="text-[#1a0dab] text-[16px] font-medium hover:underline cursor-pointer">
-                        {formData.metaTitle || formData.name}
-                      </div>
-                      <div className="text-[#006621] text-[11px]">
-                        https://1000fps.ru/product/{formData.slug}
-                      </div>
-                      <div className="text-[#545454] text-[12px]">
-                        {formData.metaDescription || formData.description || 'Описание отсутствует...'}
-                      </div>
+              <Card title="Скидка">
+                <div className="space-y-4">
+                  <Select label="Тип" value={formData.discountType} onChange={(e) => handleChange('discountType', e.target.value as 'PERCENT' | 'FIXED')} options={[{ value: 'PERCENT', label: 'Процент (%)' }, { value: 'FIXED', label: 'Фиксированная (₽)' }]} />
+                  <Input label="Значение" type="number" value={formData.discountValue} onChange={(e) => handleChange('discountValue', parseFloat(e.target.value) || 0)} />
+                </div>
+                {formData.discountValue > 0 && (
+                  <div className="mt-4 p-4 bg-orange/10 border border-orange/20 rounded-[var(--radius)]">
+                    <div className="text-gray4 text-xs mb-1">Цена со скидкой</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-orange text-xl font-bold">{Math.round(discountedPrice).toLocaleString('ru-RU')} ₽</span>
+                      <span className="text-gray4 line-through text-sm">{formData.price.toLocaleString('ru-RU')} ₽</span>
                     </div>
-                  </Card>
+                  </div>
                 )}
-              </>
-            )}
+              </Card>
+            </>
+          )}
 
-            {activeTab === 'parser' && initialData?.id && (
-              <ProductParserConfig
-                productId={initialData.id}
-                useParserPrice={formData.useParserPrice}
-                parseSources={formData.parseSources || []}
-                parserStatus={parserStatus}
-                isParsing={isParsing}
-                parseProgress={parseProgress}
-                onToggleParserPrice={(enabled) => handleChange('useParserPrice', enabled)}
-                onUpdateSources={(sources) => handleChange('parseSources', sources)}
-                onParse={handleParse}
-              />
-            )}
-
-            {/* Быстрая навигация по вкладкам (для мобильных) */}
-            <Card title="Быстрый переход" className="lg:hidden">
-              <div className="flex flex-wrap gap-2">
-                {(['general', 'media', 'pricing', 'inventory', 'variants', 'seo', 'parser'] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={cn(
-                      'px-3 py-1.5 text-[11px] font-semibold rounded-[var(--radius)] transition-colors',
-                      activeTab === tab
-                        ? 'bg-orange text-white'
-                        : 'bg-black3 text-gray4 hover:text-white'
-                    )}
-                  >
-                    {tab === 'general' && 'Основное'}
-                    {tab === 'media' && 'Изображения'}
-                    {tab === 'pricing' && 'Цена'}
-                    {tab === 'inventory' && 'Склады'}
-                    {tab === 'variants' && 'Варианты'}
-                    {tab === 'seo' && 'SEO'}
-                    {tab === 'parser' && 'Парсинг'}
-                  </button>
-                ))}
+          {/* СКЛАДЫ */}
+          {activeTab === 'inventory' && (
+            <Card title="Остатки">
+              <div className="space-y-4">
+                <div className="flex justify-between pb-3 border-b border-gray1">
+                  <span className="text-gray4">Всего</span>
+                  <span className="text-orange font-bold text-lg">{totalStock} ед.</span>
+                </div>
+                <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                  {warehouses.map((wh) => {
+                    const stock = formData.warehouseStocks.find(ws => ws.warehouseId === wh.id);
+                    const qty = stock?.quantity || 0;
+                    const res = stock?.reserved || 0;
+                    return (
+                      <div key={wh.id} className="p-3 bg-black3 border border-gray1 rounded-[var(--radius)]">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className={`w-2 h-2 rounded-full ${wh.isActive ? 'bg-green-500' : 'bg-gray-500'}`} />
+                          <span className="font-bold text-white">{wh.name}</span>
+                          <span className="text-gray4 text-xs">{wh.city}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div>
+                            <div className="text-[10px] text-gray4">В наличии</div>
+                            <input type="number" min="0" value={qty} onChange={(e) => handleWarehouseChange(wh.id, parseInt(e.target.value) || 0)} className="w-full bg-black2 border border-gray1 rounded px-2 py-1 text-center text-white" disabled={!wh.isActive} />
+                          </div>
+                          <div>
+                            <div className="text-[10px] text-gray4">Резерв</div>
+                            <input type="number" min="0" max={qty} value={res} onChange={(e) => handleReservedChange(wh.id, parseInt(e.target.value) || 0)} className="w-full bg-black2 border border-gray1 rounded px-2 py-1 text-center text-gray3" disabled={qty === 0 || !wh.isActive} />
+                          </div>
+                          <div>
+                            <div className="text-[10px] text-gray4">Доступно</div>
+                            <div className={`text-center py-1 font-bold ${qty - res > 0 ? 'text-green-500' : 'text-gray4'}`}>{qty - res}</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </Card>
-          </div>
+          )}
+
+          {/* ВАРИАНТЫ */}
+          {activeTab === 'variants' && (
+            <Card title="Варианты">
+              <ProductVariantEditor variants={formData.variants} onChange={(variants) => handleChange('variants', variants)} />
+            </Card>
+          )}
+
+          {/* SEO */}
+          {activeTab === 'seo' && (
+            <>
+              <Card title="SEO">
+                <div className="space-y-4">
+                  <Input label="Meta Title" value={formData.metaTitle} onChange={(e) => handleChange('metaTitle', e.target.value)} maxLength={255} hint={`${(formData.metaTitle || '').length}/255`} />
+                  <Textarea label="Meta Description" value={formData.metaDescription} onChange={(e) => handleChange('metaDescription', e.target.value)} rows={4} maxLength={500} hint={`${(formData.metaDescription || '').length}/500`} />
+                  <Input label="Meta Keywords" value={formData.metaKeywords} onChange={(e) => handleChange('metaKeywords', e.target.value)} placeholder="关键词, через запятую" />
+                </div>
+              </Card>
+              {(formData.metaTitle || formData.metaDescription) && (
+                <Card title="Предпросмотр">
+                  <div className="space-y-1">
+                    <div className="text-[#1a0dab]">{formData.metaTitle || formData.name}</div>
+                    <div className="text-[#006621] text-xs">https://1000fps.ru/product/{formData.slug}</div>
+                    <div className="text-[#545454] text-sm">{formData.metaDescription || formData.description || '...'}</div>
+                  </div>
+                </Card>
+              )}
+            </>
+          )}
+
+          {/* ПАРСИНГ */}
+          {activeTab === 'parser' && (
+            initialData?.id ? (
+              <ProductParserConfig productId={initialData.id} useParserPrice={formData.useParserPrice} parseSources={formData.parseSources || []} parserStatus={parserStatus} isParsing={isParsing} parseProgress={parseProgress} onToggleParserPrice={(enabled) => handleChange('useParserPrice', enabled)} onUpdateSources={(sources) => handleChange('parseSources', sources)} onParse={handleParse} />
+            ) : (
+              <Card title="Парсинг">
+                <p className="text-gray4">Сохраните товар, затем добавьте источники.</p>
+              </Card>
+            )
+          )}
         </div>
       </div>
 
