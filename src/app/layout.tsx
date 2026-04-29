@@ -91,7 +91,7 @@ export default function RootLayout({
           <CompareProvider>
             <div className="relative min-h-screen flex flex-col">
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 pb-10">{children}</main>
               <Footer />
             </div>
             <PWAInstallPrompt />

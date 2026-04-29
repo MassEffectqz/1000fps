@@ -96,6 +96,7 @@ export const productSchema = z.object({
   isFeatured: z.boolean().default(false),
   isNew: z.boolean().default(false),
   isHit: z.boolean().default(false),
+  isUsed: z.boolean().default(false),
   
   // SEO
   metaTitle: z.string().max(255).optional().nullable(),
@@ -138,6 +139,7 @@ export const updateProductSchema = z.object({
   isFeatured: z.boolean().optional(),
   isNew: z.boolean().optional(),
   isHit: z.boolean().optional(),
+  isUsed: z.boolean().optional(),
   metaTitle: z.string().max(255).optional().nullable(),
   metaDescription: z.string().max(500).optional().nullable(),
   metaKeywords: z.string().optional().nullable(),
