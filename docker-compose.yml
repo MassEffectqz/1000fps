@@ -1,14 +1,6 @@
-# ============================================================
-# Docker Compose для локальной разработки 1000fps
-# Сервисы: PostgreSQL + Redis + Next.js App
-# ============================================================
-
 services:
-  # ------------------------------------------------------------
-  # PostgreSQL - База данных
-  # ------------------------------------------------------------
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16
     container_name: 1000fps-postgres
     restart: unless-stopped
     environment:
@@ -17,62 +9,49 @@ services:
       POSTGRES_DB: fps1000
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d fps1000"]
-      interval: 5s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - 1000fps-network
+
+  redis:
+    image: redis:7
+    container_name: 1000fps-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     networks:
       - 1000fps-network
 
-  # ------------------------------------------------------------
-  # Redis - Кэширование
-  # ------------------------------------------------------------
-  redis:
-    image: redis:7-alpine
-    container_name: 1000fps-redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis_data:/data
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
-    networks:
-      - 1000fps-network
-
-  # ------------------------------------------------------------
-  # Next.js App - Основное приложение
-  # ------------------------------------------------------------
   app:
     build:
       context: .
       dockerfile: Dockerfile
-      target: builder
     container_name: 1000fps-app
     restart: unless-stopped
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fps1000?schema=public
-      - REDIS_URL=redis://redis:6379
-      - NEXT_PUBLIC_APP_URL=http://localhost:3000
-      - JWT_SECRET=dev-secret-key-change-in-production
-      - COOKIE_SECRET=dev-cookie-secret-change-in-production
-      - PARSER_URL=http://parser:3005
-      - PORT=3000
-      - UPLOAD_DIR=/app/public/uploads
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/fps1000?schema=public
+      REDIS_URL: redis://redis:6379
+      NEXT_PUBLIC_APP_URL: http://5.129.193.202:3000
+      JWT_SECRET: СЮДА_СЕКРЕТ
+      COOKIE_SECRET: СЮДА_СЕКРЕТ
+      PARSER_URL: http://parser:3005
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      UPLOAD_DIR: /app/public/uploads
     volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
       - uploads_data:/app/public/uploads
     ports:
       - "3000:3000"
@@ -81,17 +60,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: >
-      sh -c "sleep 5 &&
-             npx prisma generate &&
-             npx prisma migrate deploy &&
-             npm run dev"
+    command: ["node", "server.js"]
     networks:
       - 1000fps-network
 
-  # ------------------------------------------------------------
-  # Parser Server - Сервер парсинга
-  # ------------------------------------------------------------
   parser:
     build:
       context: ./parser
@@ -99,19 +71,16 @@ services:
     container_name: 1000fps-parser
     restart: unless-stopped
     environment:
-      - NODE_ENV=development
-      - PARSER_PORT=3005
-      - SITE_WEBHOOK_URL=http://app:3000/api/admin/parser/webhook
+      NODE_ENV: production
+      PARSER_PORT: 3005
+      SITE_WEBHOOK_URL: http://app:3000/api/admin/parser/webhook
     ports:
-      - "3005:3005"
+      - "3005:3000"
     depends_on:
       - app
     networks:
       - 1000fps-network
 
-# ------------------------------------------------------------
-# Volumes - Постоянные хранилища
-# ------------------------------------------------------------
 volumes:
   postgres_data:
     driver: local
@@ -120,9 +89,6 @@ volumes:
   uploads_data:
     driver: local
 
-# ------------------------------------------------------------
-# Networks - Сети
-# ------------------------------------------------------------
 networks:
   1000fps-network:
     driver: bridge
