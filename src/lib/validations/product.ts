@@ -9,10 +9,11 @@ export const productImageSchema = z.object({
   id: z.string().optional(),
   url: z.string().refine(
     (val) => {
-      // Принимаем: http://, https://, или /uploads/
-      return val.startsWith('http://') || 
-             val.startsWith('https://') || 
-             val.startsWith('/uploads/');
+      return val.startsWith('http://') ||
+             val.startsWith('https://') ||
+             val.startsWith('/uploads/') ||
+             val.startsWith('blob:') ||
+             val === '';
     },
     { message: 'Некорректный URL изображения' }
   ),

@@ -101,13 +101,17 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-
     // Фильтруем пустые варианты перед валидацией
     const filteredBody = {
       ...body,
       variants: body.variants?.filter((v: { name?: string }) => v.name && v.name.trim() !== ''),
+      images: body.images?.filter((img: { url?: string }) =>
+        img.url &&
+        !img.url.startsWith('blob:') &&
+        img.url !== '' &&
+        (img.url.startsWith('/uploads/') || img.url.startsWith('http://') || img.url.startsWith('https://'))
+      ) ?? [],
     };
-
     // Валидация входных данных
     const validatedData = createProductSchema.parse(filteredBody);
 
