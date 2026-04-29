@@ -59,6 +59,12 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    // Фильтр б/у
+    const isUsed = searchParams.get('isUsed');
+    if (isUsed === 'true') {
+      where.isUsed = true;
+    }
+
     if (isInStock === 'true') {
       where.stock = { gt: 0 };
     }

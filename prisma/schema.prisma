@@ -87,6 +87,7 @@ model Product {
   isFeatured      Boolean                @default(false)
   isNew           Boolean                @default(false)
   isHit           Boolean                @default(false)
+  isUsed          Boolean                @default(false)
   isActive        Boolean                @default(true)
   categoryId      String
   brandId         String?

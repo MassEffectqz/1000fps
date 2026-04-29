@@ -790,8 +790,8 @@ export function Header() {
                 <Link href="#" className="nav__link">Новинки</Link>
                 <Link href="/configurator" className="nav__link">Конфигуратор ПК</Link>
                 <Link href="/ready-builds" className="nav__link">Готовые сборки</Link>
-                <Link href="#" className="nav__link">Бренды</Link>
-                <Link href="#" className="nav__link">Б/У техника</Link>
+                <Link href="/brands" className="nav__link">Бренды</Link>
+                <Link href="/used" className="nav__link">Б/У техника</Link>
                 <Link href="/faq" className="nav__link">FAQ</Link>
               </div>
               <div className="nav__extras">

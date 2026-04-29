@@ -265,7 +265,7 @@ const navLinks = [
   { href: '#', label: 'Новинки', icon: 'sparkle' },
   { href: '/configurator', label: 'Конфигуратор ПК', icon: 'tools' },
   { href: '#', label: 'Готовые сборки', icon: 'desktop' },
-  { href: '#', label: 'Б/У техника', icon: 'recycle' },
+  { href: '/used', label: 'Б/У техника', icon: 'recycle' },
   { href: '/faq', label: 'FAQ', icon: 'help' },
 ];
 

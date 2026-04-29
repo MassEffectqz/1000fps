@@ -128,19 +128,18 @@ export function Footer() {
             </h4>
             <ul className="flex flex-col gap-2">
               {[
-                { name: 'Конфигуратор ПК' },
-                { name: 'Готовые сборки' },
-                { name: 'Сравнение товаров' },
-                { name: 'Список желаемого' },
-                { name: 'Отслеживание заказа' },
-                { name: 'Пункты выдачи' },
-                { name: 'Акции и скидки', hot: true },
-                { name: 'Новинки' },
-                { name: 'Б/У техника' },
-                { name: 'FAQ' },
+                { name: 'Конфигуратор ПК', href: '/configurator' },
+                { name: 'Готовые сборки', href: '/ready-builds' },
+                { name: 'Сравнение товаров', href: '/compare' },
+                { name: 'Список желаемого', href: '/wishlist' },
+                { name: 'Пункты выдачи', href: '/warehouses' },
+                { name: 'Акции и скидки', href: '/catalog?onSale=true', hot: true },
+                { name: 'Новинки', href: '/catalog?isNew=true' },
+                { name: 'Б/У техника', href: '/used' },
+                { name: 'FAQ', href: '/faq' },
               ].map((item) => (
                 <li key={item.name}>
-                  <Link href="/faq" className="text-[13px] text-gray3 flex items-center gap-[6px] hover:text-orange transition-colors">
+                  <Link href={item.href || '#'} className="text-[13px] text-gray3 flex items-center gap-[6px] hover:text-orange transition-colors">
                     {item.name}
                     {item.hot && (
                       <span className="ml-auto bg-orange text-white text-[10px] font-bold px-[7px] py-[2px] rounded-[var(--radius)] uppercase tracking-wider">
@@ -174,15 +173,9 @@ export function Footer() {
               </div>
               <div className="flex gap-2">
                 {/* VK */}
-                <a href="#" className="w-9 h-9 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray3 transition-colors hover:border-orange hover:text-orange hover:bg-black2">
+                <a href="https://vk.com/shop1000fps" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray3 transition-colors hover:border-orange hover:text-orange hover:bg-black2">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                     <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm3.08 13.5h-1.52c-.57 0-.75-.46-1.78-1.5-.9-.88-1.3-.99-1.52-.99-.31 0-.4.09-.4.52v1.37c0 .37-.12.59-1.1.59-1.62 0-3.41-.98-4.67-2.81-1.9-2.66-2.42-4.66-2.42-5.07 0-.22.09-.43.52-.43h1.52c.39 0 .53.18.68.6.75 2.16 2 4.06 2.52 4.06.19 0 .28-.09.28-.59V9.3c-.06-1.06-.62-1.15-.62-1.52 0-.19.15-.37.4-.37h2.4c.33 0 .44.17.44.55v2.97c0 .33.15.44.24.44.19 0 .37-.11.74-.48 1.15-1.29 1.97-3.27 1.97-3.27.11-.22.28-.43.67-.43h1.52c.46 0 .56.24.46.55-.19.87-2.04 3.5-2.04 3.5-.16.26-.22.37 0 .66.16.22.68.68 1.02 1.09.64.73 1.12 1.34 1.25 1.76.11.4-.09.6-.5.6z" />
-                  </svg>
-                </a>
-                {/* Telegram */}
-                <a href="#" className="w-9 h-9 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray3 transition-colors hover:border-orange hover:text-orange hover:bg-black2">
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.69 7.97c-.12.57-.46.7-.93.44l-2.57-1.89-1.24 1.19c-.14.14-.26.26-.52.26l.19-2.63 4.83-4.36c.21-.19-.05-.29-.32-.1L7.67 14.4l-2.52-.79c-.55-.17-.56-.55.12-.82l9.84-3.79c.46-.17.86.11.53.8z" />
                   </svg>
                 </a>
               </div>
