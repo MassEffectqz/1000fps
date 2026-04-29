@@ -97,7 +97,6 @@ async function parseProduct(article) {
       }
     }
     
-    // Method 2: Try alternative endpoint
     const altUrl = `https://${WB_CARD_API}/cardsleeve/v5/digit/${art}?country=RU`;
     const altResponse = await fetch(altUrl, {
       headers: {
@@ -128,7 +127,6 @@ async function parseProduct(article) {
       }
     }
     
-    // Method 3: Simple price check via catalog API
     const catalogUrl = `https://catalog.wildberries.ru/api/v6/content/features?nmIds=${art}`;
     const catalogResponse = await fetch(catalogUrl, {
       headers: {

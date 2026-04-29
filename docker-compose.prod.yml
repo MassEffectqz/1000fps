@@ -1,7 +1,9 @@
 # ============================================================
-# Docker Compose для продакшена 1000fps
-# Сервисы: PostgreSQL + Next.js App + Parser Server + Nginx
+# Docker Compose для production 1000fps
+# Сервисы: PostgreSQL + Redis + Next.js App + Prisma Studio (опционально)
 # ============================================================
+
+version: '3.8'
 
 services:
   # ------------------------------------------------------------
@@ -10,50 +12,84 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: 1000fps-postgres
-    restart: always
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-fps1000}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fps1000
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      # Только внутри сети, порт 5432 не пробрасывается наружу
+      - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-fps1000}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fps1000"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 15s
     networks:
       - 1000fps-network
-    # Раскомментировать для доступа к БД снаружи
-    # ports:
-    #   - "5432:5432"
+
 
   # ------------------------------------------------------------
-  # Next.js App - Основное приложение
+  # Redis - Кэширование
+  # ------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: 1000fps-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      # Только для внутренних сервисов, не наружу
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - 1000fps-network
+
+
+  # ------------------------------------------------------------
+  # Next.js App - Основное приложение (prod)
   # ------------------------------------------------------------
   app:
     build:
       context: .
       dockerfile: Dockerfile
+      target: builder
     container_name: 1000fps-app
-    restart: always
+    restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-fps1000}?schema=public
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fps1000?schema=public
+      - REDIS_URL=redis://redis:6379
+      - NEXT_PUBLIC_APP_URL=http://5.129.193.202:3000
+      - JWT_SECRET=СЮДА_СЕКРЕТ
+      - COOKIE_SECRET=СЮДА_СЕКРЕТ
       - PARSER_URL=http://parser:3005
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost}
-      - JWT_SECRET=${JWT_SECRET}
-      - COOKIE_SECRET=${COOKIE_SECRET}
       - PORT=3000
+      - UPLOAD_DIR=/app/public/uploads
     volumes:
-      - app_uploads:/app/uploads
+      - uploads_data:/app/public/uploads
+    ports:
+      - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma generate &&
+             npx prisma migrate deploy &&
+             npm run start"
     networks:
       - 1000fps-network
-    # App не пробрасываем наружу - доступ через nginx
+
 
   # ------------------------------------------------------------
   # Parser Server - Сервер парсинга
@@ -63,39 +99,36 @@ services:
       context: ./parser
       dockerfile: Dockerfile
     container_name: 1000fps-parser
-    restart: always
+    restart: unless-stopped
     environment:
       - NODE_ENV=production
       - PARSER_PORT=3005
-      - DB_PATH=/app/data/parser.db
-    volumes:
-      - parser_data:/app/data
+      - SITE_WEBHOOK_URL=http://app:3000/api/admin/parser/webhook
+    ports:
+      - "3005:3000"
     depends_on:
       - app
     networks:
       - 1000fps-network
-    # Parser не пробрасываем наружу - доступ только из app
+
 
   # ------------------------------------------------------------
-  # Nginx - Reverse Proxy + SSL
+  # Prisma Studio — только для dev/отладки, не в прод эксплуатации
+  # Раскомментировать, если нужен быстрый просмотр БД извне
   # ------------------------------------------------------------
-  nginx:
-    image: nginx:alpine
-    container_name: 1000fps-nginx
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./nginx/certbot:/var/www/certbot:rw
-      - nginx_cache:/var/cache/nginx
-    depends_on:
-      - app
-      - parser
-    networks:
-      - 1000fps-network
+  # prisma-studio:
+  #   image: node:lts-alpine
+  #   working_dir: /usr/src/app
+  #   volumes:
+  #     - .:/usr/src/app
+  #   command: npx prisma@6.19.2 studio --hostname 0.0.0.0 --port 5555 --browser none
+  #   ports:
+  #     - "5555:5555"
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - 1000fps-network
+
 
 # ------------------------------------------------------------
 # Volumes - Постоянные хранилища
@@ -103,12 +136,11 @@ services:
 volumes:
   postgres_data:
     driver: local
-  parser_data:
+  redis_data:
     driver: local
-  nginx_cache:
+  uploads_data:
     driver: local
-  app_uploads:
-    driver: local
+
 
 # ------------------------------------------------------------
 # Networks - Сети
