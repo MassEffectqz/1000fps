@@ -32,15 +32,28 @@ function LoginForm() {
   const callbackUrl = searchParams.get('callbackUrl') || '/profile';
 
   useEffect(() => {
-    fetch('/api/auth/session')
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(data => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
         if (data?.user) {
-          window.location.href = '/profile';
+          router.replace(callbackUrl);
+          router.refresh();
         }
-      })
-      .catch(() => {});
-  }, []);
+      } catch {
+      }
+    };
+
+    checkSession();
+  }, [router, callbackUrl]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -72,6 +85,7 @@ function LoginForm() {
         const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             email: formData.email.toLowerCase(),
             password: formData.password,
@@ -86,7 +100,8 @@ function LoginForm() {
         }
 
         toast.success('Вход выполнен успешно!');
-        window.location.href = callbackUrl;
+        router.replace(callbackUrl);
+        router.refresh();
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Ошибка при входе';
         setErrors({ general: message });
@@ -97,11 +112,12 @@ function LoginForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    // Очищаем ошибку при изменении поля
+
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -112,16 +128,22 @@ function LoginForm() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-6">
-            <span className="font-display text-[28px] font-extrabold uppercase text-white2">1000<span className="text-orange">fps</span></span>
+            <span className="font-display text-[28px] font-extrabold uppercase text-white2">
+              1000<span className="text-orange">fps</span>
+            </span>
           </Link>
-          <h1 className="font-display text-[24px] font-extrabold uppercase text-white2 mb-2">Вход в аккаунт</h1>
+          <h1 className="font-display text-[24px] font-extrabold uppercase text-white2 mb-2">
+            Вход в аккаунт
+          </h1>
           <p className="text-gray3 text-[14px]">Введите данные для входа</p>
         </div>
 
         <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">Email</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">
+                Email
+              </label>
               <Input
                 type="email"
                 name="email"
@@ -133,8 +155,11 @@ function LoginForm() {
               />
               {errors.email && <p className="text-red-500 text-[11px] mt-1">{errors.email}</p>}
             </div>
+
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">Пароль</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">
+                Пароль
+              </label>
               <Input
                 type="password"
                 name="password"
@@ -146,6 +171,7 @@ function LoginForm() {
               />
               {errors.password && <p className="text-red-500 text-[11px] mt-1">{errors.password}</p>}
             </div>
+
             <div className="flex items-center justify-between text-[12px]">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -158,7 +184,10 @@ function LoginForm() {
                 />
                 <span className="text-gray3">Запомнить меня</span>
               </label>
-              <Link href="#" className="text-orange hover:text-orange3">Забыли пароль?</Link>
+
+              <Link href="#" className="text-orange hover:text-orange3">
+                Забыли пароль?
+              </Link>
             </div>
 
             {errors.general && (
@@ -181,7 +210,9 @@ function LoginForm() {
         </div>
 
         <div className="mt-6 text-center text-[11px] text-gray3">
-          <Link href="/" className="hover:text-orange">← Вернуться на главную</Link>
+          <Link href="/" className="hover:text-orange">
+            ← Вернуться на главную
+          </Link>
         </div>
       </div>
     </div>
@@ -190,11 +221,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-orange">Загрузка...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-black">
+          <div className="text-orange">Загрузка...</div>
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   );

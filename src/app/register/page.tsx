@@ -39,15 +39,28 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
-    fetch('/api/auth/session')
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(data => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-store',
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+
         if (data?.user) {
-          window.location.href = '/profile';
+          router.replace('/profile');
+          router.refresh();
         }
-      })
-      .catch(() => {});
-  }, []);
+      } catch {
+      }
+    };
+
+    checkSession();
+  }, [router]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -95,6 +108,7 @@ export default function RegisterPage() {
         const response = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             name: formData.name,
             email: formData.email.toLowerCase(),
@@ -110,7 +124,8 @@ export default function RegisterPage() {
         }
 
         toast.success('Регистрация успешна!');
-        window.location.href = '/profile';
+        router.replace('/profile');
+        router.refresh();
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Ошибка при регистрации';
         setErrors({ general: message });
@@ -121,11 +136,12 @@ export default function RegisterPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    // Очищаем ошибку при изменении поля
+
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -136,16 +152,22 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-6">
-            <span className="font-display text-[28px] font-extrabold uppercase text-white2">1000<span className="text-orange">fps</span></span>
+            <span className="font-display text-[28px] font-extrabold uppercase text-white2">
+              1000<span className="text-orange">fps</span>
+            </span>
           </Link>
-          <h1 className="font-display text-[24px] font-extrabold uppercase text-white2 mb-2">Регистрация</h1>
+          <h1 className="font-display text-[24px] font-extrabold uppercase text-white2 mb-2">
+            Регистрация
+          </h1>
           <p className="text-gray3 text-[14px]">Создайте аккаунт для покупок</p>
         </div>
 
         <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">Имя</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">
+                Имя
+              </label>
               <Input
                 type="text"
                 name="name"
@@ -157,8 +179,11 @@ export default function RegisterPage() {
               />
               {errors.name && <p className="text-red-500 text-[11px] mt-1">{errors.name}</p>}
             </div>
+
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">Email</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">
+                Email
+              </label>
               <Input
                 type="email"
                 name="email"
@@ -170,8 +195,11 @@ export default function RegisterPage() {
               />
               {errors.email && <p className="text-red-500 text-[11px] mt-1">{errors.email}</p>}
             </div>
+
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">Телефон (необязательно)</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">
+                Телефон (необязательно)
+              </label>
               <Input
                 type="tel"
                 name="phone"
@@ -183,8 +211,11 @@ export default function RegisterPage() {
               />
               {errors.phone && <p className="text-red-500 text-[11px] mt-1">{errors.phone}</p>}
             </div>
+
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">Пароль</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">
+                Пароль
+              </label>
               <Input
                 type="password"
                 name="password"
@@ -196,8 +227,11 @@ export default function RegisterPage() {
               />
               {errors.password && <p className="text-red-500 text-[11px] mt-1">{errors.password}</p>}
             </div>
+
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">Подтверждение пароля</label>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-gray3 mb-2">
+                Подтверждение пароля
+              </label>
               <Input
                 type="password"
                 name="confirmPassword"
@@ -207,8 +241,11 @@ export default function RegisterPage() {
                 error={!!errors.confirmPassword}
                 disabled={isPending}
               />
-              {errors.confirmPassword && <p className="text-red-500 text-[11px] mt-1">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-[11px] mt-1">{errors.confirmPassword}</p>
+              )}
             </div>
+
             <div className="text-[11px] text-gray3">
               <label className="flex items-start gap-2 cursor-pointer">
                 <input
@@ -219,7 +256,12 @@ export default function RegisterPage() {
                   className="w-4 h-4 accent-orange mt-0.5"
                   disabled={isPending}
                 />
-                <span>Я согласен с <Link href="#" className="text-orange underline">условиями обработки персональных данных</Link></span>
+                <span>
+                  Я согласен с{' '}
+                  <Link href="#" className="text-orange underline">
+                    условиями обработки персональных данных
+                  </Link>
+                </span>
               </label>
               {errors.agree && <p className="text-red-500 text-[11px] mt-1">{errors.agree}</p>}
             </div>
