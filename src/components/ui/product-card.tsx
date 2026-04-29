@@ -29,7 +29,7 @@ export interface ProductCardProps {
 export function ProductCard({
   id,
   name,
-  price,
+  price = 0,
   oldPrice,
   image,
   rating,
