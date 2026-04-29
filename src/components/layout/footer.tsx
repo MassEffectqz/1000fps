@@ -106,13 +106,24 @@ export function Footer() {
               Покупателям
             </h4>
             <ul className="flex flex-col gap-2">
-              {['Как оформить заказ', 'Способы оплаты', 'Доставка и самовывоз', 'Возврат и обмен', 'Гарантия и ремонт', 'Рассрочка 0%', 'Трейд-ин', 'Корпоративным клиентам', 'Партнёрская программа', 'FAQ'].map((item) => (
-                <li key={item}>
-                  <Link href="#" className="text-[13px] text-gray3 flex items-center gap-[6px] hover:text-orange transition-colors">
-                    {item}
-                    {item === 'Трейд-ин' && (
+              {[
+                  { label: 'Как оформить заказ', href: '/how-to-order' },
+                  { label: 'Способы оплаты', href: '/payment' },
+                  { label: 'Доставка и самовывоз', href: '/delivery' },
+                  { label: 'Возврат и обмен', href: '/return' },
+                  { label: 'Гарантия и ремонт', href: '/warranty' },
+                  { label: 'Рассрочка 0%', href: '/installment' },
+                  { label: 'Трейд-ин', href: '/trade-in', badge: 'NEW' },
+                  { label: 'Корпоративным клиентам', href: '/b2b' },
+                  { label: 'Партнёрская программа', href: '/affiliate' },
+                  { label: 'FAQ', href: '/faq' },
+                ].map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="text-[13px] text-gray3 flex items-center gap-[6px] hover:text-orange transition-colors">
+                    {item.label}
+                    {item.badge && (
                       <span className="ml-auto bg-orange text-white text-[10px] font-bold px-[7px] py-[2px] rounded-[var(--radius)] uppercase tracking-wider">
-                        NEW
+                        {item.badge}
                       </span>
                     )}
                   </Link>
@@ -225,7 +236,7 @@ export function Footer() {
         <div className="flex items-center justify-between py-5 gap-6 flex-wrap">
           <div className="text-[12px] text-gray3">
             2026 &copy; 1000FPS — интернет-магазин компьютерной техники.<br />
-            Все цены указаны в рублях. <Link href="#" className="text-gray3 underline">Пользовательское соглашение</Link>.
+            Все цены указаны в рублях. <Link href="/agreement" className="text-gray3 underline">Пользовательское соглашение</Link>.
           </div>
           <div className="flex flex-col items-end gap-3">
             <div className="flex gap-5">
