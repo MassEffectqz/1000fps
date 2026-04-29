@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
       },
     ],
     formats: ["image/avif", "image/webp"],
-    unoptimized: process.env.NODE_ENV === 'development',
+    unoptimized: true,
   },
 
   // PWA настройки

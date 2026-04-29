@@ -215,8 +215,7 @@ export default function ProfileClient({ initialUser }: ProfileClientProps) {
       try {
         await fetch('/api/auth/logout', { method: 'POST' });
         toast.success('Выход выполнен');
-        router.push('/');
-        router.refresh();
+        window.location.href = '/';
       } catch {
         toast.error('Ошибка при выходе');
       }
