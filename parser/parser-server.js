@@ -19,6 +19,14 @@ function log(msg, data = null) {
   console.log(`[${ts}] ${msg}`, data ? JSON.stringify(data) : '');
 }
 
+function sendJSON(res, data, status = 200) {
+  res.writeHead(status, {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*'
+  });
+  res.end(JSON.stringify(data));
+}
+
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
