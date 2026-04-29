@@ -1,16 +1,17 @@
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Icons } from '@/components/ui/icons';
 
 export const metadata = {
   title: 'Корпоративным клиентам — 1000fps',
 };
 
 const benefits = [
-  { icon: '🏢', title: 'Оптовые цены', desc: 'Специальные цены от 1 единицы товара' },
-  { icon: '💳', title: 'Отсрочка платежа', desc: 'До 30 дней для постоянных клиентов' },
-  { icon: '👤', title: 'Персональный менеджер', desc: 'Выделенный специалист для вашей компании' },
-  { icon: '🚚', title: 'Доставка по РФ', desc: 'Доставка в любой регион России' },
-  { icon: '📊', title: 'Без НДС или с НДС', desc: 'Работаем по любой системе налогообложения' },
-  { icon: '🎧', title: 'Приоритетная поддержка', desc: 'Техническая поддержка 24/7' },
+  { icon: <Icons.Briefcase className="w-6 h-6" />, title: 'Оптовые цены', desc: 'Специальные цены от 1 единицы товара' },
+  { icon: <Icons.CreditCard className="w-6 h-6" />, title: 'Отсрочка платежа', desc: 'До 30 дней для постоянных клиентов' },
+  { icon: <Icons.Users className="w-6 h-6" />, title: 'Персональный менеджер', desc: 'Выделенный специалист для вашей компании' },
+  { icon: <Icons.Truck className="w-6 h-6" />, title: 'Доставка по РФ', desc: 'Доставка в любой регион России' },
+  { icon: <Icons.FileText className="w-6 h-6" />, title: 'Без НДС или с НДС', desc: 'Работаем по любой системе налогообложения' },
+  { icon: <Icons.Phone className="w-6 h-6" />, title: 'Приоритетная поддержка', desc: 'Техническая поддержка 24/7' },
 ];
 
 const targetSegments = [
@@ -50,7 +51,7 @@ export default function B2BPage() {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
             {benefits.map((item, i) => (
               <div key={i} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 hover:border-orange transition-colors">
-                <div className="text-2xl mb-2">{item.icon}</div>
+                <div className="text-orange mb-2">{item.icon}</div>
                 <div className="text-white font-semibold mb-1">{item.title}</div>
                 <div className="text-gray3 text-sm">{item.desc}</div>
               </div>
@@ -62,7 +63,7 @@ export default function B2BPage() {
             <div className="grid sm:grid-cols-2 gap-3">
               {targetSegments.map((seg, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="text-orange">✓</span>
+                  <Icons.Check className="w-4 h-4 text-orange" />
                   <div>
                     <span className="text-white">{seg.title}</span>
                     <span className="text-gray3 text-sm"> — {seg.desc}</span>
@@ -92,7 +93,7 @@ export default function B2BPage() {
             <div className="grid sm:grid-cols-2 gap-2">
               {documents.map((doc, i) => (
                 <div key={i} className="flex items-center gap-2 text-gray3">
-                  <span className="text-orange">✓</span> {doc}
+                  <Icons.Check className="w-4 h-4 text-orange" /> {doc}
                 </div>
               ))}
             </div>

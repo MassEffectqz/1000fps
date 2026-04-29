@@ -1,4 +1,5 @@
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Icons } from '@/components/ui/icons';
 
 export const metadata = {
   title: 'Партнёрская программа — 1000fps',
@@ -11,9 +12,9 @@ const tiers = [
 ];
 
 const ways = [
-  { icon: '🌐', title: 'Сайт или блог', desc: 'Разместите ссылки на своём сайте' },
-  { icon: '📱', title: 'Соцсети', desc: 'Публикуйте в соцсетях и мессенджерах' },
-  { icon: '📧', title: 'Email-рассылки', desc: 'Отправляйте партнёрские ссылки подписчикам' },
+  { icon: <Icons.Globe className="w-8 h-8" />, title: 'Сайт или блог', desc: 'Разместите ссылки на своём сайте' },
+  { icon: <Icons.Smartphone className="w-8 h-8" />, title: 'Соцсети', desc: 'Публикуйте в соцсетях и мессенджерах' },
+  { icon: <Icons.Mail className="w-8 h-8" />, title: 'Email-рассылки', desc: 'Отправляйте партнёрские ссылки подписчикам' },
 ];
 
 const features = [
@@ -38,7 +39,7 @@ export default function AffiliatePage() {
             {tiers.map((tier, i) => (
               <div key={i} className={`bg-black2 border-2 rounded-[var(--radius)] p-6 ${tier.color} hover:scale-105 transition-transform`}>
                 <div className="text-center mb-4">
-                  <div className="text-2xl mb-2">{i === 2 ? '⭐' : '☆'}</div>
+                  <Icons.Star className={`w-6 h-6 mx-auto mb-2 ${i === 2 ? 'text-orange' : 'text-gray4'}`} />
                   <div className="text-white font-semibold text-lg">{tier.name}</div>
                   <div className="text-orange font-bold text-2xl mt-2">{tier.commission}</div>
                   <div className="text-gray3 text-sm">с каждого заказа</div>
@@ -47,7 +48,7 @@ export default function AffiliatePage() {
                 <ul className="space-y-2">
                   {tier.features.map((f, j) => (
                     <li key={j} className="flex items-center gap-2 text-gray3 text-sm">
-                      <span className="text-orange">✓</span> {f}
+                      <Icons.Check className="w-3 h-3 text-orange" /> {f}
                     </li>
                   ))}
                 </ul>
@@ -60,7 +61,7 @@ export default function AffiliatePage() {
             <div className="grid md:grid-cols-3 gap-4">
               {ways.map((way, i) => (
                 <div key={i} className="text-center p-4">
-                  <div className="text-3xl mb-2">{way.icon}</div>
+                  <div className="text-orange mb-2">{way.icon}</div>
                   <div className="text-white font-medium">{way.title}</div>
                   <div className="text-gray3 text-sm">{way.desc}</div>
                 </div>
@@ -73,7 +74,7 @@ export default function AffiliatePage() {
             <div className="grid sm:grid-cols-2 gap-3">
               {features.map((f, i) => (
                 <div key={i} className="flex items-center gap-2 text-gray3">
-                  <span className="text-orange">✓</span> {f}
+                  <Icons.Check className="w-4 h-4 text-orange" /> {f}
                 </div>
               ))}
             </div>

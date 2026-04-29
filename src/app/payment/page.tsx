@@ -1,14 +1,15 @@
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Icons } from '@/components/ui/icons';
 
 export const metadata = {
   title: 'Способы оплаты — 1000fps',
 };
 
 const paymentMethods = [
-  { icon: '💵', title: 'Наличными', desc: 'При получении в магазине или курьеру', badge: null },
-  { icon: '💳', title: 'Банковской картой', desc: 'Visa, MasterCard, МИР при самовывозе или курьеру', badge: null },
-  { icon: '🌐', title: 'Онлайн на сайте', desc: 'Оплата картой через безопасный шлюз', badge: null },
-  { icon: '📊', title: 'По счёту', desc: 'Безналичный расчёт для юрлиц и ИП', badge: 'Для бизнеса' },
+  { icon: <Icons.DollarSign className="w-8 h-8" />, title: 'Наличными', desc: 'При получении в магазине или курьеру', badge: null },
+  { icon: <Icons.CreditCard className="w-8 h-8" />, title: 'Банковской картой', desc: 'Visa, MasterCard, МИР при самовывозе или курьеру', badge: null },
+  { icon: <Icons.Globe className="w-8 h-8" />, title: 'Онлайн на сайте', desc: 'Оплата картой через безопасный шлюз', badge: null },
+  { icon: <Icons.Briefcase className="w-8 h-8" />, title: 'По счёту', desc: 'Безналичный расчёт для юрлиц и ИП', badge: 'Для бизнеса' },
 ];
 
 const banks = [
@@ -30,7 +31,7 @@ export default function PaymentPage() {
           <div className="grid md:grid-cols-2 gap-4 mb-8">
             {paymentMethods.map((item, i) => (
               <div key={i} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 hover:border-orange transition-colors">
-                <div className="text-3xl mb-3">{item.icon}</div>
+                <div className="text-orange mb-3">{item.icon}</div>
                 <div className="text-white2 font-semibold text-lg mb-1">{item.title}</div>
                 <div className="text-gray3">{item.desc}</div>
                 {item.badge && (
@@ -42,12 +43,12 @@ export default function PaymentPage() {
 
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 mb-8">
             <h2 className="text-white2 font-semibold text-xl mb-4 flex items-center gap-2">
-              🔒 <span>Оплата онлайн на сайте</span>
+              <Icons.Shield className="w-5 h-5 text-orange" /> Оплата онлайн на сайте
             </h2>
             <div className="text-gray3 space-y-3">
               <p>После оформления заказа вы получите ссылку для оплаты на указанный email и телефон.</p>
               <div className="flex items-start gap-2">
-                <span className="text-orange">✓</span>
+                <Icons.Check className="w-4 h-4 text-orange mt-1" />
                 <div>Все платежи защищены SSL-шифрованием. Мы не храним данные ваших карт.</div>
               </div>
             </div>
@@ -55,7 +56,7 @@ export default function PaymentPage() {
 
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 mb-8">
             <h2 className="text-white2 font-semibold text-xl mb-4 flex items-center gap-2">
-              📋 <span>Рассрочка и кредит</span>
+              <Icons.FileText className="w-5 h-5 text-orange" /> Рассрочка и кредит
             </h2>
             <div className="text-gray3 mb-4">
               Оформите рассрочку 0% или кредит прямо на сайте или в магазине. Одобрение за 2 минуты.

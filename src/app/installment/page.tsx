@@ -1,16 +1,17 @@
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Icons } from '@/components/ui/icons';
 
 export const metadata = {
   title: 'Рассрочка 0% — 1000fps',
 };
 
 const banks = [
-  { name: 'Тинькофф', logo: '🏦', period: 'до 24 мес', rate: '0%', max: '500 000 ₽' },
-  { name: 'Сбербанк', logo: '🏦', period: 'до 24 мес', rate: '0%', max: '300 000 ₽' },
-  { name: 'ВТБ', logo: '🏦', period: 'до 24 мес', rate: '0%', max: '400 000 ₽' },
-  { name: 'ОТП Банк', logo: '🏦', period: 'до 18 мес', rate: '0%', max: '300 000 ₽' },
-  { name: 'МТС Банк', logo: '🏦', period: 'до 24 мес', rate: '0%', max: '200 000 ₽' },
-  { name: 'Почта Банк', logo: '🏦', period: 'до 36 мес', rate: 'от 4.9%', max: '500 000 ₽' },
+  { name: 'Тинькофф', period: 'до 24 мес', rate: '0%', max: '500 000 ₽' },
+  { name: 'Сбербанк', period: 'до 24 мес', rate: '0%', max: '300 000 ₽' },
+  { name: 'ВТБ', period: 'до 24 мес', rate: '0%', max: '400 000 ₽' },
+  { name: 'ОТП Банк', period: 'до 18 мес', rate: '0%', max: '300 000 ₽' },
+  { name: 'МТС Банк', period: 'до 24 мес', rate: '0%', max: '200 000 ₽' },
+  { name: 'Почта Банк', period: 'до 36 мес', rate: 'от 4.9%', max: '500 000 ₽' },
 ];
 
 const requirements = [
@@ -27,10 +28,10 @@ const ways = [
 ];
 
 const benefits = [
-  { icon: '💰', title: 'Без переплаты', desc: '0% годовых, вы платите только сумму покупки' },
-  { icon: '⚡', title: 'Быстрое одобрение', desc: 'Решение за 2 минуты, без справок и поручителей' },
-  { icon: '📅', title: 'Удобные платежи', desc: 'Автоматическое списание, напоминания о платежах' },
-  { icon: '👍', title: 'Без первоначального взноса', desc: 'Многие банки не требуют первый платёж' },
+  { icon: <Icons.Percent className="w-6 h-6" />, title: 'Без переплаты', desc: '0% годовых, вы платите только сумму покупки' },
+  { icon: <Icons.Zap className="w-6 h-6" />, title: 'Быстрое одобрение', desc: 'Решение за 2 минуты, без справок и поручителей' },
+  { icon: <Icons.Calendar className="w-6 h-6" />, title: 'Удобные платежи', desc: 'Автоматическое списание, напоминания о платежах' },
+  { icon: <Icons.ThumbsUp className="w-6 h-6" />, title: 'Без первоначального взноса', desc: 'Многие банки не требуют первый платёж' },
 ];
 
 export default function InstallmentPage() {
@@ -45,7 +46,6 @@ export default function InstallmentPage() {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
             {banks.map((bank, i) => (
               <div key={i} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 hover:border-orange transition-colors">
-                <div className="text-2xl mb-2">{bank.logo}</div>
                 <div className="text-white font-semibold mb-2">{bank.name}</div>
                 <div className="flex justify-between text-sm">
                   <div><span className="text-orange font-bold">{bank.rate}</span> <span className="text-gray3">ставка</span></div>
@@ -61,7 +61,7 @@ export default function InstallmentPage() {
             <div className="grid sm:grid-cols-2 gap-3">
               {requirements.map((req, i) => (
                 <div key={i} className="flex items-center gap-2 text-gray3">
-                  <span className="text-orange">✓</span> {req}
+                  <Icons.Check className="w-4 h-4 text-orange" /> {req}
                 </div>
               ))}
             </div>
@@ -70,7 +70,7 @@ export default function InstallmentPage() {
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {benefits.map((item, i) => (
               <div key={i} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5">
-                <div className="text-2xl mb-2">{item.icon}</div>
+                <div className="text-orange mb-2">{item.icon}</div>
                 <div className="text-white font-semibold mb-1">{item.title}</div>
                 <div className="text-gray3 text-sm">{item.desc}</div>
               </div>

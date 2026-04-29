@@ -1,16 +1,17 @@
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Icons } from '@/components/ui/icons';
 
 export const metadata = {
   title: 'Как оформить заказ — 1000fps',
 };
 
 const steps = [
-  { step: 1, icon: '🔍', title: 'Выберите товар', desc: 'Найдите нужный товар через каталог или поиск. Используйте фильтры для удобного поиска.' },
-  { step: 2, icon: '🛒', title: 'Добавьте в корзину', desc: 'Нажмите кнопку «В корзину». Товар добавится в корзину, вы можете продолжить покупки.' },
-  { step: 3, icon: '📝', title: 'Оформите заказ', desc: 'Перейдите в корзину, проверьте товары и нажмите «Оформить заказ».' },
-  { step: 4, icon: '📋', title: 'Заполните данные', desc: 'Укажите ФИО, телефон, адрес доставки и выберите способ оплаты.' },
-  { step: 5, icon: '✅', title: 'Подтвердите', desc: 'Получите подтверждение на email и SMS с номером заказа.' },
-  { step: 6, icon: '📦', title: 'Получите товар', desc: 'Менеджер свяжется для подтверждения. Получите товар удобным способом.' },
+  { step: 1, icon: <Icons.HelpCircle className="w-6 h-6" />, title: 'Выберите товар', desc: 'Найдите нужный товар через каталог или поиск. Используйте фильтры для удобного поиска.' },
+  { step: 2, icon: <Icons.Package className="w-6 h-6" />, title: 'Добавьте в корзину', desc: 'Нажмите кнопку «В корзину». Товар добавится в корзину, вы можете продолжить покупки.' },
+  { step: 3, icon: <Icons.FileText className="w-6 h-6" />, title: 'Оформите заказ', desc: 'Перейдите в корзину, проверьте товары и нажмите «Оформить заказ».' },
+  { step: 4, icon: <Icons.CreditCard className="w-6 h-6" />, title: 'Заполните данные', desc: 'Укажите ФИО, телефон, адрес доставки и выберите способ оплаты.' },
+  { step: 5, icon: <Icons.Check className="w-6 h-6" />, title: 'Подтвердите', desc: 'Получите подтверждение на email и SMS с номером заказа.' },
+  { step: 6, icon: <Icons.Truck className="w-6 h-6" />, title: 'Получите товар', desc: 'Менеджер свяжется для подтверждения. Получите товар удобным способом.' },
 ];
 
 const tips = [
@@ -36,7 +37,7 @@ export default function HowToOrderPage() {
                     {item.step}
                   </div>
                   <div>
-                    <div className="text-2xl mb-1">{item.icon}</div>
+                    <div className="text-orange mb-1">{item.icon}</div>
                     <div className="text-white font-semibold mb-1">{item.title}</div>
                     <div className="text-gray3 text-sm">{item.desc}</div>
                   </div>
@@ -50,7 +51,7 @@ export default function HowToOrderPage() {
             <ul className="space-y-3">
               {tips.map((tip, i) => (
                 <li key={i} className="flex items-center gap-2 text-gray3">
-                  <span className="text-orange">✓</span> {tip}
+                  <Icons.Check className="w-4 h-4 text-orange" /> {tip}
                 </li>
               ))}
             </ul>

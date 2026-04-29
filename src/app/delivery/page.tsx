@@ -1,14 +1,15 @@
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Icons } from '@/components/ui/icons';
 
 export const metadata = {
   title: 'Доставка и самовывоз — 1000fps',
 };
 
 const deliveryMethods = [
-  { icon: '📦', title: 'СДЭК', price: 'от 150 ₽', time: '2-7 дней', desc: 'Доставка до пункта выдачи или курьером' },
-  { icon: '📮', title: 'Boxberry', price: 'от 150 ₽', time: '2-7 дней', desc: 'Оплата при получении, более 5000 ПВЗ' },
-  { icon: '🏛️', title: 'Почта России', price: 'от 200 ₽', time: '5-14 дней', desc: 'Доставка в любое отделение' },
-  { icon: '🚚', title: 'Курьерская доставка', price: 'от 300 ₽', time: '1-3 дня', desc: 'Доставка до двери по РФ' },
+  { icon: <Icons.Package className="w-8 h-8" />, title: 'СДЭК', price: 'от 150 ₽', time: '2-7 дней', desc: 'Доставка до пункта выдачи или курьером' },
+  { icon: <Icons.Mail className="w-8 h-8" />, title: 'Boxberry', price: 'от 150 ₽', time: '2-7 дней', desc: 'Оплата при получении, более 5000 ПВЗ' },
+  { icon: <Icons.MailOpen className="w-8 h-8" />, title: 'Почта России', price: 'от 200 ₽', time: '5-14 дней', desc: 'Доставка в любое отделение' },
+  { icon: <Icons.Truck className="w-8 h-8" />, title: 'Курьерская доставка', price: 'от 300 ₽', time: '1-3 дня', desc: 'Доставка до двери по РФ' },
 ];
 
 const localDelivery = [
@@ -27,7 +28,7 @@ export default function DeliveryPage() {
           <div className="grid md:grid-cols-2 gap-4 mb-10">
             {deliveryMethods.map((item, i) => (
               <div key={i} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 hover:border-orange transition-colors">
-                <div className="text-2xl mb-2">{item.icon}</div>
+                <div className="text-orange mb-3">{item.icon}</div>
                 <div className="text-white2 font-semibold mb-1">{item.title}</div>
                 <div className="text-orange font-bold text-sm mb-1">{item.price}</div>
                 <div className="text-gray3 text-sm">{item.time} · {item.desc}</div>
@@ -37,7 +38,7 @@ export default function DeliveryPage() {
 
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 mb-8">
             <h2 className="text-white2 font-semibold text-xl mb-4 flex items-center gap-2">
-              🚚 <span>Доставка по Волгограду и области</span>
+              <Icons.Truck className="w-5 h-5 text-orange" /> Доставка по Волгограду и области
             </h2>
             <div className="space-y-3">
               {localDelivery.map((item, i) => (
@@ -57,7 +58,7 @@ export default function DeliveryPage() {
 
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 mb-8">
             <h2 className="text-white2 font-semibold text-xl mb-4 flex items-center gap-2">
-              🏪 <span>Самовывоз</span>
+              <Icons.Store className="w-5 h-5 text-orange" /> Самовывоз
             </h2>
             <div className="text-gray3 space-y-2">
               <p>Заберите заказ бесплатно из наших магазинов:</p>
@@ -74,19 +75,19 @@ export default function DeliveryPage() {
             <h2 className="text-white2 font-semibold text-xl mb-4">Сроки доставки</h2>
             <div className="text-gray3 space-y-3">
               <div className="flex items-start gap-2">
-                <span className="text-orange">✓</span>
+                <Icons.Check className="w-4 h-4 text-orange mt-1" />
                 <div>Товар в наличии — отправка в течение 1-2 рабочих дней</div>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-orange">✓</span>
+                <Icons.Check className="w-4 h-4 text-orange mt-1" />
                 <div>Товар под заказ — срок уточняйте у менеджера (обычно 3-7 дней)</div>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-orange">✓</span>
+                <Icons.Check className="w-4 h-4 text-orange mt-1" />
                 <div>Сборка ПК под заказ — 1-3 рабочих дня</div>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-orange">✓</span>
+                <Icons.Check className="w-4 h-4 text-orange mt-1" />
                 <div>Отправка транспортными компаниями — ежедневно, кроме воскресенья</div>
               </div>
             </div>

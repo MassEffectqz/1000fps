@@ -1,15 +1,16 @@
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Icons } from '@/components/ui/icons';
 
 export const metadata = {
   title: 'Трейд-ин — 1000fps',
 };
 
 const acceptedItems = [
-  { icon: '💻', title: 'Ноутбуки', brands: 'Любые бренды, любого года' },
-  { icon: '📱', title: 'Смартфоны и планшеты', brands: 'iPhone, Samsung, Xiaomi и др.' },
-  { icon: '📺', title: 'Телевизоры', brands: 'Диагональ от 19 до 85 дюймов' },
-  { icon: '🏠', title: 'Бытовая техника', brands: 'Холодильники, стиральные машины и т.д.' },
-  { icon: '🖥️', title: 'ПК и комплектующие', brands: 'Процессоры, видеокарты, ОЗУ' },
+  { icon: <Icons.Laptop className="w-6 h-6" />, title: 'Ноутбуки', brands: 'Любые бренды, любого года' },
+  { icon: <Icons.Smartphone className="w-6 h-6" />, title: 'Смартфоны и планшеты', brands: 'iPhone, Samsung, Xiaomi и др.' },
+  { icon: <Icons.Tv className="w-6 h-6" />, title: 'Телевизоры', brands: 'Диагональ от 19 до 85 дюймов' },
+  { icon: <Icons.Home className="w-6 h-6" />, title: 'Бытовая техника', brands: 'Холодильники, стиральные машины и т.д.' },
+  { icon: <Icons.Cpu className="w-6 h-6" />, title: 'ПК и комплектующие', brands: 'Процессоры, видеокарты, ОЗУ' },
 ];
 
 const process = [
@@ -38,7 +39,7 @@ export default function TradeInPage() {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
             {acceptedItems.map((item, i) => (
               <div key={i} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 hover:border-orange transition-colors">
-                <div className="text-2xl mb-2">{item.icon}</div>
+                <div className="text-orange mb-2">{item.icon}</div>
                 <div className="text-white font-semibold">{item.title}</div>
                 <div className="text-gray3 text-sm">{item.brands}</div>
               </div>
@@ -63,7 +64,7 @@ export default function TradeInPage() {
             <ul className="space-y-3">
               {conditions.map((c, i) => (
                 <li key={i} className="flex items-center gap-2 text-gray3">
-                  <span className="text-orange">✓</span> {c}
+                  <Icons.Check className="w-4 h-4 text-orange" /> {c}
                 </li>
               ))}
             </ul>
@@ -71,17 +72,17 @@ export default function TradeInPage() {
 
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 text-center">
-              <div className="text-4xl mb-2">🏆</div>
+              <Icons.Star className="w-10 h-10 text-orange mx-auto mb-2" />
               <div className="text-white font-semibold">До 50% скидки</div>
               <div className="text-gray3 text-sm">От стоимости устройства</div>
             </div>
             <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 text-center">
-              <div className="text-4xl mb-2">⚡</div>
+              <Icons.Zap className="w-10 h-10 text-orange mx-auto mb-2" />
               <div className="text-white font-semibold">За 15 минут</div>
               <div className="text-gray3 text-sm">Быстрая оценка</div>
             </div>
             <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 text-center">
-              <div className="text-4xl mb-2">♻️</div>
+              <Icons.Recycle className="w-10 h-10 text-orange mx-auto mb-2" />
               <div className="text-white font-semibold">Экологично</div>
               <div className="text-gray3 text-sm">Переработка техники</div>
             </div>

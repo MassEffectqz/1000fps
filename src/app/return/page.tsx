@@ -1,12 +1,13 @@
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Icons } from '@/components/ui/icons';
 
 export const metadata = {
   title: 'Возврат и обмен — 1000fps',
 };
 
 const periods = [
-  { title: 'Надлежащего качества', days: '14 дней', icon: '✓', desc: 'Товар не был в использовании, сохранены упаковка и товарный вид' },
-  { title: 'Ненадлежащего качества', days: 'гарантия', icon: '⚠️', desc: 'В течение гарантийного срока, после экспертизы' },
+  { title: 'Надлежащего качества', days: '14 дней', icon: <Icons.Check className="w-6 h-6" />, desc: 'Товар не был в использовании, сохранены упаковка и товарный вид' },
+  { title: 'Ненадлежащего качества', days: 'гарантия', icon: <Icons.AlertTriangle className="w-6 h-6" />, desc: 'В течение гарантийного срока, после экспертизы' },
 ];
 
 const process = [
@@ -35,7 +36,7 @@ export default function ReturnPage() {
           <div className="grid md:grid-cols-2 gap-4 mb-8">
             {periods.map((item, i) => (
               <div key={i} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 hover:border-orange transition-colors">
-                <div className="text-orange text-2xl mb-3">{item.icon}</div>
+                <div className="text-orange mb-3">{item.icon}</div>
                 <div className="text-white font-semibold text-lg mb-1">{item.title}</div>
                 <div className="text-orange font-bold mb-2">{item.days}</div>
                 <div className="text-gray3 text-sm">{item.desc}</div>
@@ -45,7 +46,7 @@ export default function ReturnPage() {
 
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 mb-8">
             <h2 className="text-white2 font-semibold text-xl mb-4 flex items-center gap-2">
-              🔄 <span>Как оформить возврат</span>
+              <Icons.Refresh className="w-5 h-5 text-orange" /> Как оформить возврат
             </h2>
             <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
               {process.map((p) => (
@@ -63,7 +64,7 @@ export default function ReturnPage() {
             <ul className="space-y-3">
               {reasons.map((r, i) => (
                 <li key={i} className="flex items-center gap-2 text-gray3">
-                  <span className="text-orange">✓</span> {r}
+                  <Icons.Check className="w-4 h-4 text-orange" /> {r}
                 </li>
               ))}
             </ul>
@@ -71,17 +72,17 @@ export default function ReturnPage() {
 
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 text-center">
-              <div className="text-orange text-3xl mb-2">⏱️</div>
+              <Icons.Clock className="w-8 h-8 text-orange mx-auto mb-2" />
               <div className="text-white font-medium">10 дней</div>
               <div className="text-gray3 text-sm">Срок возврата денег</div>
             </div>
             <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 text-center">
-              <div className="text-orange text-3xl mb-2">📦</div>
+              <Icons.Package className="w-8 h-8 text-orange mx-auto mb-2" />
               <div className="text-white font-medium">Бесплатно</div>
               <div className="text-gray3 text-sm">Обратная доставка</div>
             </div>
             <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 text-center">
-              <div className="text-orange text-3xl mb-2">💵</div>
+              <Icons.DollarSign className="w-8 h-8 text-orange mx-auto mb-2" />
               <div className="text-white font-medium">Любой способ</div>
               <div className="text-gray3 text-sm">На карту или наличными</div>
             </div>

@@ -1,23 +1,24 @@
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Icons } from '@/components/ui/icons';
 
 export const metadata = {
   title: 'Гарантия и ремонт — 1000fps',
 };
 
 const warrantyPeriods = [
-  { category: 'Ноутбуки', base: '12 мес', extended: '24-36 мес', icon: '💻' },
-  { category: 'Смартфоны и планшеты', base: '12 мес', extended: '18-24 мес', icon: '📱' },
-  { category: 'ПК и комплектующие', base: '24 мес', extended: '36 мес', icon: '🖥️' },
-  { category: 'Телевизоры', base: '12 мес', extended: '24-36 мес', icon: '📺' },
-  { category: 'Бытовая техника', base: '12 мес', extended: '24 мес', icon: '🏠' },
-  { category: 'Периферия', base: '12 мес', extended: '18-24 мес', icon: '⌨️' },
+  { category: 'Ноутбуки', base: '12 мес', extended: '24-36 мес', icon: <Icons.Laptop className="w-6 h-6" /> },
+  { category: 'Смартфоны и планшеты', base: '12 мес', extended: '18-24 мес', icon: <Icons.Smartphone className="w-6 h-6" /> },
+  { category: 'ПК и комплектующие', base: '24 мес', extended: '36 мес', icon: <Icons.Cpu className="w-6 h-6" /> },
+  { category: 'Телевизоры', base: '12 мес', extended: '24-36 мес', icon: <Icons.Tv className="w-6 h-6" /> },
+  { category: 'Бытовая техника', base: '12 мес', extended: '24 мес', icon: <Icons.Home className="w-6 h-6" /> },
+  { category: 'Периферия', base: '12 мес', extended: '18-24 мес', icon: <Icons.Keyboard className="w-6 h-6" /> },
 ];
 
 const serviceFeatures = [
-  { icon: '🔧', title: 'Собственный сервис', desc: 'Ремонтируем технику сами, без посредников' },
-  { icon: '⚡', title: 'Быстрый ремонт', desc: 'Средний срок ремонта — 3 дня' },
-  { icon: '🏪', title: 'Приём в магазине', desc: 'Привезите технику в любой наш магазин' },
-  { icon: '🚚', title: 'Транспортировка', desc: 'Заберём и доставим обратно за наш счёт' },
+  { icon: <Icons.Wrench className="w-6 h-6" />, title: 'Собственный сервис', desc: 'Ремонтируем технику сами, без посредников' },
+  { icon: <Icons.Zap className="w-6 h-6" />, title: 'Быстрый ремонт', desc: 'Средний срок ремонта — 3 дня' },
+  { icon: <Icons.Store className="w-6 h-6" />, title: 'Приём в магазине', desc: 'Привезите технику в любой наш магазин' },
+  { icon: <Icons.Truck className="w-6 h-6" />, title: 'Транспортировка', desc: 'Заберём и доставим обратно за наш счёт' },
 ];
 
 const warrantyProcess = [
@@ -39,12 +40,12 @@ export default function WarrantyPage() {
 
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 mb-8">
             <h2 className="text-white2 font-semibold text-xl mb-4 flex items-center gap-2">
-              🛡️ <span>Гарантийные сроки</span>
+              <Icons.Shield className="w-5 h-5 text-orange" /> Гарантийные сроки
             </h2>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
               {warrantyPeriods.map((item, i) => (
                 <div key={i} className="bg-black border border-gray1 rounded-lg p-4">
-                  <div className="text-xl mb-1">{item.icon}</div>
+                  <div className="text-orange mb-2">{item.icon}</div>
                   <div className="text-white font-medium">{item.category}</div>
                   <div className="text-orange text-sm">Базовая: {item.base}</div>
                   <div className="text-gray3 text-xs">Расширенная: {item.extended}</div>
@@ -69,7 +70,7 @@ export default function WarrantyPage() {
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             {serviceFeatures.map((item, i) => (
               <div key={i} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 hover:border-orange transition-colors">
-                <div className="text-2xl mb-2">{item.icon}</div>
+                <div className="text-orange mb-2">{item.icon}</div>
                 <div className="text-white font-semibold mb-1">{item.title}</div>
                 <div className="text-gray3 text-sm">{item.desc}</div>
               </div>
