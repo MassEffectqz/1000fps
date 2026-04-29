@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { ProductCard } from '@/components/ui/product-card';
@@ -19,46 +19,20 @@ interface Product {
   isFeatured: boolean;
 }
 
-async function getUsedProducts() {
-  try {
-    const res = await fetch('/api/catalog?isUsed=true&limit=50');
-    if (!res.ok) return { products: [] };
-    return await res.json();
-  } catch {
-    return { products: [] };
-  }
-}
-
-async function UsedProducts() {
-  const data = await getUsedProducts();
-  const products: Product[] = data.products || [];
-
-  if (products.length === 0) {
-    return (
-      <div className="text-center py-16">
-        <div className="text-gray3 text-[14px] mb-4">
-          Товары б/у скоро появятся
-        </div>
-        <Link 
-          href="/catalog" 
-          className="inline-flex items-center justify-center gap-2 font-display font-bold uppercase tracking-wider rounded-[var(--radius)] transition-all duration-[180ms] ease bg-orange text-white hover:bg-orange2 px-[22px] py-[10px] text-[13px]"
-        >
-          Перейти в каталог
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-    </div>
-  );
-}
-
 export default function UsedPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/catalog?isUsed=true&limit=50')
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => {
+        setProducts(data.products || []);
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
+  }, []);
+
   return (
     <div className="min-h-screen bg-black">
       <div className="container py-6">
@@ -97,15 +71,31 @@ export default function UsedPage() {
           </div>
         </div>
 
-        <Suspense fallback={
+        {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {[...Array(10)].map((_, i) => (
               <div key={i} className="bg-black2 border border-gray1 rounded-[var(--radius)] h-[350px] animate-pulse" />
             ))}
           </div>
-        }>
-          <UsedProducts />
-        </Suspense>
+        ) : products.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="text-gray3 text-[14px] mb-4">
+              Товары б/у скоро появятся
+            </div>
+            <Link 
+              href="/catalog" 
+              className="inline-flex items-center justify-center gap-2 font-display font-bold uppercase tracking-wider rounded-[var(--radius)] transition-all duration-[180ms] ease bg-orange text-white hover:bg-orange2 px-[22px] py-[10px] text-[13px]"
+            >
+              Перейти в каталог
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
