@@ -519,11 +519,11 @@ export function Header() {
                 )}
               </button>
               <Link href="/admin">Админка</Link>
-              <Link href="#">Доставка</Link>
-              <Link href="#">Гарантия</Link>
-              <Link href="#">Кредит и рассрочка</Link>
-              <Link href="#">Контакты</Link>
-              <Link href="#">Корп. клиентам</Link>
+              <Link href="/delivery">Доставка</Link>
+              <Link href="/warranty">Гарантия</Link>
+              <Link href="/installment">Кредит и рассрочка</Link>
+              <Link href="/contacts">Контакты</Link>
+              <Link href="/b2b">Корп. клиентам</Link>
             </div>
           </div>
         </div>
