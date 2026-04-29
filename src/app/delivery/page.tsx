@@ -62,9 +62,9 @@ export default function DeliveryPage() {
             <div className="text-gray3 space-y-2">
               <p>Заберите заказ бесплатно из наших магазинов:</p>
               <ul className="space-y-1 ml-4 list-disc">
-                <li><strong>ТЦ "Ворошиловский"</strong> — ул. Рабоче-Крестьянская, 9Б, 2 этаж</li>
-                <li><strong>ТЦ "Спартак"</strong> — пр-т им. Ленина, 54Д</li>
-                <li><strong>ТЦ "Диамант"</strong> — ул. Землячки, 1</li>
+                <li><strong>ТЦ &quot;Ворошиловский&quot;</strong> — ул. Рабоче-Крестьянская, 9Б, 2 этаж</li>
+                <li><strong>ТЦ &quot;Спартак&quot;</strong> — пр-т им. Ленина, 54Д</li>
+                <li><strong>ТЦ &quot;Диамант&quot;</strong> — ул. Землячки, 1</li>
               </ul>
               <p className="mt-2 text-sm">Время работы: Ежедневно с 10:00 до 20:00</p>
             </div>
