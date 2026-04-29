@@ -21,7 +21,7 @@ export default function RequisitesPage() {
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 space-y-6">
             <div>
               <div className="text-gray3 text-sm mb-1">Наименование</div>
-              <div className="text-white2 font-medium">ИП "Тыщенко Даниил Андреевич"</div>
+              <div className="text-white2 font-medium">ИП &quot;Олег Дубовой&quot;</div>
             </div>
             <div>
               <div className="text-gray3 text-sm mb-1">ИНН</div>
@@ -53,15 +53,15 @@ export default function RequisitesPage() {
             </div>
             <div>
               <div className="text-gray3 text-sm mb-1">Юридический адрес</div>
-              <div className="text-white2 font-medium">________________________________</div>
+              <div className="text-white2 font-medium">Волжский проспект Ленина 14</div>
             </div>
             <div>
               <div className="text-gray3 text-sm mb-1">Фактический адрес</div>
-              <div className="text-white2 font-medium">________________________________</div>
+              <div className="text-white2 font-medium">Волжский проспект Ленина 14</div>
             </div>
             <div>
               <div className="text-gray3 text-sm mb-1">Телефон</div>
-              <div className="text-white2 font-medium">+7 (999) 000-00-00</div>
+              <div className="text-white2 font-medium">+7 (902)650-05-11 </div>
             </div>
             <div>
               <div className="text-gray3 text-sm mb-1">E-mail</div>
