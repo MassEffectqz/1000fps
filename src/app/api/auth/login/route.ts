@@ -2,13 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { loginSchema } from '@/lib/validations/auth';
 import { createSession } from '@/lib/session';
 
-/**
- * POST /api/auth/login
- * Вход пользователя по email/password
- *
- * Body: { email, password, remember? }
- * Returns: { user, token }
- */
+const isSecure = (process.env.NEXT_PUBLIC_APP_URL || '').startsWith('https');
+
 export async function POST(request: NextRequest) {
   try {
     const { prisma } = await import('@/lib/prisma');
@@ -16,7 +11,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Валидация входных данных
     const validation = loginSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
@@ -27,7 +21,6 @@ export async function POST(request: NextRequest) {
 
     const { email, password, remember } = validation.data;
 
-    // Поиск пользователя
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
     });
@@ -39,7 +32,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Проверка пароля
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
@@ -49,14 +41,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Создание JWT сессии
     const token = await createSession({
       userId: user.id,
       email: user.email,
       role: user.role as 'ADMIN' | 'MANAGER' | 'CUSTOMER',
     });
 
-    // Подготовка ответа
     const response = NextResponse.json({
       success: true,
       user: {
@@ -71,12 +61,11 @@ export async function POST(request: NextRequest) {
       token,
     });
 
-    // Установка cookie с учетом remember me
     response.cookies.set('session', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'lax',
-      maxAge: remember ? 86400 * 30 : 86400, // 30 дней или 1 день
+      maxAge: remember ? 86400 * 30 : 86400,
       path: '/',
     });
 

@@ -2,13 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { registerSchema } from '@/lib/validations/auth';
 import { createSession } from '@/lib/session';
 
-/**
- * POST /api/auth/register
- * Регистрация нового пользователя
- *
- * Body: { email, password, name, phone? }
- * Returns: { user, token }
- */
+const isSecure = (process.env.NEXT_PUBLIC_APP_URL || '').startsWith('https');
+
 export async function POST(request: NextRequest) {
   try {
     const { prisma } = await import('@/lib/prisma');
@@ -16,7 +11,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Валидация входных данных
     const validation = registerSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
@@ -27,7 +21,6 @@ export async function POST(request: NextRequest) {
 
     const { email, password, name, phone } = validation.data;
 
-    // Проверка существующего пользователя
     const existingUser = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
     });
@@ -39,10 +32,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Хэширование пароля
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Создание пользователя
     const user = await prisma.user.create({
       data: {
         email: email.toLowerCase(),
@@ -64,14 +55,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Создание JWT сессии
     const token = await createSession({
       userId: user.id,
       email: user.email,
       role: user.role as 'ADMIN' | 'MANAGER' | 'CUSTOMER',
     });
 
-    // Установка cookie
     const response = NextResponse.json(
       {
         success: true,
@@ -90,9 +79,9 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set('session', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'lax',
-      maxAge: 86400, // 24 часа
+      maxAge: 86400,
       path: '/',
     });
 
