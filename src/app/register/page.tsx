@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button, Input } from '@/components/ui';
@@ -37,6 +37,17 @@ export default function RegisterPage() {
     agree: false,
   });
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => {
+        if (data?.user) {
+          window.location.href = '/profile';
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -99,8 +110,7 @@ export default function RegisterPage() {
         }
 
         toast.success('Регистрация успешна!');
-        router.push('/profile');
-        router.refresh();
+        window.location.href = '/profile';
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Ошибка при регистрации';
         setErrors({ general: message });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, Suspense } from 'react';
+import { useState, useTransition, Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input } from '@/components/ui';
@@ -30,6 +30,17 @@ function LoginForm() {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const callbackUrl = searchParams.get('callbackUrl') || '/profile';
+
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(data => {
+        if (data?.user) {
+          window.location.href = '/profile';
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -75,8 +86,7 @@ function LoginForm() {
         }
 
         toast.success('Вход выполнен успешно!');
-        router.push(callbackUrl);
-        router.refresh();
+        window.location.href = callbackUrl;
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Ошибка при входе';
         setErrors({ general: message });

@@ -1,13 +1,4 @@
-# ============================================================
-# Docker Compose для production 1000fps
-# Сервисы: PostgreSQL + Redis + Next.js App + Parser
-# Доступ к сайту: http://5.129.193.202:3000
-# ============================================================
-
 services:
-  # ------------------------------------------------------------
-  # PostgreSQL - База данных
-  # ------------------------------------------------------------
   postgres:
     image: postgres:16
     container_name: 1000fps-postgres
@@ -27,14 +18,11 @@ services:
     networks:
       - 1000fps-network
 
-  # ------------------------------------------------------------
-  # Redis - Кэширование
-  # ------------------------------------------------------------
   redis:
     image: redis:7
     container_name: 1000fps-redis
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     healthcheck:
@@ -46,14 +34,10 @@ services:
     networks:
       - 1000fps-network
 
-  # ------------------------------------------------------------
-  # Next.js App - Основное приложение (prod)
-  # ------------------------------------------------------------
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    image: 1000fps-app
     container_name: 1000fps-app
     restart: unless-stopped
     environment:
@@ -80,25 +64,22 @@ services:
     networks:
       - 1000fps-network
 
-  # ------------------------------------------------------------
-  # Parser Server - Сервер парсинга
-  # ------------------------------------------------------------
   parser:
     build:
       context: ./parser
       dockerfile: Dockerfile
-    image: 1000fps-parser
     container_name: 1000fps-parser
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PARSER_PORT: "3005"
+      APP_URL: "http://5.129.193.202:3000"
+      PARSER_API_KEY: "${PARSER_API_KEY}"
       SITE_WEBHOOK_URL: "http://app:3000/api/admin/parser/webhook"
     ports:
       - "3005:3000"
     depends_on:
-      app:
-        condition: service_started
+      - app
     networks:
       - 1000fps-network
 

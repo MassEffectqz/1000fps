@@ -6,31 +6,33 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting seed...');
 
-  // Очищаем существующие данные (в обратном порядке зависимостей)
   await prisma.productTag.deleteMany();
   await prisma.tag.deleteMany();
   await prisma.productVariant.deleteMany();
   await prisma.productSpecification.deleteMany();
   await prisma.productImage.deleteMany();
   await prisma.warehouseStock.deleteMany();
+
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+
   await prisma.warehouse.deleteMany();
-  await prisma.product.deleteMany();
   await prisma.categorySpecification.deleteMany();
   await prisma.categoryFilter.deleteMany();
+  await prisma.wishlistItem.deleteMany();
+  await prisma.wishlist.deleteMany();
+  await prisma.address.deleteMany();
+
+  await prisma.product.deleteMany();
+
   await prisma.brand.deleteMany();
   await prisma.category.deleteMany();
   await prisma.configItem.deleteMany();
   await prisma.configuration.deleteMany();
-  await prisma.address.deleteMany();
-  await prisma.wishlistItem.deleteMany();
-  await prisma.wishlist.deleteMany();
-  await prisma.orderItem.deleteMany();
-  await prisma.order.deleteMany();
   await prisma.user.deleteMany();
 
   console.log('🗑️  Cleared existing data');
 
-  // Создаем категории
   const categories = await Promise.all([
     prisma.category.create({
       data: {
