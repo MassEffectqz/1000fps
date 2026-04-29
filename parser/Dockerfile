@@ -8,7 +8,7 @@ COPY parser-server.js .
 
 # Environment variables
 ENV PARSER_PORT=3005
-ENV SITE_WEBHOOK_URL=http://host.docker.internal:3000/api/admin/parser/webhook
+ENV SITE_WEBHOOK_URL=http://app:3000/api/admin/parser/webhook
 
 EXPOSE 3005
 
