@@ -229,16 +229,16 @@ export function Footer() {
           </div>
           <div className="flex flex-col items-end gap-3">
             <div className="flex gap-5">
-              <Link href="#" className="text-[12px] text-gray3 transition-colors hover:text-white">
+              <Link href="/privacy" className="text-[12px] text-gray3 transition-colors hover:text-white">
                 Политика конфиденциальности
               </Link>
-              <Link href="#" className="text-[12px] text-gray3 transition-colors hover:text-white">
+              <Link href="/offer" className="text-[12px] text-gray3 transition-colors hover:text-white">
                 Оферта
               </Link>
-              <Link href="#" className="text-[12px] text-gray3 transition-colors hover:text-white">
+              <Link href="/requisites" className="text-[12px] text-gray3 transition-colors hover:text-white">
                 Реквизиты
               </Link>
-              <Link href="#" className="text-[12px] text-gray3 transition-colors hover:text-white">
+              <Link href="/sitemap" className="text-[12px] text-gray3 transition-colors hover:text-white">
                 Карта сайта
               </Link>
             </div>
