@@ -792,7 +792,7 @@ export function Header() {
                 <Link href="/ready-builds" className="nav__link">Готовые сборки</Link>
                 <Link href="/brands" className="nav__link">Бренды</Link>
                 <Link href="/used" className="nav__link">Б/У техника</Link>
-                <Link href="/faq" className="nav__link">FAQ</Link>
+                
               </div>
               <div className="nav__extras">
                 <Link href="/warehouses" className="nav__extra">
@@ -802,11 +802,11 @@ export function Header() {
                   </svg>
                   Пункты выдачи
                 </Link>
-                <Link href="/faq" className="nav__extra">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                    <line x1="12" y1="17" x2="12.01" y2="17" />
+<Link href="/faq" className="nav__extra">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
                   </svg>
                   Помощь
                 </Link>

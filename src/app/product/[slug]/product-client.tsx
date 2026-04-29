@@ -388,7 +388,7 @@ export function ProductPageClient({
 
         {/* Tabs */}
         <div className="mt-8">
-          <div className="flex items-center gap-2 border-b border-gray1 mb-6">
+          <div className="flex items-center gap-2 border-b border-gray1 mb-6 overflow-x-auto scrollbar-none">
             {[
               { id: 'specs', label: 'Характеристики' },
               { id: 'dimensions', label: 'Габариты', show: product.weight || product.length || product.width || product.height },
@@ -400,7 +400,7 @@ export function ProductPageClient({
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  'px-5 py-[10px] text-[13px] font-semibold border-b-2 transition-colors',
+                  'px-5 py-[10px] text-[13px] font-semibold border-b-2 transition-colors whitespace-nowrap',
                   activeTab === tab.id
                     ? 'text-orange border-orange'
                     : 'text-gray4 border-transparent hover:text-white'
