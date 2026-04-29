@@ -84,11 +84,7 @@ export async function GET(request: NextRequest) {
         break;
       case 'popular':
       default:
-        // Популярность = комбинация продаж и рейтинга
-        orderBy = { 
-          salesCount: 'desc',
-          rating: 'desc',
-        };
+        orderBy = [{ salesCount: 'desc' }, { rating: 'desc' }];
         break;
     }
 
