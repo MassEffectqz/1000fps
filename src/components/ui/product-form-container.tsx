@@ -90,6 +90,7 @@ interface ProductFormData {
   isFeatured: boolean;
   isNew: boolean;
   isHit: boolean;
+  isUsed: boolean;
 
   // SEO
   metaTitle: string;
@@ -190,6 +191,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     isFeatured: false,
     isNew: false,
     isHit: false,
+    isUsed: false,
     metaTitle: '',
     metaDescription: '',
     metaKeywords: '',
@@ -859,6 +861,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               <Checkbox label="Рекоменд." checked={formData.isFeatured} onChange={(e) => handleChange('isFeatured', e.target.checked)} />
               <Checkbox label="Новинка" checked={formData.isNew} onChange={(e) => handleChange('isNew', e.target.checked)} />
               <Checkbox label="Хит" checked={formData.isHit} onChange={(e) => handleChange('isHit', e.target.checked)} />
+              <Checkbox label="Б/У" checked={formData.isUsed} onChange={(e) => handleChange('isUsed', e.target.checked)} />
             </div>
           </Card>
         </div>

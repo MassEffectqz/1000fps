@@ -322,6 +322,7 @@ export default function AdminProductEditPage({ params }: { params: Promise<{ id:
     isFeatured: product.isFeatured,
     isNew: product.isNew,
     isHit: product.isHit,
+    isUsed: (product as any).isUsed || false,
     metaTitle: product.metaTitle || '',
     metaDescription: product.metaDescription || '',
     metaKeywords: product.metaKeywords || '',
