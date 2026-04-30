@@ -112,7 +112,7 @@ export default function AdminDashboardPage() {
   return (
     <>
       {/* Header */}
-      <header className="h-[56px] bg-black2 border-b border-gray1 flex items-center justify-between px-6 sticky top-0 z-50">
+      <header className="h-[56px] bg-black2 border-b border-gray1 flex items-center justify-between px-6 sticky top-0 z-[45]">
         <div className="flex items-center gap-5">
           <h1 className="font-display text-[14px] font-bold uppercase tracking-wider text-white">
             <span className="text-orange opacity-60 mr-2 font-mono">/</span>
