@@ -116,7 +116,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
   const activeId = getActiveId();
 
   return (
-    <div className="flex min-h-screen bg-black overflow-x-hidden">
+    <div className="flex min-h-screen bg-black">
       {/* Overlay для мобильного sidebar */}
       <div
         className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 lg:hidden ${
@@ -128,8 +128,8 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`w-[240px] bg-black2 border-r border-gray1 flex flex-col sticky top-0 h-screen z-40 transition-transform duration-300 ease-out lg:translate-x-0 fixed lg:sticky ${
-          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        className={`w-[240px] bg-black2 border-r border-gray1 flex flex-col fixed lg:sticky top-0 h-screen z-40 transition-transform duration-300 ease-out lg:translate-x-0 lg:left-0 ${
+          mobileSidebarOpen ? 'translate-x-0 left-0' : '-translate-x-full lg:translate-x-0'
         }`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -256,7 +256,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col min-h-screen w-full lg:w-auto lg:flex-1 overflow-visible">
+      <main className="flex flex-col min-h-screen w-full lg:ml-[240px] lg:flex-1 ml-0">
         {/* Mobile top bar */}
         <div className="lg:hidden sticky top-0 z-30 bg-black border-b border-gray1 px-4 h-[52px] flex items-center gap-3">
           <button
