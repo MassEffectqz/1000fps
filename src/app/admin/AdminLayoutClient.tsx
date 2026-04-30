@@ -116,7 +116,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
   const activeId = getActiveId();
 
   return (
-    <div className="flex min-h-screen bg-black">
+    <div className="flex min-h-screen bg-black overflow-x-hidden">
       {/* Overlay для мобильного sidebar */}
       <div
         className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 lg:hidden ${
@@ -256,7 +256,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col w-full min-h-screen">
+      <main className="flex-1 flex flex-col w-full min-h-screen overflow-x-hidden">
         {/* Mobile top bar */}
         <div className="lg:hidden sticky top-0 z-30 bg-black border-b border-gray1 px-4 h-[52px] flex items-center gap-3">
           <button
