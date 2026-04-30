@@ -402,6 +402,43 @@ async function checkAllPrices() {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   (async function() {
     try {
+      // Парсинг по URL с страницы админки
+      if (msg.type === 'PRICE_PARSE') {
+        console.log('[1000fps] PRICE_PARSE:', msg);
+        
+        // Получаем список артикулов из URL
+        const articles = [];
+        for (const source of msg.sources || []) {
+          // Извлекаем артикул из URL типа https://www.wildberries.ru/catalog/12345678/detail.aspx
+          const match = source.match(/catalog\/(\d+)/);
+          if (match) {
+            articles.push(match[1]);
+          }
+        }
+        
+        if (articles.length === 0) {
+          sendResponse({ ok: false, error: 'Не найдены артикулы в URL' });
+          return;
+        }
+        
+        // Парсим первый артикул
+        const article = articles[0];
+        try {
+          const info = await fetchProductInfo(article);
+          if (!info || !info.price) {
+            sendResponse({ ok: false, error: 'Товар не найден или нет цены' });
+            return;
+          }
+          
+          console.log('[1000fps] PRICE_PARSE результат:', info);
+          sendResponse({ ok: true, parsedData: info, results: [{ url: msg.sources[0], success: true, data: info }] });
+        } catch (e) {
+          console.error('[1000fps] PRICE_PARSE ошибка:', e);
+          sendResponse({ ok: false, error: e.message });
+        }
+        return;
+      }
+      
       if (msg.type === 'PRICE_ADD') {
         const store = await getStore();
         // No product limit!

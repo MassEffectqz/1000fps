@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "1000fps WB Парсер",
   "version": "1.1.0",
-  "description": "Парсер цен Wildberries с отправкой на сервер",
+  "description": "парсер цен Wildberries с отправкой на сервер",
   "permissions": [
     "storage",
     "alarms",
@@ -20,6 +20,12 @@
   "background": {
     "service_worker": "src/background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://www.wildberries.ru/*"],
+      "js": ["src/content.js"]
+    }
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "WB Парсер 1000fps"

@@ -422,7 +422,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     const sources = formData.parseSources?.filter(s => s.isActive).map(s => s.url) || [];
 
     if (sources.length === 0) {
-      toast.warning('Добавьте хотя бы одну ссылку для парсинга');
+      toast.warning('Добавьте хотя бы один источник для парсинга');
       return;
     }
 
@@ -462,16 +462,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       }, window.location.origin);
 
       // Ждём ответ от расширения с таймаутом
-      const result = await new Promise<{ ok?: boolean; parsedData?: Record<string, unknown>; error?: string }>((resolve, reject) => {
+      const result = await new Promise<{ ok?: boolean; parsedData?: Record<string, unknown>; error?: string }>((resolve) => {
+        // Таймаут: при истечении 15с резолвим промис вместо reject чтобы избежать бесконечного ожидания
         const timeout = setTimeout(() => {
           window.removeEventListener('message', listener);
-          reject(new Error(
-            'Таймаут парсинга (45с). Возможные причины:\n' +
-            '1. Расширение WB Parser не установлено или отключено\n' +
-            '2. Нет открытых вкладок Wildberries\n' +
-            '3. Проблемы с сетью'
-          ));
-        }, 45000);
+          console.warn('[Parser] Таймаут ожидания ответа от расширения (15с)');
+          resolve({ 
+            ok: false, 
+            error: 'Расширение WB Parser не ответило за 15 секунд. Возможные причины:\n' +
+              '1. Расширение не установлено или отключено\n' +
+              '2. Нет открытых вкладок Wildberries с товаром\n' +
+              '3. Проверьте что расширение загружено ( должно быть active на chrome://extensions )' 
+          });
+        }, 15000);
 
         const listener = (event: MessageEvent) => {
           // Validate origin
@@ -599,7 +602,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       toast.error('Парсинг не удался. Проверьте подключение расширения.');
     } finally {
       setIsParsing(false);
-      setParseProgress(null);
+      // Если статус всё ещё 'parsing' после 15 секунд — сбрасываем в idle
+      if (parserStatus.status === 'parsing') {
+        setParserStatus({ status: 'idle' });
+      }
     }
   };
 
