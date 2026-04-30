@@ -90,6 +90,23 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
     }
   };
 
+  // Swipe-to-open с левого края экрана
+  useEffect(() => {
+    const handleEdgeSwipe = (e: TouchEvent) => {
+      if (e.touches[0].clientX < 20) {
+        const onMove = (me: TouchEvent) => {
+          if (me.touches[0].clientX > 60) {
+            setMobileSidebarOpen(true);
+            document.removeEventListener('touchmove', onMove);
+          }
+        };
+        document.addEventListener('touchmove', onMove, { once: true });
+      }
+    };
+    document.addEventListener('touchstart', handleEdgeSwipe);
+    return () => document.removeEventListener('touchstart', handleEdgeSwipe);
+  }, []);
+
   // Загружаем тему при монтировании
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null;
@@ -128,7 +145,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`w-[240px] bg-black2 border-r border-gray1 flex flex-col fixed lg:sticky top-0 h-screen z-40 transition-transform duration-300 ease-out lg:translate-x-0 lg:left-0 ${
+        className={`w-[240px] bg-black2 border-r border-gray1 flex flex-col fixed lg:sticky top-0 h-[100dvh] z-50 transition-transform duration-300 ease-out lg:translate-x-0 lg:left-0 ${
           mobileSidebarOpen ? 'translate-x-0 left-0' : '-translate-x-full lg:translate-x-0'
         }`}
         onTouchStart={handleTouchStart}
@@ -147,7 +164,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
           {/* Close button — mobile only */}
           <button
             onClick={() => setMobileSidebarOpen(false)}
-            className="lg:hidden absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-[var(--radius)] text-gray4 hover:text-white hover:bg-black3 transition-colors"
+            className="lg:hidden absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-[var(--radius)] text-gray4 hover:text-white hover:bg-black3 transition-colors"
             aria-label="Закрыть меню"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">
@@ -164,7 +181,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
               key={item.id}
               href={item.href}
               className={cn(
-                'w-full flex items-center gap-[10px] px-5 py-[10px] text-[13px] font-semibold transition-colors relative',
+                'w-full flex items-center gap-[10px] px-5 py-[13px] text-[13px] font-semibold transition-colors relative',
                 activeId === item.id ? 'text-white bg-orange/8' : 'text-gray4 hover:text-white hover:bg-black3'
               )}
             >
@@ -180,7 +197,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
               key={item.id}
               href={item.href}
               className={cn(
-                'w-full flex items-center gap-[10px] px-5 py-[10px] text-[13px] font-semibold transition-colors relative',
+                'w-full flex items-center gap-[10px] px-5 py-[13px] text-[13px] font-semibold transition-colors relative',
                 activeId === item.id ? 'text-white bg-orange/8' : 'text-gray4 hover:text-white hover:bg-black3'
               )}
             >
@@ -196,7 +213,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
               key={item.id}
               href={item.href}
               className={cn(
-                'w-full flex items-center gap-[10px] px-5 py-[10px] text-[13px] font-semibold transition-colors relative',
+                'w-full flex items-center gap-[10px] px-5 py-[13px] text-[13px] font-semibold transition-colors relative',
                 activeId === item.id ? 'text-white bg-orange/8' : 'text-gray4 hover:text-white hover:bg-black3'
               )}
             >
@@ -258,7 +275,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
       {/* Main */}
       <main className="flex flex-col min-h-screen w-full lg:ml-[240px] lg:flex-1 ml-0">
         {/* Mobile top bar */}
-        <div className="lg:hidden sticky top-0 z-30 bg-black border-b border-gray1 px-4 h-[52px] flex items-center gap-3">
+        <div className="lg:hidden sticky top-0 z-30 bg-black border-b border-gray1 px-4 h-[100dvh] max-h-[52px] flex items-center gap-3">
           <button
             onClick={() => setMobileSidebarOpen(true)}
             className="w-11 h-11 flex items-center justify-center rounded-[var(--radius)] text-gray4 hover:text-white hover:bg-black3 transition-colors flex-shrink-0"
@@ -295,6 +312,16 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
             },
           }}
         />
+        <style jsx global>{`
+          @media (max-width: 1023px) {
+            div[class*="sonner"] {
+              bottom: 20px !important;
+              left: 50% !important;
+              transform: translateX(-50%) !important;
+              right: auto !important;
+            }
+          }
+        `}</style>
       </main>
     </div>
   );

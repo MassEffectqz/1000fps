@@ -81,6 +81,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="1000FPS" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t)})()` }} />
         <OrganizationJsonLd />
         <WebSiteJsonLd />
       </head>
