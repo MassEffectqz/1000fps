@@ -14,6 +14,13 @@ npx prisma migrate dev   # Create/apply migrations
 npx prisma generate      # Generate Prisma client
 npx prisma studio        # DB GUI
 npm run db:seed          # Seed database
+
+# Docker shortcuts
+npm run docker:up        # docker compose up -d
+npm run docker:down      # docker compose down
+npm run docker:logs      # docker compose logs -f
+npm run docker:restart   # docker compose restart
+npm run start:all        # docker compose up -d (all services)
 ```
 
 ## Docker
@@ -43,10 +50,15 @@ Test setup at `src/tests/setup.ts` includes mocks for `next/navigation`, `next/i
 ## Architecture
 
 - **Main app**: Next.js 15 (App Router), React 19, Tailwind CSS 4
-- **Parser service**: Separate Express server at `parser/`, runs on port 3005
+- **Parser service**: Express server at `parser/wb-server/` (port 3005)
+- **Parser interceptor**: Chrome extension at `parser/wb-interceptor/`
 - **Database**: PostgreSQL + Prisma 7
-- **Cache**: Redis (optional, used in `src/lib/cache/redis.ts`)
+- **Cache**: Redis (optional, see `src/lib/cache/redis.ts`)
 - **Entry points**: `src/app/` (pages), `src/components/` (UI), `src/lib/` (actions, utils)
+
+## Path Alias
+
+`@/*` maps to `./src/*` (configured in `tsconfig.json`)
 
 ## Required Env Vars
 

@@ -158,18 +158,18 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      <div className="container py-10">
-        <h1 className="font-display text-[28px] font-bold uppercase text-white2 mb-8">
+      <div className="container py-6 lg:py-10">
+        <h1 className="font-display text-2xl lg:text-[28px] font-bold uppercase text-white2 mb-6 lg:mb-8">
           Оформление заказа
         </h1>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Форма */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-6 lg:space-y-8">
               {/* Контактные данные */}
-              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6">
-                <h2 className="font-display text-[18px] font-bold text-white2 mb-4">
+              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-4 lg:p-6">
+                <h2 className="font-display text-base lg:text-[18px] font-bold text-white2 mb-4">
                   Контактные данные
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -263,8 +263,8 @@ export default function CheckoutPage() {
               </div>
 
               {/* Самовывоз */}
-              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6">
-                <h2 className="font-display text-[18px] font-bold text-white2 mb-4">
+              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-4 lg:p-6">
+                <h2 className="font-display text-base lg:text-[18px] font-bold text-white2 mb-4">
                   Получение заказа
                 </h2>
                 <div className="flex items-start gap-4 p-4 bg-black3 border border-gray1 rounded-[var(--radius)]">
@@ -292,8 +292,8 @@ export default function CheckoutPage() {
               </div>
 
               {/* Оплата */}
-              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6">
-                <h2 className="font-display text-[18px] font-bold text-white2 mb-4">
+              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-4 lg:p-6">
+                <h2 className="font-display text-base lg:text-[18px] font-bold text-white2 mb-4">
                   Оплата
                 </h2>
                 <div className="flex items-start gap-4 p-4 bg-black3 border border-gray1 rounded-[var(--radius)]">
@@ -321,8 +321,8 @@ export default function CheckoutPage() {
               </div>
 
               {/* Комментарий */}
-              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6">
-                <h2 className="font-display text-[18px] font-bold text-white2 mb-4">
+              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-4 lg:p-6">
+                <h2 className="font-display text-base lg:text-[18px] font-bold text-white2 mb-4">
                   Комментарий к заказу
                 </h2>
                 <textarea
@@ -341,8 +341,8 @@ export default function CheckoutPage() {
 
             {/* Итого */}
             <div className="lg:col-span-1">
-              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 sticky top-[140px]">
-                <h2 className="font-display text-[18px] font-bold uppercase text-white2 mb-4">
+              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-4 lg:p-6 sticky top-[100px] lg:top-[140px]">
+                <h2 className="font-display text-base lg:text-[18px] font-bold uppercase text-white2 mb-4">
                   Ваш заказ
                 </h2>
 
@@ -384,10 +384,10 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="border-t border-gray1 pt-4 mb-6">
+                <div className="border-t border-gray1 pt-3 lg:pt-4 mb-4 lg:mb-6">
                   <div className="flex items-center justify-between">
-                    <span className="font-display text-[16px] font-bold text-white2">Итого</span>
-                    <span className="font-display text-[22px] font-bold text-orange">
+                    <span className="font-display text-sm lg:text-[16px] font-bold text-white2">Итого</span>
+                    <span className="font-display text-xl lg:text-[22px] font-bold text-orange">
                       {cart.totalPrice.toLocaleString('ru-RU')} ₽
                     </span>
                   </div>
