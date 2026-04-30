@@ -128,7 +128,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`w-[240px] bg-black2 border-r border-gray1 flex flex-col sticky top-0 h-screen z-40 transition-transform duration-300 ease-out lg:translate-x-0 ${
+        className={`w-[240px] bg-black2 border-r border-gray1 flex flex-col sticky top-0 h-screen z-40 transition-transform duration-300 ease-out lg:translate-x-0 fixed lg:sticky ${
           mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
         onTouchStart={handleTouchStart}
@@ -256,7 +256,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col w-full min-h-screen overflow-x-hidden">
+      <main className="flex-1 flex flex-col w-full lg:w-auto min-h-screen overflow-x-hidden">
         {/* Mobile top bar */}
         <div className="lg:hidden sticky top-0 z-30 bg-black border-b border-gray1 px-4 h-[52px] flex items-center gap-3">
           <button
