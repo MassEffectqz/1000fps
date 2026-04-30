@@ -84,23 +84,23 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 lg:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 lg:mb-6">
         <div>
-          <h1 className="font-display text-[20px] font-bold text-white mb-1">Товары</h1>
-          <p className="text-[13px] text-gray4">Управление ассортиментом товаров</p>
+          <h1 className="font-display text-lg lg:text-[20px] font-bold text-white mb-0.5 lg:mb-1">Товары</h1>
+          <p className="text-[12px] lg:text-[13px] text-gray4 hidden sm:block">Управление ассортиментом товаров</p>
         </div>
         <Link
           href="/admin/products/new"
-          className="px-5 py-[10px] bg-orange text-white rounded-[var(--radius)] text-[13px] font-semibold hover:bg-orange2 transition-colors"
+          className="px-4 lg:px-5 py-2.5 lg:py-[10px] bg-orange text-white rounded-[var(--radius)] text-[12px] lg:text-[13px] font-semibold hover:bg-orange2 transition-colors text-center"
         >
-          + Добавить товар
+          + Добавить
         </Link>
       </div>
 
       {/* Search */}
-      <div className="mb-6">
+      <div className="mb-3 lg:mb-6">
         <div className="relative max-w-md">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray3">
             <circle cx="11" cy="11" r="8" />
@@ -122,67 +122,68 @@ export default function AdminProductsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray1">
-                <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Название</th>
-                <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Артикул</th>
-                <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Категория</th>
-                <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Цена</th>
-                <th className="text-center px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Остаток</th>
-                <th className="text-center px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Статус</th>
-                <th className="text-right px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Действия</th>
+                <th className="text-left px-3 lg:px-4 py-2.5 lg:py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Название</th>
+                <th className="hidden lg:table-cell text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Артикул</th>
+                <th className="hidden md:table-cell text-left px-3 lg:px-4 py-2.5 lg:py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Категория</th>
+                <th className="text-left px-3 lg:px-4 py-2.5 lg:py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Цена</th>
+                <th className="hidden sm:table-cell text-center px-3 lg:px-4 py-2.5 lg:py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Остаток</th>
+                <th className="hidden xs:table-cell text-center px-3 lg:px-4 py-2.5 lg:py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Статус</th>
+                <th className="text-right px-2 lg:px-4 py-2.5 lg:py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3"></th>
               </tr>
             </thead>
             <tbody>
               {products.length > 0 ? (
                 products.map((product) => (
                   <tr key={product.id} className="border-b border-gray1 last:border-b-0 hover:bg-black3 transition-colors">
-                    <td className="px-4 py-3">
+                    <td className="px-3 lg:px-4 py-2.5 lg:py-3">
                       <Link
                         href={`/admin/products/${product.id}`}
-                        className="text-[13px] font-bold text-white hover:text-orange transition-colors"
+                        className="text-[13px] font-bold text-white hover:text-orange transition-colors block line-clamp-1 max-w-[150px] lg:max-w-none"
                       >
                         {product.name}
                       </Link>
+                      <div className="lg:hidden text-[10px] text-gray4 mt-0.5">{product.sku}</div>
                     </td>
-                    <td className="px-4 py-3 text-[12px] text-gray4 font-mono">{product.sku}</td>
-                    <td className="px-4 py-3 text-[13px] text-gray4">
+                    <td className="hidden lg:table-cell px-4 py-3 text-[12px] text-gray4 font-mono">{product.sku}</td>
+                    <td className="hidden md:table-cell px-3 lg:px-4 py-2.5 lg:py-3 text-[12px] lg:text-[13px] text-gray4">
                       {product.category?.name || '—'}
                     </td>
-                    <td className="px-4 py-3 text-[13px] font-bold text-white">
+                    <td className="px-3 lg:px-4 py-2.5 lg:py-3 text-[13px] font-bold text-white">
                       {product.price.toLocaleString('ru-RU')} ₽
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="hidden sm:table-cell px-3 lg:px-4 py-2.5 lg:py-3 text-center">
                       <span className={cn(
-                        'text-[13px] font-bold',
+                        'text-[12px] lg:text-[13px] font-bold',
                         product.stock > 20 ? 'text-green-500' : product.stock > 5 ? 'text-yellow-500' : 'text-red-500'
                       )}>
                         {product.stock}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="hidden xs:table-cell px-3 lg:px-4 py-2.5 lg:py-3 text-center">
                       <span className={cn(
-                        'text-[10px] font-bold px-[8px] py-[3px] rounded-[var(--radius)] inline-flex items-center gap-1',
+                        'text-[9px] lg:text-[10px] font-bold px-1.5 lg:px-[8px] py-0.5 lg:py-[3px] rounded-[var(--radius)] inline-flex items-center gap-1',
                         product.isActive ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-gray-500/10 text-gray-400 border border-gray-500/20'
                       )}>
                         <span className="w-1 h-1 rounded-full bg-current" />
-                        {product.isActive ? 'Активен' : 'Не активен'}
+                        <span className="hidden lg:inline">{product.isActive ? 'Активен' : 'Не активен'}</span>
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-[6px]">
+                    <td className="px-2 lg:px-4 py-2.5 lg:py-3 text-right">
+                      <div className="flex items-center justify-end gap-1 lg:gap-[6px]">
                         <Link
                           href={`/admin/products/${product.id}`}
-                          className="w-7 h-7 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray4 transition-colors hover:border-orange hover:text-orange"
+                          className="w-6 h-6 lg:w-7 lg:h-7 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray4 transition-colors hover:border-orange hover:text-orange"
                         >
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[13px] h-[13px]">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 lg:w-[13px] h-3 lg:h-[13px]">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                           </svg>
                         </Link>
                         <button
                           onClick={() => handleDelete(product.id)}
-                          className="w-7 h-7 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray4 transition-colors hover:border-red-500 hover:text-red-500"
+                          className="w-6 h-6 lg:w-7 lg:h-7 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray4 transition-colors hover:border-red-500 hover:text-red-500"
                         >
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[13px] h-[13px]">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 lg:w-[13px] h-3 lg:h-[13px]">
                             <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                           </svg>
                         </button>

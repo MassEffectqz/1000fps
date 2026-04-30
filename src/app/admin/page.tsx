@@ -147,47 +147,47 @@ export default function AdminDashboardPage() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-4 lg:p-6">
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-4 lg:mb-6">
           {Object.entries(stats).map(([key, stat]) => (
-            <div key={key} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5 relative overflow-hidden group hover:border-gray2 transition-colors">
+            <div key={key} className="bg-black2 border border-gray1 rounded-[var(--radius)] p-3.5 lg:p-5 relative overflow-hidden group hover:border-gray2 transition-colors">
               <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-orange to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="flex items-start justify-between mb-[14px]">
-                <div className="w-10 h-10 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px] text-orange">
+              <div className="flex items-start justify-between mb-2 lg:mb-[14px]">
+                <div className="w-8 h-8 lg:w-10 lg:h-10 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 lg:w-[18px] h-4 lg:h-[18px] text-orange">
                     {getStatIcon(key)}
                   </svg>
                 </div>
                 <span className={cn(
-                  'text-[10px] font-bold px-2 py-[3px] rounded-[var(--radius)]',
+                  'text-[9px] lg:text-[10px] font-bold px-1.5 lg:px-2 py-0.5 lg:py-[3px] rounded-[var(--radius)]',
                   stat.trendUp ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
                 )}>
                   {stat.trend}
                 </span>
               </div>
-              <div className="font-display text-[28px] font-extrabold text-white tracking-tight">{stat.value}</div>
-              <div className="text-[11px] text-gray4 uppercase tracking-wider font-display font-bold mt-[6px]">{stat.label}</div>
+              <div className="font-display text-xl lg:text-[28px] font-extrabold text-white tracking-tight">{stat.value}</div>
+              <div className="text-[10px] lg:text-[11px] text-gray4 uppercase tracking-wider font-display font-bold mt-1 lg:mt-[6px]">{stat.label}</div>
             </div>
           ))}
         </div>
 
         {/* Orders Table */}
-        <div className="bg-black2 border border-gray1 rounded-[var(--radius)] mb-6">
-          <div className="flex items-center justify-between px-[18px] py-[14px] border-b border-gray1">
-            <div className="font-display text-[11px] font-bold tracking-wider uppercase text-white">Последние заказы</div>
-            <Link href="/admin/orders" className="text-[11px] text-orange hover:text-orange3">Все заказы &rarr;</Link>
+        <div className="bg-black2 border border-gray1 rounded-[var(--radius)] mb-4 lg:mb-6">
+          <div className="flex items-center justify-between px-3 lg:px-[18px] py-2.5 lg:py-[14px] border-b border-gray1">
+            <div className="font-display text-[10px] lg:text-[11px] font-bold tracking-wider uppercase text-white">Заказы</div>
+            <Link href="/admin/orders" className="text-[10px] lg:text-[11px] text-orange hover:text-orange3">Все &rarr;</Link>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray1">
-                  <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Заказ</th>
-                  <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Клиент</th>
-                  <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Сумма</th>
-                  <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Статус</th>
-                  <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Дата</th>
-                  <th className="text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Действия</th>
+                  <th className="text-left px-3 lg:px-4 py-2.5 lg:py-3 text-[9px] lg:text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Заказ</th>
+                  <th className="hidden md:table-cell text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Клиент</th>
+                  <th className="text-left px-3 lg:px-4 py-2.5 lg:py-3 text-[9px] lg:text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Сумма</th>
+                  <th className="text-left px-3 lg:px-4 py-2.5 lg:py-3 text-[9px] lg:text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Статус</th>
+                  <th className="hidden sm:table-cell text-left px-4 py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3">Дата</th>
+                  <th className="text-right px-2 lg:px-4 py-2.5 lg:py-3 text-[10px] font-bold tracking-wider uppercase text-gray3 bg-black3"></th>
                 </tr>
               </thead>
               <tbody>
@@ -196,24 +196,24 @@ export default function AdminDashboardPage() {
                     const statusConfig = getStatusConfig(order.status);
                     return (
                       <tr key={order.id} className="border-b border-gray1 last:border-b-0 hover:bg-black3 transition-colors">
-                        <td className="px-4 py-3 text-[13px] font-bold text-orange">{order.orderNumber}</td>
-                        <td className="px-4 py-3 text-[13px] text-gray4">{order.customer}</td>
-                        <td className="px-4 py-3 text-[13px] font-bold text-white">{order.total} ₽</td>
-                        <td className="px-4 py-3">
+                        <td className="px-3 lg:px-4 py-2.5 lg:py-3 text-[12px] lg:text-[13px] font-bold text-orange">{order.orderNumber}</td>
+                        <td className="hidden md:table-cell px-4 py-3 text-[13px] text-gray4">{order.customer}</td>
+                        <td className="px-3 lg:px-4 py-2.5 lg:py-3 text-[12px] lg:text-[13px] font-bold text-white">{order.total} ₽</td>
+                        <td className="px-3 lg:px-4 py-2.5 lg:py-3">
                           <span className={cn(
-                            'text-[10px] font-bold px-[8px] py-[3px] rounded-[var(--radius)] inline-flex items-center gap-1',
+                            'text-[9px] lg:text-[10px] font-bold px-1.5 lg:px-[8px] py-0.5 lg:py-[3px] rounded-[var(--radius)] inline-flex items-center gap-1',
                             statusConfig.class
                           )}>
                             <span className="w-1 h-1 rounded-full bg-current" />
-                            {statusConfig.label}
+                            <span className="hidden lg:inline">{statusConfig.label}</span>
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-[13px] text-gray4">{order.date}</td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-[6px]">
+                        <td className="hidden sm:table-cell px-4 py-3 text-[12px] lg:text-[13px] text-gray4">{order.date}</td>
+                        <td className="px-2 lg:px-4 py-2.5 lg:py-3">
+                          <div className="flex items-center justify-end gap-1 lg:gap-[6px]">
                             <Link
                               href={`/admin/orders/${order.id}`}
-                              className="w-7 h-7 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray4 transition-colors hover:border-orange hover:text-orange"
+                              className="w-6 h-6 lg:w-7 lg:h-7 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray4 transition-colors hover:border-orange hover:text-orange"
                             >
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[13px] h-[13px]">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
