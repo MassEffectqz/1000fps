@@ -261,21 +261,20 @@ const catalogCategories = [
 
 const navLinks = [
   { href: '/catalog', label: 'Каталог', icon: 'grid' },
-  { href: '#', label: 'Акции', icon: 'fire', hot: true },
-  { href: '#', label: 'Новинки', icon: 'sparkle' },
+  { href: '/catalog?isNew=true', label: 'Новинки', icon: 'sparkle' },
+  { href: '/ready-builds', label: 'Готовые сборки', icon: 'desktop' },
   { href: '/configurator', label: 'Конфигуратор ПК', icon: 'tools' },
-  { href: '#', label: 'Готовые сборки', icon: 'desktop' },
   { href: '/used', label: 'Б/У техника', icon: 'recycle' },
   { href: '/faq', label: 'FAQ', icon: 'help' },
 ];
 
 const infoLinks = [
   { href: '/warehouses', label: 'Пункты выдачи', icon: 'mapPin' },
-  { href: '#', label: 'Доставка', icon: 'truck' },
-  { href: '#', label: 'Гарантия', icon: 'shield' },
-  { href: '#', label: 'Кредит и рассрочка', icon: 'creditCard' },
-  { href: '#', label: 'Контакты', icon: 'mail' },
-  { href: '#', label: 'Корп. клиентам', icon: 'building' },
+  { href: '/delivery', label: 'Доставка', icon: 'truck' },
+  { href: '/warranty', label: 'Гарантия', icon: 'shield' },
+  { href: '/installment', label: 'Кредит и рассрочка', icon: 'creditCard' },
+  { href: '/warehouses', label: 'Контакты', icon: 'mail' },
+  { href: '/b2b', label: 'Корп. клиентам', icon: 'building' },
 ];
 
 const quickLinks = [
@@ -554,7 +553,7 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
                     onClick={(e) => {
                       e.preventDefault();
                       onClose();
-                      if (link.href !== '#') router.push(link.href);
+                      router.push(link.href);
                     }}
                     className={`flex items-center gap-3 px-5 py-3 text-[14px] transition-colors no-underline ${
                       link.hot
@@ -583,7 +582,7 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
                     onClick={(e) => {
                       e.preventDefault();
                       onClose();
-                      if (link.href !== '#') router.push(link.href);
+                      router.push(link.href);
                     }}
                     className="flex items-center gap-3 px-5 py-3 text-[14px] text-[var(--color-gray4)] hover:text-white hover:bg-[var(--color-black3)] transition-colors no-underline"
                   >
