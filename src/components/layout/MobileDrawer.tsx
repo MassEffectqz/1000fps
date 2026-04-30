@@ -392,7 +392,15 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
       >
         {/* ═══ HEADER ═══ */}
         <div className="flex items-center justify-between px-5 h-[56px] border-b border-[var(--color-gray1)] flex-shrink-0">
-          <Link href="/" onClick={onClose} className="flex items-center gap-2 no-underline">
+          <Link 
+            href="/" 
+            onClick={(e) => {
+              e.preventDefault();
+              onClose();
+              router.push('/');
+            }} 
+            className="flex items-center gap-2 no-underline"
+          >
             <div className="w-8 h-8 bg-[var(--color-orange)] rounded-lg flex items-center justify-center">
               <Icon name="bolt" className="w-4 h-4 text-white" />
             </div>
@@ -482,7 +490,11 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
                   <Link
                     key={link.href}
                     href={link.href}
-                    onClick={onClose}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onClose();
+                      router.push(link.href);
+                    }}
                     className="flex flex-col items-center gap-1.5 py-2 px-1 rounded-lg hover:bg-[var(--color-black3)] transition-colors no-underline"
                   >
                     <div className="w-11 h-11 flex items-center justify-center rounded-xl bg-[var(--color-black3)] border border-[var(--color-gray1)] text-[var(--color-gray4)] group-hover:text-white transition-colors">
@@ -539,7 +551,11 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
                   <Link
                     key={link.href + link.label}
                     href={link.href}
-                    onClick={onClose}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onClose();
+                      if (link.href !== '#') router.push(link.href);
+                    }}
                     className={`flex items-center gap-3 px-5 py-3 text-[14px] transition-colors no-underline ${
                       link.hot
                         ? 'text-[var(--color-orange)] font-medium'
@@ -564,7 +580,11 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
                   <Link
                     key={link.href + link.label}
                     href={link.href}
-                    onClick={onClose}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onClose();
+                      if (link.href !== '#') router.push(link.href);
+                    }}
                     className="flex items-center gap-3 px-5 py-3 text-[14px] text-[var(--color-gray4)] hover:text-white hover:bg-[var(--color-black3)] transition-colors no-underline"
                   >
                     <span className="w-5 h-5 flex items-center justify-center text-[var(--color-gray4)] flex-shrink-0">
@@ -580,7 +600,11 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
               <div className="border-t border-[var(--color-gray1)] py-2">
                 <Link
                   href="/admin"
-                  onClick={onClose}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onClose();
+                    router.push('/admin');
+                  }}
                   className="flex items-center gap-3 px-5 py-3 text-[13px] text-[var(--color-gray3)] hover:text-[var(--color-orange)] hover:bg-[var(--color-black3)] transition-colors no-underline"
                 >
                   <span className="w-5 h-5 flex items-center justify-center flex-shrink-0">
