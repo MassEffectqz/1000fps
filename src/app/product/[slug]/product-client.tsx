@@ -307,7 +307,7 @@ export function ProductPageClient({
               <div className="text-[11px] text-gray3 mt-[6px]">Цена действительна при заказе на сайте</div>
             </div>
 
-            {/* CTA */}
+{/* CTA */}
             <div className="mb-4">
               {/* Main button - В корзину */}
               <AddToCartButton
@@ -321,7 +321,7 @@ export function ProductPageClient({
               </AddToCartButton>
 
               {/* Secondary actions row */}
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-2">
                 <AddToWishlistButton
                   productId={product.id}
                   variant="icon"
@@ -330,17 +330,14 @@ export function ProductPageClient({
                 <button
                   type="button"
                   className={cn(
-                    'flex items-center gap-2 h-10 px-4 rounded-[var(--radius)] border text-[12px] font-medium transition-colors',
+                    'flex items-center gap-2 h-10 px-3 rounded-[var(--radius)] border text-[12px] font-medium transition-colors',
                     inCompare
                       ? 'bg-orange text-white border-orange'
                       : 'bg-black3 text-gray3 border-gray1 hover:border-orange hover:text-orange'
                   )}
                   onClick={() => {
                     if (inCompare) {
-                      const confirmRemove = confirm('Удалить товар из сравнения?');
-                      if (confirmRemove) {
-                        toast.info('Для удаления откройте страницу сравнения');
-                      }
+                      toast.info('Для удаления откройте страницу сравнения');
                     } else {
                       addToCompare(product.id);
                     }
@@ -349,31 +346,32 @@ export function ProductPageClient({
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                     <path d="M18 20V10M12 20V4M6 20v-6" />
                   </svg>
-                  {inCompare ? 'В сравнении' : 'Сравнить'}
+                  <span className="hidden sm:inline">{inCompare ? 'В сравнении' : 'Сравнить'}</span>
                 </button>
                 <button
                   type="button"
-                  className="flex items-center gap-2 h-10 px-4 rounded-[var(--radius)] border border-gray1 bg-black3 text-[12px] font-medium text-gray3 hover:border-orange hover:text-orange transition-colors"
+                  className="flex items-center gap-2 h-10 px-3 rounded-[var(--radius)] border border-gray1 bg-black3 text-gray3 text-[12px] font-medium hover:border-orange hover:text-orange transition-colors"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                     <rect x="2" y="7" width="20" height="14" rx="2" />
                     <path d="M9 3h6M12 3v4M9 12h6M12 9v6" />
                   </svg>
-                  В конфигуратор
+                  <span className="hidden sm:inline">В конфигуратор</span>
                 </button>
                 {(userRole === 'ADMIN' || userRole === 'MANAGER') && (
                   <Link
                     href={`/admin/products/${product.id}`}
-                    className="flex items-center gap-2 h-10 px-4 rounded-[var(--radius)] border border-orange bg-orange text-white text-[12px] font-medium hover:bg-orange/90 transition-colors"
+                    className="flex items-center gap-2 h-10 px-3 rounded-[var(--radius)] border border-orange bg-orange text-white text-[12px] font-medium hover:bg-orange/90 transition-colors"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                     </svg>
-                    Редактировать
+                    <span className="hidden md:inline">Редактировать</span>
                   </Link>
                 )}
               </div>
+            </div>
             </div>
 
             {/* Warehouse Selector */}
