@@ -99,6 +99,155 @@ function extractStockQuantity(product) {
   if (typeof product.availableQuantity === 'number') return product.availableQuantity;
   return 0;
 }
+// ============================================================
+// DELIVERY DATE PARSING — порт Python-логики
+// Три стратегии в порядке приоритета:
+//   1. Класс содержит 'deliveryTitleWrapper' (до хеша CSS-модуля)
+//   2. SVG иконки доставки → ближайший родитель с датой
+//   3. Брутфорс — любой лёгкий элемент с русским месяцем
+// ============================================================
+
+const MONTHS_RU = {
+  'января': 1, 'февраля': 2, 'марта': 3, 'апреля': 4,
+  'мая': 5, 'июня': 6, 'июля': 7, 'августа': 8,
+  'сентября': 9, 'октября': 10, 'ноября': 11, 'декабря': 12
+};
+
+// Тот же паттерн что в питоне: «4 мая» или «4 мая 2026»
+const DATE_PATTERN = /(\d{1,2})\s+([а-яёА-ЯЁ]+)(?:\s+(\d{4}))?/;
+
+/**
+ * Извлекает дату из строки с русским месяцем.
+ * @param {string} text
+ * @returns {Date|null}
+ */
+function extractDateFromText(text) {
+  text = text.replace(/[\s\u00a0]+/g, ' ').trim().toLowerCase();
+
+  // Ключевые слова: «сегодня» / «завтра» / «послезавтра»
+  if (/сегодня/.test(text)) {
+    return new Date();
+  }
+  if (/послезавтра/.test(text)) {
+    const d = new Date(); d.setDate(d.getDate() + 2); return d;
+  }
+  if (/завтра/.test(text)) {
+    const d = new Date(); d.setDate(d.getDate() + 1); return d;
+  }
+
+  const match = DATE_PATTERN.exec(text);
+  if (!match) return null;
+
+  const day = parseInt(match[1], 10);
+  const monthName = match[2].toLowerCase();
+  const monthNum = MONTHS_RU[monthName];
+  if (!monthNum) return null;
+
+  const hasYear = !!match[3];
+  const year = hasYear ? parseInt(match[3], 10) : new Date().getFullYear();
+  let result = new Date(year, monthNum - 1, day);
+
+  // Если год не указан и дата уже прошла — берём следующий год
+  if (!hasYear && result < new Date()) {
+    result = new Date(year + 1, monthNum - 1, day);
+  }
+  return result;
+}
+
+/**
+ * Считает количество дней от сегодня до целевой даты.
+ * Использует UTC-полночь обоих значений во избежание timezone-сдвигов.
+ * @param {Date} date
+ * @returns {number}
+ */
+function dateToDaysFromNow(date) {
+  const n = new Date();
+  const nowUtc  = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  const destUtc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  return Math.max(0, Math.round((destUtc - nowUtc) / 86400000));
+}
+
+/**
+ * Инжектирует скрипт в вкладку WB и ищет дату доставки по DOM.
+ * Повторяет три стратегии Python find_delivery_wrapper.
+ * @param {number} tabId
+ * @returns {Promise<{deliveryMin:number, deliveryMax:number, deliveryDate:string}|null>}
+ */
+async function getDeliveryDateFromTab(tabId) {
+  try {
+    // Guard: scripting permission may be absent in some installs
+    if (!chrome.scripting) {
+      console.warn('[1000fps] chrome.scripting недоступен — добавьте "scripting" в манифест');
+      return null;
+    }
+    const results = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: () => {
+        const DATE_RE = /(\d{1,2})\s+([а-яёА-ЯЁ]+)(?:\s+(\d{4}))?/;
+        // Вспомогательная функция: элемент «подходит» если содержит дату или ключевое слово
+        const hasDate = (txt) => DATE_RE.test(txt) || /завтра|сегодня|послезавтра/i.test(txt);
+
+        // Стратегия 1: класс содержит 'deliveryTitleWrapper' (до хеша)
+        for (const el of document.querySelectorAll('[class]')) {
+          if ([...el.classList].some(c => /deliveryTitleWrapper/i.test(c))) {
+            return el.textContent;
+          }
+        }
+
+        // Стратегия 2: SVG с path иконки посылки WB → ищем родителя с датой
+        const ICON_PATH_RE = /M11\.2239\s+1\.24175/;
+        for (const svg of document.querySelectorAll('svg')) {
+          let found = false;
+          for (const path of svg.querySelectorAll('path')) {
+            if (ICON_PATH_RE.test(path.getAttribute('d') || '')) {
+              found = true;
+              break;
+            }
+          }
+          // Запасной вариант: класс deliveryIcon
+          if (!found) {
+            found = [...(svg.classList || [])].some(c => /deliveryIcon/i.test(c));
+          }
+          if (found) {
+            for (let p = svg.parentElement; p; p = p.parentElement) {
+              if (hasDate(p.textContent)) return p.textContent;
+            }
+          }
+        }
+
+        // Стратегия 3: брутфорс — любой некрупный элемент с датой или ключевым словом
+        for (const el of document.querySelectorAll('*')) {
+          if (hasDate(el.textContent) && el.children.length < 6) {
+            return el.textContent;
+          }
+        }
+
+        return null;
+      }
+    });
+
+    const text = results?.[0]?.result;
+    if (!text) return null;
+
+    const date = extractDateFromText(text);
+    if (!date) return null;
+
+    const days = dateToDaysFromNow(date);
+    return {
+      deliveryMin: days,
+      deliveryMax: days + 1,
+      deliveryDate: date.toISOString().split('T')[0], // «2026-05-04»
+    };
+  } catch (e) {
+    console.warn('[1000fps] Не удалось спарсить дату доставки из DOM:', e.message);
+    return null;
+  }
+}
+
+/**
+ * Фолбэк: вычисляет диапазон доставки из API-поля time1.
+ * Используется когда tabId недоступен (плановая проверка цен).
+ */
 function extractDeliveryDays(product) {
   let deliveryMin = null;
   let deliveryMax = null;
@@ -270,6 +419,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             sendResponse({ ok: false, error: 'Цена не найдена' });
             return;
           }
+          // Получаем реальную дату доставки из DOM вкладки (стратегии как в Python)
+          const tabDelivery = sender?.tab?.id
+            ? await getDeliveryDateFromTab(sender.tab.id)
+            : null;
+          if (tabDelivery) {
+            Object.assign(info, tabDelivery);
+            console.log(`[1000fps] 📦 Дата доставки из DOM: ${tabDelivery.deliveryDate} (${tabDelivery.deliveryMin} дн.)`);
+          }
           store.products[msg.article] = Object.assign({}, info, {
             history: [{ price: info.price, ts: new Date().toISOString() }],
             addedAt: new Date().toISOString()
@@ -380,12 +537,47 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 const PARSED_TABS = new Set();
 const PARSING_IN_PROGRESS = new Set();
+// ============================================================
+// URL-парсинг: все паттерны WB где артикул в URL
+// ============================================================
+const WB_ARTICLE_PATTERNS = [
+  /wildberries\.ru\/catalog\/(\d+)\/detail/,   // .../catalog/123/detail.aspx
+  /wildberries\.ru\/catalog\/(\d+)\/?(?:[?#]|$)/, // .../catalog/123/ или /catalog/123
+  /wildberries\.ru\/catalog\/(\d+)\/[a-z-]+/,  // .../catalog/123/otzyvy и пр.
+  /[?&]nm=(\d+)/,                              // API/поиск: ?nm=123
+  /[?&]article=(\d+)/,                         // альтернативный query-param
+];
+
+/**
+ * Извлекает артикул WB из URL страницы.
+ * @param {string} url
+ * @returns {string|null}
+ */
+function extractArticleFromUrl(url) {
+  for (const re of WB_ARTICLE_PATTERNS) {
+    const m = url.match(re);
+    if (m?.[1]) return m[1];
+  }
+  return null;
+}
+
+// Ключевые слова: автопарсинг только если URL содержит одно из них
+// (позволяет ограничить парсинг страницами товаров, а не всем WB)
+const KEYWORD_ALLOWLIST = [
+  'catalog', 'detail', 'card', 'product', 'item'
+];
+
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status !== 'complete') return;
-  if (!tab.url || !tab.url.includes('wildberries.ru/catalog/')) return;
-  const match = tab.url.match(/catalog\/(\d+)\/detail/);
-  if (!match || !match[1]) return;
-  const article = match[1];
+  if (!tab.url || !tab.url.includes('wildberries.ru')) return;
+
+  // Фильтр по ключевым словам — не парсим главную, поиск, категории без товара
+  const urlLower = tab.url.toLowerCase();
+  const hasKeyword = KEYWORD_ALLOWLIST.some(kw => urlLower.includes(kw));
+  if (!hasKeyword) return;
+
+  const article = extractArticleFromUrl(tab.url);
+  if (!article) return;
   const cacheKey = `${tabId}-${article}`;
   if (PARSED_TABS.has(cacheKey) || PARSING_IN_PROGRESS.has(cacheKey)) return;
   const settings = await chrome.storage.local.get(['autoParseEnabled']);
@@ -402,6 +594,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     await new Promise(resolve => setTimeout(resolve, 2000));
     const productInfo = await fetchProductInfo(article);
     if (productInfo && productInfo.price) {
+      const tabDelivery = await getDeliveryDateFromTab(tabId);
+      if (tabDelivery) {
+        Object.assign(productInfo, tabDelivery);
+        console.log(`[1000fps] 📦 Дата доставки из DOM: ${tabDelivery.deliveryDate} (${tabDelivery.deliveryMin} дн.)`);
+      }
       const store = await getStore();
       store.products[article] = {
         ...productInfo,
@@ -410,7 +607,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       };
       await saveStore(store);
       console.log(`[1000fps]  Спарсено: ${article} - ${productInfo.price}₽`);
-      // Send to server webhook
       await sendToWebhook(article, productInfo);
       chrome.runtime.sendMessage({ type: 'PRICES_UPDATED', article }).catch(() => {});
       chrome.notifications.create({
