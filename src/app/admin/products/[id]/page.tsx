@@ -405,14 +405,8 @@ export default function AdminProductEditPage({ params }: { params: Promise<{ id:
         popularTags={popularTags}
         categorySpecifications={categorySpecifications}
         onSave={handleSave}
+        onDelete={handleDelete}
       />
-      
-      <Button variant="danger" onClick={handleDelete} className="mt-6 ml-6">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 mr-2">
-          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-        </svg>
-        Удалить товар
-      </Button>
     </div>
   );
 }

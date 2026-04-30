@@ -66,6 +66,7 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('general');
 
   useEffect(() => {
@@ -108,6 +109,33 @@ export default function AdminSettingsPage() {
       toast.error('Произошла ошибка при сохранении');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteAllProducts = async () => {
+    if (!confirm('Вы уверены? Все товары будут удалены безвозвратно!')) return;
+    if (!confirm('Это последнее предупреждение. Введите "УДАЛИТЬ" для подтверждения.')) return;
+    const finalConfirm = prompt('Введите "УДАЛИТЬ" для подтверждения:');
+    if (finalConfirm !== 'УДАЛИТЬ') return;
+
+    setIsDeletingAll(true);
+    try {
+      const response = await fetch('/api/admin/products', {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(`Удалено ${data.deletedCount} товаров`);
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Ошибка удаления');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Произошла ошибка при удалении');
+    } finally {
+      setIsDeletingAll(false);
     }
   };
 
@@ -632,6 +660,39 @@ export default function AdminSettingsPage() {
             </div>
           </div>
         )}
+
+        {/* Danger Zone */}
+        <div className="mt-8 pt-8 border-t border-gray1">
+          <h2 className="font-display text-[16px] font-bold text-white mb-4">Опасная зона</h2>
+          
+          <div className="bg-red-500/5 border border-red-500/20 rounded-[var(--radius)] p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-white text-[13px] font-semibold mb-1">Удалить все товары</div>
+                <div className="text-gray4 text-[12px]">Удаляет все товары из базы данных. Это действие необратимо.</div>
+              </div>
+              <button
+                onClick={handleDeleteAllProducts}
+                disabled={isDeletingAll}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500/20 border border-red-500/40 text-red-500 rounded-[var(--radius)] text-[13px] hover:bg-red-500/30 transition-colors disabled:opacity-50"
+              >
+                {isDeletingAll ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                    Удаление...
+                  </>
+                ) : (
+                  <>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                      <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                    Удалить все товары
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

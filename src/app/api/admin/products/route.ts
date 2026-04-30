@@ -304,3 +304,21 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// DELETE /api/admin/products - удалить все товары
+export async function DELETE() {
+  try {
+    const result = await prisma.product.deleteMany({});
+    
+    return NextResponse.json({ 
+      success: true, 
+      deletedCount: result.count 
+    });
+  } catch (error) {
+    console.error('Delete all products error:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete products' },
+      { status: 500 }
+    );
+  }
+}

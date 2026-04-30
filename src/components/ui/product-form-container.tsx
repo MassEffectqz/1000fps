@@ -140,6 +140,7 @@ interface ProductFormProps {
   categorySpecifications?: CategorySpecification[];
   onSave?: (data: ProductFormData) => Promise<void>;
   onCancel?: () => void;
+  onDelete?: () => void;
 }
 
 const LOCAL_STORAGE_KEY = 'product_form_draft';
@@ -152,6 +153,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   popularTags = [],
   categorySpecifications = [],
   onSave,
+  onDelete,
 }) => {
   const [activeTab, setActiveTab] = useState<'general' | 'media' | 'pricing' | 'inventory' | 'variants' | 'seo' | 'parser'>('general');
   const [isSaving, setIsSaving] = useState(false);
@@ -398,7 +400,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         });
         setIsParsing(false);
         setParseProgress(null);
-        toast.error('Парсинг не удался');
       } else if (job.status === 'PENDING' || job.status === 'PROCESSING') {
         // Обновляем прогресс
         const processed = job.result?.processedCount || 0;
@@ -561,23 +562,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         }
 
         loadPriceHistory();
-        toast.success('Парсинг завершён успешно!');
 
         // Очищаем pending parse
         localStorage.removeItem('wb_parser_pending_parse');
       } else if (result?.ok && !result.parsedData) {
-        // Extension ответил, но данных нет
         setParserStatus({
           status: 'error',
           errorMessage: 'Источники не вернули данных. Проверьте URL и попробуйте снова.',
         });
-        toast.warning('Данные не получены от источников');
       } else {
         setParserStatus({
           status: 'error',
           errorMessage: result?.error || 'Не удалось получить данные от расширения',
         });
-        toast.error(result?.error || 'Ошибка парсинга');
       }
     } catch (error) {
       console.error('Parse error:', error);
@@ -598,8 +595,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       } catch {
         // ignore
       }
-
-      toast.error('Парсинг не удался. Проверьте подключение расширения.');
     } finally {
       setIsParsing(false);
       // Если статус всё ещё 'parsing' после 15 секунд — сбрасываем в idle
@@ -800,6 +795,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {initialData?.id && (
+            <Button variant="danger" onClick={onDelete}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 mr-2">
+                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+              Удалить товар
+            </Button>
+          )}
           <Button variant="secondary" onClick={handleClearDraft}>
             Очистить
           </Button>
