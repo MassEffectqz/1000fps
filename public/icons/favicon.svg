@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500"><metadata><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><rdf:Description><dc:creator>RealFaviconGenerator</dc:creator><dc:source>https://realfavicongenerator.net</dc:source></rdf:Description></rdf:RDF></metadata><rect width="100%" height="100%" fill="black"></rect><g transform="translate(250, 250)">
+    <text text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-weight="bold" font-size="120">
+      <tspan fill="white">1000 </tspan>
+      <tspan fill="orange">FPS</tspan>
+    </text>
+  </g><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>

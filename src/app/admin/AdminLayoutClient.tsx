@@ -256,7 +256,7 @@ export default function AdminLayoutClient({ children }: AdminLayoutProps) {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 flex flex-col w-full lg:w-auto min-h-screen overflow-x-hidden">
+      <main className="flex-1 flex flex-col min-h-screen w-full lg:w-auto lg:flex-1 overflow-visible">
         {/* Mobile top bar */}
         <div className="lg:hidden sticky top-0 z-30 bg-black border-b border-gray1 px-4 h-[52px] flex items-center gap-3">
           <button

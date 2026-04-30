@@ -320,7 +320,7 @@ export function Header() {
     const timer = setTimeout(async () => {
       setSearchLoading(true);
       try {
-        const params = new URLSearchParams({ q: searchQuery, limit: '8' });
+        const params = new URLSearchParams({ search: searchQuery, limit: '8' });
         const res = await fetch(`/api/products?${params}`);
         if (res.ok) {
           const data = await res.json();
@@ -530,7 +530,7 @@ export function Header() {
       </div>
 
       {/* HEADER */}
-      <header className="header sticky top-0 z-40 bg-[var(--color-black)] border-b border-[var(--color-gray1)]">
+      <header className="header sticky top-0 z-[100] bg-[var(--color-black)] border-b border-[var(--color-gray1)]">
         <div className="container">
           <div className="header__inner">
             {/* HAMBURGER — mobile only */}
