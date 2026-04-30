@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import { Breadcrumbs, Badge, Button } from '@/components/ui';
 import { ProductCard } from '@/components/ui/product-card';
 import { WarehouseSelector } from '@/components/ui/warehouse-selector';
@@ -113,6 +112,7 @@ interface ProductPageClientProps {
     badges: Array<{ text: string; variant: 'orange' | 'green' | 'blue' | 'gray' | 'yellow' }>;
     href: string;
   }>;
+  userRole: 'ADMIN' | 'MANAGER' | 'CUSTOMER' | null;
 }
 
 export function ProductPageClient({
@@ -120,8 +120,8 @@ export function ProductPageClient({
   breadcrumbItems,
   reviews,
   relatedProducts,
+  userRole,
 }: ProductPageClientProps) {
-  const { data: session } = useSession();
   const { addToCompare, isInCompare } = useCompare();
   const [activeTab, setActiveTab] = useState('specs');
   const [selectedImage, setSelectedImage] = useState(0);
@@ -361,7 +361,7 @@ export function ProductPageClient({
                   </svg>
                   В конфигуратор
                 </button>
-                {(session?.user?.role === 'ADMIN' || session?.user?.role === 'MANAGER') && (
+                {(userRole === 'ADMIN' || userRole === 'MANAGER') && (
                   <Link
                     href={`/admin/products/${product.id}`}
                     className="flex items-center gap-2 h-10 px-4 rounded-[var(--radius)] border border-orange bg-orange text-white text-[12px] font-medium hover:bg-orange/90 transition-colors"

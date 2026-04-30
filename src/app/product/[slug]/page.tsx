@@ -2,6 +2,7 @@
 import { notFound } from 'next/navigation';
 import { getProducts, getProductBySlug } from '@/lib/actions/catalog';
 import { getWarehousesWithStock } from '@/lib/actions/warehouse';
+import { getSession } from '@/lib/auth-helpers';
 import { ProductPageClient } from './product-client';
 import type { Product } from './product-client';
 import { Metadata } from 'next';
@@ -206,12 +207,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
     { label: product.name },
   ];
 
+  const session = await getSession();
+  const userRole = session?.role || null;
+
   return (
     <ProductPageClient
       product={formattedProduct}
       breadcrumbItems={breadcrumbItems}
       reviews={reviews}
       relatedProducts={relatedProducts}
+      userRole={userRole}
     />
   );
 }
