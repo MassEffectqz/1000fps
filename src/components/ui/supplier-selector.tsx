@@ -36,9 +36,11 @@ export function SupplierSelector({
     if (isAdding || isUpdatingItem) return;
     setIsAdding(supplierId);
     try {
+      console.log('[SupplierSelector] Adding to cart:', supplierId, quantity);
       await addToCart(supplierId, quantity);
+      console.log('[SupplierSelector] Added to cart successfully');
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('[SupplierSelector] Error adding to cart:', error);
     } finally {
       setIsAdding(null);
     }
@@ -48,10 +50,12 @@ export function SupplierSelector({
     if (isAdding || isUpdatingItem) return;
     setIsAdding(supplierId);
     try {
+      console.log('[SupplierSelector] Buying now:', supplierId, quantity);
       await addToCart(supplierId, quantity);
+      console.log('[SupplierSelector] Redirecting to cart');
       window.location.href = '/cart';
     } catch (error) {
-      console.error('Error buying now:', error);
+      console.error('[SupplierSelector] Error buying now:', error);
     } finally {
       setIsAdding(null);
     }

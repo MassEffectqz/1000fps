@@ -251,6 +251,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Добавить в корзину
   const handleAddToCart = useCallback(async (productId: string, quantity: number = 1, warehouseId?: string) => {
+    console.log('[CartContext] handleAddToCart called:', productId, quantity, warehouseId);
     const optimisticItemId = `temp_${Date.now()}`;
     
     // Оптимистичное обновление
@@ -296,6 +297,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     setIsCartDrawerOpen(true);
 
+    console.log('[CartContext] Sending POST to /api/cart/items', { productId, quantity, warehouseId });
     try {
       const response = await fetch('/api/cart/items', {
         method: 'POST',
@@ -304,6 +306,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
 
       const data = await response.json();
+      console.log('[CartContext] Response:', response.status, data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Ошибка при добавлении в корзину');
@@ -313,7 +316,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       await refreshCart();
       toast.success('Товар добавлен в корзину');
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('[CartContext] Error adding to cart:', error);
       // Откат оптимистичного обновления
       await refreshCart();
       

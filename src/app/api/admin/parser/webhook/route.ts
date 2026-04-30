@@ -146,8 +146,21 @@ export async function POST(request: NextRequest) {
           (result as { results?: unknown[] })?.results ||
           [];
 
-      // Извлекаем sources из payload (массив URL)
-      const sourcesFromPayload: string[] = Array.isArray(result) ? [] : (result?.sources as string[] || []);
+// Извлекаем sources из payload (массив URL)
+      // Поддерживаем оба формата: result.sources или [{source, ...}]
+      let sourcesFromPayload: string[] = [];
+      if (Array.isArray(result)) {
+        for (const r of result) {
+          if (r && typeof r === 'object' && 'source' in r) {
+            sourcesFromPayload.push(String(r.source));
+          }
+        }
+      } else if (result && typeof result === 'object' && 'sources' in result) {
+        const sources = result.sources;
+        if (Array.isArray(sources)) {
+          sourcesFromPayload = sources.map(s => String(s));
+        }
+      }
 
       if (resultsArray.length > 0) {
         try {
