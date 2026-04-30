@@ -372,7 +372,6 @@ export function ProductPageClient({
                 )}
               </div>
             </div>
-            </div>
 
             {/* Warehouse Selector */}
             {product.warehouses && product.warehouses.length > 0 && (
