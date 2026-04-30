@@ -397,23 +397,6 @@ export default function AdminProductEditPage({ params }: { params: Promise<{ id:
 
   return (
     <div>
-      <div className="flex items-center justify-between px-6 mb-6">
-        <div>
-          <h1 className="font-display text-[20px] font-bold text-white mb-1">
-            Редактирование товара
-          </h1>
-          <p className="text-[13px] text-gray4">
-            Артикул: <span className="text-orange font-mono">{product.sku}</span>
-          </p>
-        </div>
-        <Button variant="danger" onClick={handleDelete}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 mr-2">
-            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-          </svg>
-          Удалить товар
-        </Button>
-      </div>
-      
       <ProductForm
         initialData={initialData}
         categories={categories}
@@ -423,12 +406,19 @@ export default function AdminProductEditPage({ params }: { params: Promise<{ id:
         categorySpecifications={categorySpecifications}
         onSave={handleSave}
       />
+      
+      <Button variant="danger" onClick={handleDelete} className="mt-6 ml-6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 mr-2">
+          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        </svg>
+        Удалить товар
+      </Button>
     </div>
   );
 }
 
 // Простой компонент кнопки для этой страницы
-function Button({ variant = 'primary', children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' }) {
+function Button({ variant = 'primary', className = '', children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' }) {
   const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-[var(--radius)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed px-5 py-[10px] text-[13px]';
   
   const variants = {
@@ -438,7 +428,7 @@ function Button({ variant = 'primary', children, ...props }: React.ButtonHTMLAtt
   };
 
   return (
-    <button className={`${baseStyles} ${variants[variant]}`} {...props}>
+    <button className={`${baseStyles} ${variants[variant]} ${className}`} {...props}>
       {children}
     </button>
   );
