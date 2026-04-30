@@ -3,7 +3,7 @@
 // ============================================================
 // CONFIG - Server webhook URL
 
-const SERVER_WEBHOOK_URL = 'http://5.129.193.202:3000/api/admin/parser/webhook';
+const SERVER_WEBHOOK_URL = 'http://72.56.240.16:3000/api/admin/parser/webhook';
 
 const API_ENDPOINTS = [
   (article, dest) => `https://www.wildberries.ru/__internal/card/cards/v4/detail?appType=1&curr=rub&dest=${dest}&spp=30&hide_vflags=4294967296&ab_testing=false&lang=ru&nm=${article}`,
