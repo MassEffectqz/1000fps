@@ -419,7 +419,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [loadPriceHistory]);
 
-  const handleParse = async () => {
+const handleParse = async () => {
     const sources = formData.parseSources?.filter(s => s.isActive).map(s => s.url) || [];
 
     if (sources.length === 0) {
@@ -427,7 +427,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       return;
     }
 
-    // Debounce: предотвращаем повторные нажатия
     const now = Date.now();
     if (now - parseLastClicked < PARSE_DEBOUNCE_MS) {
       toast.info('Парсинг уже запущен, подождите...');
@@ -439,142 +438,209 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     setParseProgress({ processed: 0, total: sources.length });
     setParserStatus({ status: 'parsing' });
 
-    // Offline fallback: сохраняем задачу в localStorage на случай сбоя
-    const pendingParse = {
-      sources,
-      productId: initialData?.id,
-      timestamp: Date.now(),
-    };
     try {
-      localStorage.setItem('wb_parser_pending_parse', JSON.stringify(pendingParse));
-    } catch {
-      console.warn('Failed to save pending parse to localStorage');
-    }
+      const source = sources[0];
+      const articleMatch = source.match(/catalog\/(\d+)/);
+      const article = articleMatch ? articleMatch[1] : null;
+      
+      if (!article) {
+        throw new Error('Не удалось извлечь артикул из URL');
+      }
 
-    const requestId = `parse_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-
-    try {
-      // Отправляем сообщение расширению через content script bridge
-      window.postMessage({
-        type: 'wb-parser-parse',
-        requestId,
-        sources,
-        productId: initialData?.id,
-      }, window.location.origin);
-
-      // Ждём ответ от расширения с таймаутом
-      const result = await new Promise<{ ok?: boolean; parsedData?: Record<string, unknown>; error?: string }>((resolve) => {
-        // Таймаут: при истечении 15с резолвим промис вместо reject чтобы избежать бесконечного ожидания
-        const timeout = setTimeout(() => {
-          window.removeEventListener('message', listener);
-          console.warn('[Parser] Таймаут ожидания ответа от расширения (15с)');
-          resolve({ 
-            ok: false, 
-            error: 'Расширение WB Parser не ответило за 15 секунд. Возможные причины:\n' +
-              '1. Расширение не установлено или отключено\n' +
-              '2. Нет открытых вкладок Wildberries с товаром\n' +
-              '3. Проверьте что расширение загружено ( должно быть active на chrome://extensions )' 
-          });
-        }, 15000);
-
-        const listener = (event: MessageEvent) => {
-          // Validate origin
-          if (event.origin !== window.location.origin) return;
-
-          const msg = event.data;
-          if (msg && msg.type === 'wb-parser-parse-response' && msg.requestId === requestId) {
-            clearTimeout(timeout);
-            window.removeEventListener('message', listener);
-            resolve(msg.response);
+      console.log('[Parser] Парсинг через расширение, артикул:', article);
+      
+      // Сохраняем запрос в chrome.storage для расширения
+      if (typeof chrome !== 'undefined' && chrome.storage) {
+        await chrome.storage.local.set({
+          wb_parser_request: {
+            requestId: `parse_${Date.now()}`,
+            article,
+            source,
+            timestamp: Date.now(),
           }
-        };
-
-        window.addEventListener('message', listener);
-      });
-
-      // Обрабатываем результат
-      if (result?.ok && result.parsedData) {
-        const { parsedData } = result as { ok?: boolean; parsedData: { name?: string; price?: number; oldPrice?: number; brand?: string; rating?: number; reviews?: number } };
-
-        setParserStatus({
-          status: 'success',
-          lastParsedAt: new Date(),
-          parsedData: {
-            name: parsedData.name,
-            price: parsedData.price,
-            oldPrice: parsedData.oldPrice,
-            brand: parsedData.brand,
-            rating: parsedData.rating,
-            reviews: parsedData.reviews,
-          },
         });
-        setParseProgress({ processed: sources.length, total: sources.length });
+      }
 
-        // Обновляем цену из парсинга
-        if (parsedData.price) {
-          setFormData(prev => ({
-            ...prev,
-            price: parsedData.price as number,
-            oldPrice: (parsedData.oldPrice as number) || prev.oldPrice,
-          }));
-        }
-
-        // Отправляем результаты парсинга на сервер для сохранения как поставщики
-        const resultWithResults = result as { results?: Array<{ url?: string; success?: boolean; data?: Record<string, unknown> }> };
-        if (resultWithResults.results && resultWithResults.results.length > 0 && initialData?.id) {
-          try {
-            // Преобразуем результаты в плоский формат для saveSuppliers
-            const supplierResults = resultWithResults.results
-              .filter((r) => r.success && r.url)
-              .map((r) => {
-                const d = r.data || {};
-                return {
-                  source: r.url,
-                  price: d.price ?? null,
-                  oldPrice: d.oldPrice ?? null,
-                  name: (d.name as string) || null,
-                  brand: (d.brand as string) || null,
-                  inStock: true,
-                  stockQuantity: null,
-                  deliveryMin: null,
-                  deliveryMax: null,
-                  rating: null,
-                  feedbacks: 0,
-                };
-              });
-
-            if (supplierResults.length > 0) {
-              await fetch('/api/admin/parser/webhook', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  productId: initialData.id,
-                  status: 'COMPLETED',
-                  result: supplierResults,
-                  sources: sources,
-                }),
-              });
-              console.log('[Parser] Saved', supplierResults.length, 'suppliers');
+      // Открываем вкладку WB с товаром
+      const wbUrl = `https://www.wildberries.ru/catalog/${article}/detail.aspx`;
+      
+      if (typeof chrome !== 'undefined' && chrome.tabs) {
+        // Создаём новую вкладку
+        const tab = await new Promise((resolve) => {
+          chrome.tabs.create({ url: wbUrl, active: true }, resolve);
+        });
+        
+        // Ждём пока вкладка загрузится и расширение получит данные
+        const result = await new Promise((resolve) => {
+          const checkInterval = setInterval(async () => {
+            try {
+              const data = await chrome.storage.local.get('wb_parser_result');
+              if (data.wb_parser_result && data.wb_parser_result.article === article) {
+                clearInterval(checkInterval);
+                await chrome.storage.local.remove('wb_parser_result');
+                resolve(data.wb_parser_result);
+              }
+            } catch (e) {
+              // ignore
             }
-          } catch (err) {
-            console.warn('Failed to save parse results as suppliers:', err);
+          }, 1000);
+          
+          // Таймаут 30 секунд
+          setTimeout(() => {
+            clearInterval(checkInterval);
+            resolve(null);
+          }, 30000);
+        });
+
+        if (result && result.price) {
+          const parsedData = {
+            name: result.name || 'Товар',
+            price: result.price,
+            oldPrice: result.oldPrice || null,
+            brand: null,
+            rating: null,
+            reviews: null,
+          };
+
+          setParserStatus({
+            status: 'success',
+            lastParsedAt: new Date(),
+            parsedData,
+          });
+          setParseProgress({ processed: sources.length, total: sources.length });
+
+          if (parsedData.price) {
+            setFormData(prev => ({
+              ...prev,
+              price: parsedData.price,
+              oldPrice: parsedData.oldPrice || prev.oldPrice,
+            }));
           }
+
+          // Отправляем на сервер
+          await fetch('/api/admin/parser/webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              productId: initialData.id,
+              status: 'COMPLETED',
+              result: [{ source, success: true, data: parsedData }],
+              sources: [source],
+            }),
+          });
+
+          loadPriceHistory();
+          toast.success('Парсинг завершён!');
+        } else {
+          throw new Error('Не удалось получить данные о товаре');
         }
-
-        loadPriceHistory();
-
-        // Очищаем pending parse
-        localStorage.removeItem('wb_parser_pending_parse');
-      } else if (result?.ok && !result.parsedData) {
-        setParserStatus({
-          status: 'error',
-          errorMessage: 'Источники не вернули данных. Проверьте URL и попробуйте снова.',
-        });
       } else {
-        setParserStatus({
-          status: 'error',
-          errorMessage: result?.error || 'Не удалось получить данные от расширения',
+        // Fallback: используем postMessage для связи с расширением через content script
+        const requestId = `parse_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+        window.postMessage({
+          type: 'wb-parser-parse',
+          requestId,
+          sources,
+          productId: initialData?.id,
+        }, window.location.origin);
+
+        const result = await new Promise<{ ok?: boolean; parsedData?: Record<string, unknown>; error?: string }>((resolve) => {
+          const timeout = setTimeout(() => {
+            window.removeEventListener('message', listener);
+            console.warn('[Parser] Таймаут ожидания ответа от расширения (15с)');
+            resolve({
+              ok: false,
+              error: 'Расширение WB Parser не ответило за 15 секунд. Возможные причины:\n' +
+                '1. Расширение не установлено или отключено\n' +
+                '2. Нет открытых вкладок Wildberries с товаром\n' +
+                '3. Проверьте что расширение загружено ( должно быть active на chrome://extensions )'
+            });
+          }, 15000);
+
+          const listener = (event: MessageEvent) => {
+            if (event.origin !== window.location.origin) return;
+            const msg = event.data;
+            if (msg && msg.type === 'wb-parser-parse-response' && msg.requestId === requestId) {
+              clearTimeout(timeout);
+              window.removeEventListener('message', listener);
+              resolve(msg.response);
+            }
+          };
+
+          window.addEventListener('message', listener);
         });
+
+        if (result?.ok && result.parsedData) {
+          const { parsedData } = result as { ok?: boolean; parsedData: { name?: string; price?: number; oldPrice?: number; brand?: string; rating?: number; reviews?: number } };
+
+          setParserStatus({
+            status: 'success',
+            lastParsedAt: new Date(),
+            parsedData: {
+              name: parsedData.name,
+              price: parsedData.price,
+              oldPrice: parsedData.oldPrice,
+              brand: parsedData.brand,
+              rating: parsedData.rating,
+              reviews: parsedData.reviews,
+            },
+          });
+          setParseProgress({ processed: sources.length, total: sources.length });
+
+          if (parsedData.price) {
+            setFormData(prev => ({
+              ...prev,
+              price: parsedData.price as number,
+              oldPrice: (parsedData.oldPrice as number) || prev.oldPrice,
+            }));
+          }
+
+          const resultWithResults = result as { results?: Array<{ url?: string; success?: boolean; data?: Record<string, unknown> }> };
+          if (resultWithResults.results && resultWithResults.results.length > 0 && initialData?.id) {
+            try {
+              const supplierResults = resultWithResults.results
+                .filter((r) => r.success && r.url)
+                .map((r) => {
+                  const d = r.data || {};
+                  return {
+                    source: r.url,
+                    price: d.price ?? null,
+                    oldPrice: d.oldPrice ?? null,
+                    name: (d.name as string) || null,
+                    brand: (d.brand as string) || null,
+                    inStock: true,
+                    stockQuantity: null,
+                    deliveryMin: null,
+                    deliveryMax: null,
+                    rating: null,
+                    feedbacks: 0,
+                  };
+                });
+
+              if (supplierResults.length > 0) {
+                await fetch('/api/admin/parser/webhook', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    productId: initialData.id,
+                    status: 'COMPLETED',
+                    result: supplierResults,
+                    sources: sources,
+                  }),
+                });
+              }
+            } catch (err) {
+              console.warn('Failed to save parse results as suppliers:', err);
+            }
+          }
+
+          loadPriceHistory();
+        } else if (result?.ok && !result.parsedData) {
+          throw new Error('Источники не вернули данных. Проверьте URL и попробуйте снова.');
+        } else {
+          throw new Error(result?.error || 'Не удалось получить данные от расширения');
+        }
       }
     } catch (error) {
       console.error('Parse error:', error);
@@ -585,10 +651,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         errorMessage: message,
       });
 
-      // Сохраняем для retry
       try {
         localStorage.setItem('wb_parser_failed_parse', JSON.stringify({
-          ...pendingParse,
+          sources,
+          productId: initialData?.id,
           error: message,
           failedAt: Date.now(),
         }));
@@ -597,14 +663,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       }
     } finally {
       setIsParsing(false);
-      // Если статус всё ещё 'parsing' после 15 секунд — сбрасываем в idle
       if (parserStatus.status === 'parsing') {
         setParserStatus({ status: 'idle' });
       }
     }
   };
-
-  // Retry failed parse from localStorage при монтировании
   useEffect(() => {
     try {
       const failedParse = localStorage.getItem('wb_parser_failed_parse');

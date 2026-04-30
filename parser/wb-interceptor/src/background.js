@@ -5,6 +5,67 @@
 
 const SERVER_WEBHOOK_URL = 'http://72.56.240.16:3000/api/admin/parser/webhook';
 
+// Проверяем storage на запросы парсинга каждые 2 секунды
+setInterval(async () => {
+  try {
+    const data = await chrome.storage.local.get('wb_parser_request');
+    if (data.wb_parser_request) {
+      const req = data.wb_parser_request;
+      // Удаляем старые запросы (старше 60 секунд)
+      if (Date.now() - req.timestamp > 60000) {
+        await chrome.storage.local.remove('wb_parser_request');
+        return;
+      }
+      
+      console.log('[1000fps] Получен запрос на парсинг из админки:', req);
+      
+      // Открываем вкладку с товаром
+      const tab = await chrome.tabs.create({ url: req.source, active: true });
+      
+      // Ждём загрузки страницы
+      const checkLoaded = setInterval(async () => {
+        try {
+          const [tabInfo] = await chrome.tabs.query({ id: tab.id });
+          if (tabInfo && tabInfo.status === 'complete') {
+            clearInterval(checkLoaded);
+            
+            // Получаем данные через content script
+            const results = await chrome.tabs.sendMessage(tab.id, { type: 'PARSE_CURRENT_PAGE' });
+            
+            if (results && results.price) {
+              // Сохраняем результат
+              await chrome.storage.local.set({
+                wb_parser_result: {
+                  article: req.article,
+                  source: req.source,
+                  price: results.price,
+                  oldPrice: results.oldPrice || null,
+                  name: results.name || null,
+                  timestamp: Date.now(),
+                }
+              });
+              
+              console.log('[1000fps] Результат парсинга:', results);
+              
+              // Можно закрыть вкладку
+              // chrome.tabs.remove(tab.id);
+            } else {
+              console.error('[1000fps] Не удалось получить данные со страницы');
+            }
+            
+            // Удаляем запрос
+            await chrome.storage.local.remove('wb_parser_request');
+          }
+        } catch (e) {
+          console.error('[1000fps] Ошибка при ожидании загрузки:', e);
+        }
+      }, 1000);
+    }
+  } catch (e) {
+    // ignore
+  }
+}, 2000);
+
 const API_ENDPOINTS = [
   (article, dest) => `https://www.wildberries.ru/__internal/card/cards/v4/detail?appType=1&curr=rub&dest=${dest}&spp=30&hide_vflags=4294967296&ab_testing=false&lang=ru&nm=${article}`,
   (article, dest) => `https://www.wildberries.ru/__internal/card/cards/v4/detail?appType=1&curr=rub&dest=${dest}&spp=30&lang=ru&nm=${article}`,
