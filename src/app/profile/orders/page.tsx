@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Breadcrumbs, Button, OrderCard } from '@/components/ui';
+import { Breadcrumbs, Button, Card } from '@/components/ui';
 
 interface Order {
   id: string;
@@ -100,13 +100,18 @@ export default function ProfileOrdersPage() {
 
         <div className="space-y-4">
           {orders.map(order => (
-            <OrderCard
-              key={order.id}
-              order={{
-                ...order,
-                createdAt: order.createdAt,
-              }}
-            />
+            <Card key={order.id} className="p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="font-display font-bold text-white2">{order.orderNumber}</p>
+                  <p className="text-sm text-gray3">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-display font-bold text-orange">{order.total.toLocaleString('ru-RU')} ₽</p>
+                  <p className="text-sm text-gray3">{order.status}</p>
+                </div>
+              </div>
+            </Card>
           ))}
         </div>
       </div>

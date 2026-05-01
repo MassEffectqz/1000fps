@@ -83,14 +83,14 @@ export async function GET(request: NextRequest) {
         orderBy = { createdAt: 'desc' };
         break;
       case 'rating':
-        orderBy = { rating: 'desc' };
+        orderBy = { rating: 'desc' as const };
         break;
       case 'sales':
-        orderBy = { salesCount: 'desc' };
+        orderBy = { salesCount: 'desc' as const };
         break;
       case 'popular':
       default:
-        orderBy = [{ salesCount: 'desc' }, { rating: 'desc' }];
+        orderBy = [{ salesCount: 'desc' as const }, { rating: 'desc' as const }] as unknown as Record<string, unknown>;
         break;
     }
 

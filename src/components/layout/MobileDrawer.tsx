@@ -259,16 +259,16 @@ const catalogCategories = [
   { id: 'laptops', name: 'Ноутбуки', icon: 'laptop' },
 ];
 
-const navLinks = [
+const navLinks: { href: string; label: string; icon: string; hot?: boolean }[] = [
   { href: '/catalog', label: 'Каталог', icon: 'grid' },
-  { href: '/catalog?isNew=true', label: 'Новинки', icon: 'sparkle' },
+  { href: '/catalog?isNew=true', label: 'Новинки', icon: 'sparkle', hot: true },
   { href: '/ready-builds', label: 'Готовые сборки', icon: 'desktop' },
   { href: '/configurator', label: 'Конфигуратор ПК', icon: 'tools' },
   { href: '/used', label: 'Б/У техника', icon: 'recycle' },
   { href: '/faq', label: 'FAQ', icon: 'help' },
 ];
 
-const infoLinks = [
+const infoLinks: { href: string; label: string; icon: string; hot?: boolean }[] = [
   { href: '/warehouses', label: 'Пункты выдачи', icon: 'mapPin' },
   { href: '/delivery', label: 'Доставка', icon: 'truck' },
   { href: '/warranty', label: 'Гарантия', icon: 'shield' },
@@ -277,7 +277,7 @@ const infoLinks = [
   { href: '/b2b', label: 'Корп. клиентам', icon: 'building' },
 ];
 
-const quickLinks = [
+const quickLinks: { href: string; label: string; icon: string; hot?: boolean }[] = [
   { href: '/profile', label: 'Профиль', icon: 'profile' },
   { href: '/profile/orders', label: 'Заказы', icon: 'orders' },
   { href: '/profile/wishlist', label: 'Избранное', icon: 'heart' },

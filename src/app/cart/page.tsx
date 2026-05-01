@@ -186,10 +186,10 @@ export default function CartPage() {
                     {/* Warehouse selector for supplier items */}
                     {!item.warehouseId && warehouses.length > 0 && (
                       <select
-                        value=""
-                        onChange={(e) => {
+                        value={item.warehouseId || ''}
+                        onChange={async (e) => {
                           if (e.target.value) {
-                            updateCartItem(item.id, item.quantity, e.target.value);
+                            await updateCartItem(item.id, item.quantity, e.target.value);
                           }
                         }}
                         className="text-[11px] lg:text-[12px] bg-black3 border border-gray1 rounded-[var(--radius)] px-2 py-1 text-gray3 focus:border-orange focus:outline-none"

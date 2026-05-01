@@ -226,10 +226,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Если товар не найден - пробуем найти по supplierId (артикулу WB)
+    // Если товар не найден - пробуем найти по supplier URL (артикулу WB)
     if (!product) {
       const supplierProduct = await prisma.productSupplier.findFirst({
-        where: { supplierId: productId },
+        where: { url: productId },
         select: { productId: true },
       });
       if (supplierProduct?.productId) {
@@ -283,7 +283,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Транзакция для избежания race condition
-    let cartItem;
+    let cartItem: Awaited<ReturnType<typeof prisma.cartItem.findFirst>>;
     
     try {
       cartItem = await prisma.$transaction(async (tx) => {
@@ -456,7 +456,7 @@ export async function POST(request: NextRequest) {
       success: true,
       item: {
         id: cartItem.id,
-        productId: cartItem.product.id,
+        productId: cartItem.productId,
         quantity: cartItem.quantity,
         warehouseId: cartItem.warehouseId,
         product: {

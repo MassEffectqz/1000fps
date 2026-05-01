@@ -474,7 +474,7 @@ const handleParse = async () => {
         const result = await new Promise((resolve) => {
           const checkInterval = setInterval(async () => {
             try {
-              const data = await chrome.storage.local.get('wb_parser_result');
+              const data = await chrome.storage.local.get('wb_parser_result') as { wb_parser_result?: { article: string; name?: string; price?: number; oldPrice?: number } };
               if (data.wb_parser_result && data.wb_parser_result.article === article) {
                 clearInterval(checkInterval);
                 await chrome.storage.local.remove('wb_parser_result');
@@ -492,14 +492,15 @@ const handleParse = async () => {
           }, 30000);
         });
 
-        if (result && result.price) {
+        if (result && (result as { price?: number }).price) {
+          const r = result as { name?: string; price?: number; oldPrice?: number };
           const parsedData = {
-            name: result.name || 'Товар',
-            price: result.price,
-            oldPrice: result.oldPrice || null,
-            brand: null,
-            rating: null,
-            reviews: null,
+            name: r.name || 'Товар',
+            price: r.price,
+            oldPrice: r.oldPrice || undefined,
+            brand: undefined,
+            rating: undefined,
+            reviews: undefined,
           };
 
           setParserStatus({
@@ -512,9 +513,13 @@ const handleParse = async () => {
           if (parsedData.price) {
             setFormData(prev => ({
               ...prev,
-              price: parsedData.price,
-              oldPrice: parsedData.oldPrice || prev.oldPrice,
+              price: parsedData.price ?? prev.price,
+              oldPrice: parsedData.oldPrice !== undefined ? parsedData.oldPrice : prev.oldPrice,
             }));
+          }
+
+          if (!initialData?.id) {
+            throw new Error('ID товара не найден');
           }
 
           // Отправляем на сервер

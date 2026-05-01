@@ -14,7 +14,7 @@ export default async function ProfileLayout({
     redirect('/login?callbackUrl=/profile');
   }
 
-  const session = await verifySession(token);
+  const session = await verifySession(token as string);
 
   if (!session) {
     redirect('/login?callbackUrl=/profile');

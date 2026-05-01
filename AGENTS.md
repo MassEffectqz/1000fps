@@ -10,10 +10,13 @@ npm run test             # Main tests (vitest.config.ts)
 npm run test:ui           # Tests with UI (vitest --ui)
 npm run test:parser      # Parser tests (vitest.parser.config.ts)
 npm run test:coverage  # Coverage for main tests
-npx prisma migrate dev # Create/apply migrations
+npx tsx prisma/migrate.ts deploy  # Apply migrations (requires DATABASE_URL)
 npx prisma generate   # Generate Prisma client
 npx prisma studio      # DB GUI
 npm run db:seed        # Seed database
+
+# Standalone parser (port 3005)
+cd parser && npm start
 
 # Docker shortcuts
 npm run docker:up      # docker compose up -d
@@ -27,10 +30,16 @@ npm run start:all     # docker compose up -d (all services)
 
 ```bash
 docker compose up -d     # Start all (app, parser, postgres, redis)
-docker compose up postgres # Only postgres for local dev
+docker compose up postgres # Only postgres for local dev (tests need DB)
 docker compose logs -f   # View logs
 docker compose down
 ```
+
+Local testing: run `docker compose up postgres` for Postgres, then copy env vars to `.env.local`.
+
+## Parser Service
+
+The parser is a standalone Express server in `parser/wb-server/` with its own Docker setup at `parser/docker-compose.yml`. Run `cd parser && npm start` for local development (port 3005).
 
 ## CI Order (in .github/workflows/ci.yml)
 
@@ -42,12 +51,9 @@ Tests require Postgres running (configured in CI with `fps1000_test` db).
 
 ## Test Structure
 
-- **Main tests**: `src/tests/**` — uses `vitest.config.ts`, jsdom environment
-- **Parser tests**: `parser/wb-interceptor/**/*.test.js` — uses `vitest.parser.config.ts`
-
-Test setup at `src/tests/setup.ts` includes mocks for `next/navigation`, `next/image`, `sonner`.
-
-Tests require Postgres running. Copy env vars from `.env.example` to `.env.local` and set `DATABASE_URL`.
+- **Main tests**: `src/tests/**` — jsdom environment, setup in `src/tests/setup.ts`
+- **Parser tests**: `parser/wb-interceptor/**/*.test.js` — separate vitest config
+- Tests require Postgres: copy `.env.example` to `.env.local`, set `DATABASE_URL`
 
 ## Architecture
 

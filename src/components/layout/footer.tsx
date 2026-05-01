@@ -184,7 +184,6 @@ export function Footer() {
                 Мы в соцсетях
               </div>
               <div className="flex gap-2">
-                {/* VK */}
                 <a href="https://vk.com/shop1000fps" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center text-gray3 transition-colors hover:border-orange hover:text-orange hover:bg-black2">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                     <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm3.08 13.5h-1.52c-.57 0-.75-.46-1.78-1.5-.9-.88-1.3-.99-1.52-.99-.31 0-.4.09-.4.52v1.37c0 .37-.12.59-1.1.59-1.62 0-3.41-.98-4.67-2.81-1.9-2.66-2.42-4.66-2.42-5.07 0-.22.09-.43.52-.43h1.52c.39 0 .53.18.68.6.75 2.16 2 4.06 2.52 4.06.19 0 .28-.09.28-.59V9.3c-.06-1.06-.62-1.15-.62-1.52 0-.19.15-.37.4-.37h2.4c.33 0 .44.17.44.55v2.97c0 .33.15.44.24.44.19 0 .37-.11.74-.48 1.15-1.29 1.97-3.27 1.97-3.27.11-.22.28-.43.67-.43h1.52c.46 0 .56.24.46.55-.19.87-2.04 3.5-2.04 3.5-.16.26-.22.37 0 .66.16.22.68.68 1.02 1.09.64.73 1.12 1.34 1.25 1.76.11.4-.09.6-.5.6z" />
@@ -195,7 +194,7 @@ export function Footer() {
           </div>
         </div>
 
-        {/* MIDDLE: addresses — side by side with space-between */}
+        {/* MIDDLE: addresses */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-8 border-b border-gray1 gap-6">
           <div className="flex items-start gap-[14px]">
             <div className="w-10 h-10 flex-shrink-0 bg-black3 border border-gray1 rounded-[var(--radius)] flex items-center justify-center">
@@ -233,7 +232,7 @@ export function Footer() {
           </div>
         </div>
 
-{/* BOTTOM */}
+        {/* BOTTOM */}
         <div className="flex items-center justify-between py-5 gap-6 flex-wrap">
           <div className="text-[12px] text-gray3">
             2026 &copy; 1000FPS — интернет-магазин компьютерной техники.<br />
@@ -268,35 +267,6 @@ export function Footer() {
               height={24}
               className="h-auto w-[80px] opacity-70"
             />
-          </div>
-        </div>
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col items-end gap-3">
-              <div className="flex gap-5">
-                <Link href="/privacy" className="text-[12px] text-gray3 transition-colors hover:text-white">
-                  Политика конфиденциальности
-                </Link>
-                <Link href="/offer" className="text-[12px] text-gray3 transition-colors hover:text-white">
-                  Оферта
-                </Link>
-                <Link href="/requisites" className="text-[12px] text-gray3 transition-colors hover:text-white">
-                  Реквизиты
-                </Link>
-                <Link href="/sitemap" className="text-[12px] text-gray3 transition-colors hover:text-white">
-                  Карта сайта
-                </Link>
-              </div>
-            </div>
-            <div className="flex-shrink-0 border-l border-gray1 pl-4">
-              <span className="text-[11px] text-gray4 block mb-1">Сделано в</span>
-              <Image 
-                src="/images/footer/dev-group-logo.png" 
-                alt="Dev Group" 
-                width={80} 
-                height={24}
-                className="h-auto w-[80px] opacity-60 hover:opacity-100 transition-opacity"
-              />
-            </div>
           </div>
         </div>
       </div>

@@ -173,7 +173,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       slug: product.brand.slug,
     } : null,
     badges: [] as Array<{ text: string; variant: 'orange' | 'green' | 'blue' | 'gray' | 'yellow' }>,
-    warehouses: undefined,
+    warehouses: [] as Product['warehouses'],
   };
 
   if (discountedPrice < price) {
@@ -187,7 +187,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const warehousesData = await getWarehousesWithStock(product.id);
   if (warehousesData && warehousesData.warehouses.length > 0) {
-    formattedProduct.warehouses = warehousesData.warehouses;
+    formattedProduct.warehouses = warehousesData.warehouses.map(w => ({
+      ...w,
+      formattedAddress: w.formattedAddress || `${w.city} ${w.address}`,
+    }));
   }
 
   const reviewsResponse = await fetch(

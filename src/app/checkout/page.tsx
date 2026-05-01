@@ -2,6 +2,7 @@
 
 import { useCart } from '@/lib/context/cart-context';
 import { Breadcrumbs, Button } from '@/components/ui';
+import { getWarehousesWithStock, type WarehouseWithStock } from '@/lib/actions/warehouse';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -22,6 +23,8 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [warehouses, setWarehouses] = useState<WarehouseWithStock[]>([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -31,44 +34,58 @@ export default function CheckoutPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Проверка авторизации и загрузка профиля
+  // Load profile and warehouses
   useEffect(() => {
-    const loadProfile = async () => {
+    const loadData = async () => {
       try {
-        // Проверяем сессию
+        // Load session
         const sessionRes = await fetch('/api/auth/session');
         const sessionData: SessionUser = await sessionRes.json();
         
         if (!sessionData.user) {
-          // Не авторизован - редирект на вход
           router.push(`/auth/login?redirect=/checkout`);
           return;
         }
         
         setIsAuthenticated(true);
         
-        // Загружаем профиль
-        const res = await fetch('/api/profile');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.user) {
+        // Load profile
+        const profileRes = await fetch('/api/profile');
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          if (profileData.success && profileData.user) {
             setFormData((prev) => ({
               ...prev,
-              name: data.user.name || sessionData.user?.name || '',
-              email: data.user.email || sessionData.user?.email || '',
-              phone: data.user.phone || '',
+              name: profileData.user.name || sessionData.user?.name || '',
+              email: profileData.user.email || sessionData.user?.email || '',
+              phone: profileData.user.phone || '',
             }));
           }
         }
+
+        // Load warehouses if cart has items
+        if (cart.items.length > 0 && cart.items[0]?.productId) {
+          const whData = await getWarehousesWithStock(cart.items[0].productId);
+          if (whData?.warehouses) {
+            setWarehouses(whData.warehouses);
+            // Auto-select first warehouse with stock
+            const firstWithStock = whData.warehouses.find((w: WarehouseWithStock) => w.quantity > 0);
+            if (firstWithStock) {
+              setSelectedWarehouse(firstWithStock.id);
+            }
+          }
+        }
       } catch {
-        // Ошибка - редирект на вход
         router.push(`/auth/login?redirect=/checkout`);
       } finally {
         setProfileLoading(false);
       }
     };
-    loadProfile();
-  }, [router]);
+
+    if (!cartLoading) {
+      loadData();
+    }
+  }, [router, cartLoading, cart.items]);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -93,6 +110,9 @@ export default function CheckoutPage() {
     if (formData.phone.trim().length < 5) {
       newErrors.phone = 'Укажите номер телефона';
     }
+    if (warehouses.length > 0 && !selectedWarehouse) {
+      newErrors.warehouse = 'Выберите пункт самовывоза';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -113,6 +133,7 @@ export default function CheckoutPage() {
           name: formData.name.trim(),
           email: formData.email.trim(),
           phone: formData.phone.trim(),
+          warehouseId: selectedWarehouse || null,
           paymentMethod: 'CASH',
           deliveryMethod: 'PICKUP',
           deliveryAddress: null,
@@ -290,27 +311,33 @@ export default function CheckoutPage() {
                 <h2 className="font-display text-base lg:text-[18px] font-bold text-white2 mb-4">
                   Получение заказа
                 </h2>
-                <div className="flex items-start gap-4 p-4 bg-black3 border border-gray1 rounded-[var(--radius)]">
-                  <div className="w-10 h-10 bg-orange/10 rounded-[var(--radius)] flex items-center justify-center flex-shrink-0">
-                    <svg
-                      className="w-5 h-5 text-orange"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
+                <div className="space-y-3">
+                  {warehouses.length > 0 ? (
+                    <select
+                      value={selectedWarehouse}
+                      onChange={(e) => setSelectedWarehouse(e.target.value)}
+                      className={`w-full bg-black3 border rounded-[var(--radius)] px-4 py-2.5 text-[14px] text-white2 focus:border-orange focus:outline-none ${
+                        errors.warehouse ? 'border-red-500' : 'border-gray1'
+                      }`}
                     >
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-[14px] text-white2 font-display font-bold mb-1">
-                      Самовывоз со склада
-                    </p>
-                    <p className="text-[13px] text-gray3">
-                      Заберите заказ из нашего магазина после подтверждения готовности
-                    </p>
-                  </div>
+                      <option value="">Выберите пункт самовывоза</option>
+                      {warehouses
+                        .filter(w => w.quantity > 0)
+                        .map((wh) => (
+                          <option key={wh.id} value={wh.id}>
+                            {wh.city} - {wh.name} (в наличии: {wh.quantity} шт.)
+                          </option>
+                        ))}
+                    </select>
+                  ) : (
+                    <p className="text-[13px] text-gray3">Загрузка складов...</p>
+                  )}
+                  {errors.warehouse && (
+                    <p className="text-[12px] text-red-500 mt-1">{errors.warehouse}</p>
+                  )}
+                  <p className="text-[13px] text-gray3">
+                    Заберите заказ из нашего магазина после подтверждения готовности
+                  </p>
                 </div>
               </div>
 

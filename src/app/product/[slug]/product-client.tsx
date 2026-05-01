@@ -76,6 +76,7 @@ export interface Product {
     quantity: number;
     price: number;
     formattedPrice: string;
+    formattedAddress: string;
   }>;
 }
 
@@ -378,7 +379,18 @@ export function ProductPageClient({
               <div className="mb-4">
                 <WarehouseSelector
                   productId={product.id}
-                  warehouses={product.warehouses}
+                  warehouses={product.warehouses as unknown as Array<{
+                    id: string;
+                    name: string;
+                    address: string;
+                    city: string;
+                    phone: string | null;
+                    inStock: boolean;
+                    quantity: number;
+                    price: number;
+                    formattedPrice: string;
+                    formattedAddress: string;
+                  }>}
                 />
               </div>
             )}
@@ -389,7 +401,18 @@ export function ProductPageClient({
                 <SupplierSelector
                   productId={product.id}
                   suppliers={suppliers}
-                  warehouses={product.warehouses || []}
+                  warehouses={product.warehouses as unknown as Array<{
+                    id: string;
+                    name: string;
+                    address: string;
+                    city: string;
+                    phone: string | null;
+                    inStock: boolean;
+                    quantity: number;
+                    price: number;
+                    formattedPrice: string;
+                    formattedAddress: string;
+                  }>}
                   onRefresh={loadSuppliers}
                   isLoading={isLoadingSuppliers}
                 />
