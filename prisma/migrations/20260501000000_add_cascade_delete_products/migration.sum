@@ -1,0 +1,2 @@
+-- Migration: Add cascade delete to Product relations
+-- Created: 2026-05-01
