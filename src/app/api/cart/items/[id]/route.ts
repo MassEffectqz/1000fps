@@ -86,9 +86,11 @@ export async function PUT(
 
     // Проверяем наличие на складе при изменении количества или склада
     const targetWarehouseId = warehouseId || cartItem.warehouseId;
+    const targetSupplierId = cartItem.supplierId;
     const newQuantity = quantity || cartItem.quantity;
 
-    if (targetWarehouseId) {
+    // Если есть поставщик - не проверяем наличие на складе
+    if (targetWarehouseId && !targetSupplierId) {
       const warehouseStock = await prisma.warehouseStock.findUnique({
         where: {
           warehouseId_productId: {

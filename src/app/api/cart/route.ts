@@ -275,11 +275,14 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      if (!warehouseStock || warehouseStock.quantity < quantity) {
-        return NextResponse.json(
-          { error: 'Недостаточно товара на выбранном складе' },
-          { status: 400 }
-        );
+      // Проверяем наличие только если есть склад и нет поставщика
+      if (normalizedWarehouseId && !normalizedSupplierId) {
+        if (!warehouseStock || warehouseStock.quantity < quantity) {
+          return NextResponse.json(
+            { error: 'Недостаточно товара на выбранном складе' },
+            { status: 400 }
+          );
+        }
       }
     }
 
@@ -344,9 +347,9 @@ export async function POST(request: NextRequest) {
           // Обновляем количество
           const newQuantity = existingItem.quantity + quantity;
 
-          // Проверяем наличие на складе при обновлении
+          // Проверяем наличие на складе только если есть склад и нет поставщика
           const stockWarehouseId = normalizedWarehouseId || existingItem.warehouseId;
-          if (stockWarehouseId) {
+          if (stockWarehouseId && !normalizedSupplierId) {
             const warehouseStock = await tx.warehouseStock.findUnique({
               where: {
                 warehouseId_productId: {
@@ -366,6 +369,7 @@ export async function POST(request: NextRequest) {
             data: {
               quantity: newQuantity,
               warehouseId: normalizedWarehouseId || existingItem.warehouseId,
+              supplierId: normalizedSupplierId || existingItem.supplierId,
             },
             include: {
               product: {
