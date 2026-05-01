@@ -448,6 +448,9 @@ async function saveSuppliers(
       const priceValue = price ?? 0;
       if (priceValue === 0) continue; // Пропускаем товары без цены
 
+      // Применяем скидку 2% (как и для цены товара)
+      const discountedPrice = Math.round(priceValue * 0.98);
+
       // Сохраняем или обновляем поставщика
       await db.productSupplier.upsert({
         where: {
@@ -457,8 +460,8 @@ async function saveSuppliers(
           productId,
           name: sourceName,
           url: source,
-          price: new Decimal(priceValue),
-          oldPrice: oldPrice ? new Decimal(oldPrice) : null,
+          price: new Decimal(discountedPrice),
+          oldPrice: oldPrice ? new Decimal(Math.round(oldPrice * 0.98)) : null,
           deliveryTime,
           inStock,
           rating,
@@ -466,8 +469,8 @@ async function saveSuppliers(
         },
         update: {
           name: sourceName,
-          price: new Decimal(priceValue),
-          oldPrice: oldPrice ? new Decimal(oldPrice) : null,
+          price: new Decimal(discountedPrice),
+          oldPrice: oldPrice ? new Decimal(Math.round(oldPrice * 0.98)) : null,
           deliveryTime,
           inStock,
           rating,
