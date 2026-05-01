@@ -364,28 +364,61 @@ export async function POST(request: NextRequest) {
           });
         } else {
           // Создаем новый элемент
-          return await tx.cartItem.create({
-            data: {
-              cartId: cart.id,
-              userId: session.userId,
-              productId: product.id,
-              quantity,
-              warehouseId: normalizedWarehouseId || null,
-            },
-            include: {
-              product: {
-                include: {
-                  images: {
-                    where: { isMain: true },
-                    take: 1,
+          try {
+            return await tx.cartItem.create({
+              data: {
+                cartId: cart.id,
+                userId: session.userId,
+                productId: product.id,
+                quantity,
+                warehouseId: normalizedWarehouseId || null,
+              },
+              include: {
+                product: {
+                  include: {
+                    images: {
+                      where: { isMain: true },
+                      take: 1,
+                    },
                   },
                 },
               },
-            },
-          });
+            });
+          } catch (createError: unknown) {
+            // Если ошибка уникальности - ищем существующий товар с таким же productId и обновляем
+            const err = createError as { code?: string; message?: string; meta?: { target?: string[] } };
+            if (err.code === 'P2002') {
+              // Находим первый товар с таким productId в корзине и обновляем
+              const existingItem = await tx.cartItem.findFirst({
+                where: {
+                  cartId: cart.id,
+                  productId: product.id,
+                },
+              });
+              
+              if (existingItem) {
+                return await tx.cartItem.update({
+                  where: { id: existingItem.id },
+                  data: { 
+                    quantity: existingItem.quantity + quantity,
+                    warehouseId: normalizedWarehouseId || existingItem.warehouseId,
+                  },
+                  include: {
+                    product: {
+                      include: {
+                        images: { where: { isMain: true }, take: 1 },
+                      },
+                    },
+                  },
+                });
+              }
+            }
+            throw createError;
+          }
         }
       });
     } catch (txError) {
+      console.error('Transaction error in add to cart:', txError);
       const errorMessage = txError instanceof Error ? txError.message : '';
       if (errorMessage.includes('склада')) {
         return NextResponse.json(
@@ -393,7 +426,10 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      throw txError;
+      return NextResponse.json(
+        { error: 'Ошибка при добавлении в корзину: ' + errorMessage },
+        { status: 500 }
+      );
     }
 
     // Вычисляем цену товара
