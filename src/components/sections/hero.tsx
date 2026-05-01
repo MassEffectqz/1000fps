@@ -10,6 +10,16 @@ const slides = [
     image: '/images/slider/slider1.png',
     alt: '1000FPS - компьютерная техника и гейминг',
   },
+  {
+    idx: 1,
+    image: '/images/slider/slider2.png',
+    alt: '1000FPS - игровые компьютеры',
+  },
+  {
+    idx: 2,
+    image: '/images/slider/slider3.png',
+    alt: '1000FPS - аксессуары и периферия',
+  },
 ];
 
 export function Hero() {
