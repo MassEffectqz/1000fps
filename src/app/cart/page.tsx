@@ -2,9 +2,10 @@
 
 import { useCart } from '@/lib/context/cart-context';
 import { Breadcrumbs, Button } from '@/components/ui';
+import { getWarehousesWithStock, type WarehouseWithStock } from '@/lib/actions/warehouse';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function CartPage() {
   const {
@@ -16,6 +17,20 @@ export default function CartPage() {
   } = useCart();
 
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
+  const [warehouses, setWarehouses] = useState<WarehouseWithStock[]>([]);
+
+  useEffect(() => {
+    async function loadWarehouses() {
+      // Загружаем склады (достаточно один раз)
+      const data = await getWarehousesWithStock(cart.items[0]?.productId || '');
+      if (data) {
+        setWarehouses(data.warehouses);
+      }
+    }
+    if (cart.items.length > 0) {
+      loadWarehouses();
+    }
+  }, [cart.items]);
 
   const handleRemove = async (itemId: string) => {
     setRemovingIds(prev => new Set(prev).add(itemId));
@@ -167,6 +182,26 @@ export default function CartPage() {
                         </>
                       )}
                     </div>
+                    
+                    {/* Warehouse selector for supplier items */}
+                    {!item.warehouseId && warehouses.length > 0 && (
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            updateCartItem(item.id, item.quantity, e.target.value);
+                          }
+                        }}
+                        className="text-[11px] lg:text-[12px] bg-black3 border border-gray1 rounded-[var(--radius)] px-2 py-1 text-gray3 focus:border-orange focus:outline-none"
+                      >
+                        <option value="">Выбрать склад</option>
+                        {warehouses.map((wh) => (
+                          <option key={wh.id} value={wh.id}>
+                            {wh.city} - {wh.name} ({wh.quantity} шт.)
+                          </option>
+                        ))}
+                      </select>
+                    )}
                     {item.product.inStock ? (
                       <span className="text-[11px] lg:text-[12px] text-green-500 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />

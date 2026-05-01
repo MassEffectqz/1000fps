@@ -302,26 +302,31 @@ export async function POST(request: NextRequest) {
 
         // Проверяем, есть ли уже такой товар в корзине с таким же складом
         // Ищем по точному совпадению productId и warehouseId
-        let existingItem = null;
+        let existingItem: typeof cartItem | null = null;
         
-        if (normalizedWarehouseId) {
-          // Ищем товар с конкретным складом
-          existingItem = await tx.cartItem.findFirst({
-            where: {
-              cartId: cart.id,
-              productId: product.id,
-              warehouseId: normalizedWarehouseId,
-            },
-          });
-        } else {
-          // Ищем товар без склада (поставщик)
-          existingItem = await tx.cartItem.findFirst({
-            where: {
-              cartId: cart.id,
-              productId: product.id,
-              warehouseId: null,
-            },
-          });
+        try {
+          if (normalizedWarehouseId) {
+            // Ищем товар с конкретным складом
+            existingItem = await tx.cartItem.findFirst({
+              where: {
+                cartId: cart.id,
+                productId: product.id,
+                warehouseId: normalizedWarehouseId,
+              },
+            });
+          } else {
+            // Ищем товар без склада (поставщик)
+            existingItem = await tx.cartItem.findFirst({
+              where: {
+                cartId: cart.id,
+                productId: product.id,
+                warehouseId: null,
+              },
+            });
+          }
+        } catch (e) {
+          // Если ошибка - продолжаем без поиска
+          existingItem = null;
         }
 
         if (existingItem) {
