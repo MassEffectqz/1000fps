@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
       email,
       phone,
       warehouseId,
+      supplierId,
       notes,
     } = validation.data;
 
@@ -136,6 +137,7 @@ export async function POST(request: NextRequest) {
           customerEmail: email,
           customerPhone: phone,
           warehouseId: warehouseId || null,
+          supplierId: supplierId || null,
           source: orderSource,
           paymentMethod: 'CASH',
           deliveryMethod: 'PICKUP',

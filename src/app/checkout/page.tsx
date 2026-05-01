@@ -16,6 +16,18 @@ interface SessionUser {
   } | null;
 }
 
+interface Supplier {
+  id: string;
+  name: string;
+  url: string;
+  price: number;
+  oldPrice: number | null;
+  deliveryTime: string | null;
+  inStock: boolean;
+  rating: number | null;
+  reviewsCount: number | null;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, isLoading: cartLoading, clearCart } = useCart();
@@ -25,6 +37,8 @@ export default function CheckoutPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [warehouses, setWarehouses] = useState<WarehouseWithStock[]>([]);
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [selectedSupplier, setSelectedSupplier] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -74,6 +88,15 @@ export default function CheckoutPage() {
               setSelectedWarehouse(firstWithStock.id);
             }
           }
+
+          // Load suppliers
+          const supplierRes = await fetch(`/api/public/products/${cart.items[0].productId}/suppliers`);
+          if (supplierRes.ok) {
+            const supplierData = await supplierRes.json();
+            if (supplierData.ok && supplierData.data) {
+              setSuppliers(supplierData.data);
+            }
+          }
         }
       } catch {
         router.push(`/auth/login?redirect=/checkout`);
@@ -110,8 +133,9 @@ export default function CheckoutPage() {
     if (formData.phone.trim().length < 5) {
       newErrors.phone = 'Укажите номер телефона';
     }
-    if (warehouses.length > 0 && !selectedWarehouse) {
-      newErrors.warehouse = 'Выберите пункт самовывоза';
+// Нужно выбрать либо склад, либо поставщика
+    if (!selectedWarehouse && !selectedSupplier) {
+      newErrors.warehouse = 'Выберите склад или поставщика';
     }
 
     setErrors(newErrors);
@@ -134,6 +158,7 @@ export default function CheckoutPage() {
           email: formData.email.trim(),
           phone: formData.phone.trim(),
           warehouseId: selectedWarehouse || null,
+          supplierId: selectedSupplier || null,
           paymentMethod: 'CASH',
           deliveryMethod: 'PICKUP',
           deliveryAddress: null,
@@ -303,6 +328,38 @@ export default function CheckoutPage() {
                       <p className="text-[12px] text-red-500 mt-1">{errors.phone}</p>
                     )}
                   </div>
+                </div>
+              </div>
+
+{/* Выбор поставщика */}
+              <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-4 lg:p-6">
+                <h2 className="font-display text-base lg:text-[18px] font-bold text-white2 mb-4">
+                  Поставщик
+                </h2>
+                <div className="space-y-3">
+                  {suppliers.length > 0 ? (
+                    <select
+                      value={selectedSupplier}
+                      onChange={(e) => setSelectedSupplier(e.target.value)}
+                      className="w-full bg-black3 border border-gray1 rounded-[var(--radius)] px-4 py-2.5 text-[14px] text-white2 focus:border-orange focus:outline-none"
+                    >
+                      <option value="">Без поставщика (со склада)</option>
+                      {suppliers.map((supplier) => {
+                        const ratingText = supplier.rating !== null 
+                          ? ` • ★ ${supplier.rating.toFixed(1)}${supplier.reviewsCount !== null ? ` (${supplier.reviewsCount} отзывов)` : ''}`
+                          : '';
+                        return (
+                          <option key={supplier.id} value={supplier.id}>
+                            {supplier.name} — {supplier.price.toLocaleString('ru-RU')} ₽{supplier.deliveryTime ? ` • ${supplier.deliveryTime}` : ''}{ratingText}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  ) : suppliers.length === 0 ? (
+                    <p className="text-[13px] text-gray3">Нет доступных поставщиков</p>
+                  ) : (
+                    <p className="text-[13px] text-gray3">Загрузка поставщиков...</p>
+                  )}
                 </div>
               </div>
 

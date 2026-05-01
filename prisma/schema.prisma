@@ -335,6 +335,8 @@ model Order {
   customerPhone   String?
   // Склад самовывоза
   warehouseId     String?
+  // Поставщик
+  supplierId      String?
   // Источник заказа: WAREHOUSE (со склада) или SUPPLIER (от поставщика)
   source          String          @default("SUPPLIER")
   status          OrderStatus     @default(PENDING)
