@@ -639,8 +639,10 @@ async function updateProductPriceFromParser(
     };
 
     // Если цена получена от парсера — обновляем основную цену
+    // Применяем скидку 2% (цена со скидкой = цена / 0.98)
     if (newPrice && newPrice > 0) {
-      updateData.price = new Decimal(newPrice);
+      const discountedPrice = Math.round(newPrice / 0.98);
+      updateData.price = new Decimal(discountedPrice);
 
       if (data.oldPrice && data.oldPrice > 0) {
         updateData.oldPrice = new Decimal(data.oldPrice);
