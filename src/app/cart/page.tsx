@@ -138,7 +138,7 @@ export default function CartPage() {
                   </Link>
 
                   <div className="flex flex-wrap items-center gap-2 lg:gap-4 mb-2 lg:mb-3">
-                    {/* Warehouse info */}
+                    {/* Delivery info */}
                     <div className="flex items-center gap-2">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-orange">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -146,12 +146,11 @@ export default function CartPage() {
                       </svg>
                       {item.warehouseId ? (
                         <span className="text-[11px] lg:text-[12px] text-white2">
-                          {item.product.warehouse?.name || 'Склад'} 
-                          {item.product.warehouse?.address && ` - ${item.product.warehouse.address}`}
+                          Самовывоз: {item.product.warehouse?.city} - {item.product.warehouse?.name}{item.product.warehouse?.address && `, ${item.product.warehouse.address}`}
                         </span>
                       ) : (
                         <span className="text-[11px] lg:text-[12px] text-gray3">
-                          Поставщик
+                          Доставка
                         </span>
                       )}
                     </div>
@@ -240,8 +239,8 @@ export default function CartPage() {
                   <span className="text-green-500">0 ₽</span>
                 </div>
                 <div className="flex items-center justify-between text-[13px] lg:text-[14px]">
-                  <span className="text-gray3">Доставка</span>
-                  <span className="text-white2">Далее</span>
+                  <span className="text-gray3">Получение</span>
+                  <span className="text-white2">Самовывоз</span>
                 </div>
               </div>
 

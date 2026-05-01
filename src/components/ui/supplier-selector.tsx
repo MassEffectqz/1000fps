@@ -109,30 +109,28 @@ export function SupplierSelector({
 
   return (
     <div className="bg-black2 border border-gray1 rounded-[var(--radius)] overflow-hidden">
-      {/* Warehouse selector for suppliers */}
-      {warehouses.length > 0 && (
-        <div className="px-3 py-2 border-b border-gray1 bg-black3">
-          <div className="flex items-center gap-2">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-orange">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            <span className="text-[11px] text-gray3">Склад для поставщика:</span>
-            <select
-              value={selectedWarehouse}
-              onChange={(e) => setSelectedWarehouse(e.target.value)}
-              className="flex-1 bg-black2 border border-gray1 rounded px-2 py-1 text-[12px] text-white2 focus:outline-none focus:border-orange"
-            >
-              <option value="">Выберите склад</option>
-              {warehouses.map((wh) => (
-                <option key={wh.id} value={wh.id}>
-                  {wh.name} ({wh.address}) - {wh.quantity} шт.
-                </option>
-              ))}
-            </select>
-          </div>
+      {/* Delivery/Self-pickup location selector for suppliers */}
+      <div className="px-3 py-2 border-b border-gray1 bg-black3">
+        <div className="flex items-center gap-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-orange">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span className="text-[11px] text-gray3">Самовывоз:</span>
+          <select
+            value={selectedWarehouse}
+            onChange={(e) => setSelectedWarehouse(e.target.value)}
+            className="flex-1 bg-black2 border border-gray1 rounded px-2 py-1 text-[12px] text-white2 focus:outline-none focus:border-orange"
+          >
+            <option value="">Выберите точку самовывоза</option>
+            {warehouses.map((wh) => (
+              <option key={wh.id} value={wh.id}>
+                {wh.city} - {wh.name}, {wh.address} ({wh.quantity} шт.)
+              </option>
+            ))}
+          </select>
         </div>
-      )}
+      </div>
 
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-[10px] bg-black3">
@@ -259,16 +257,18 @@ export function SupplierSelector({
                   <button
                     type="button"
                     onClick={() => handleAddToCart(supplier.id, 1, selectedWarehouse || undefined)}
-                    disabled={!supplier.inStock || isAdding !== null}
+                    disabled={!supplier.inStock || isAdding !== null || !selectedWarehouse}
                     className="h-[36px] px-4 bg-black3 border border-gray1 rounded-[var(--radius)] text-[12px] font-medium text-gray4 hover:text-white hover:border-orange disabled:opacity-40"
+                    title={!selectedWarehouse ? 'Выберите склад' : ''}
                   >
                     {isAdding === supplier.id ? '...' : 'В корзину'}
                   </button>
                   <button
                     type="button"
                     onClick={() => handleBuyNow(supplier.id, 1, selectedWarehouse || undefined)}
-                    disabled={!supplier.inStock || isAdding !== null}
+                    disabled={!supplier.inStock || isAdding !== null || !selectedWarehouse}
                     className="h-[36px] px-5 bg-orange rounded-[var(--radius)] text-[12px] font-bold text-white hover:bg-orange2 disabled:opacity-40"
+                    title={!selectedWarehouse ? 'Выберите склад' : ''}
                   >
                     {isAdding === supplier.id ? '...' : 'Купить'}
                   </button>
@@ -338,16 +338,18 @@ export function SupplierSelector({
                     <button
                       type="button"
                       onClick={() => handleAddToCart(supplier.id, 1, selectedWarehouse || undefined)}
-                      disabled={!supplier.inStock || isAdding !== null}
+                      disabled={!supplier.inStock || isAdding !== null || !selectedWarehouse}
                       className="h-[36px] px-4 bg-black3 border border-gray1 rounded-[var(--radius)] text-[12px] font-medium text-gray4 hover:text-white hover:border-orange transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      title={!selectedWarehouse ? 'Выберите склад' : ''}
                     >
                       {isAdding === supplier.id ? '...' : 'В корзину'}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleBuyNow(supplier.id, 1, selectedWarehouse || undefined)}
-                      disabled={!supplier.inStock || isAdding !== null}
+                      disabled={!supplier.inStock || isAdding !== null || !selectedWarehouse}
                       className="h-[36px] px-5 bg-orange rounded-[var(--radius)] text-[12px] font-bold text-white hover:bg-orange2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      title={!selectedWarehouse ? 'Выберите склад' : ''}
                     >
                       {isAdding === supplier.id ? '...' : 'Купить'}
                     </button>
