@@ -81,9 +81,10 @@ export async function POST(
           reason: string;
         }> = [];
 
-        // Обновляем цену если изменилась
+        // Обновляем цену если изменилась (применяем скидку 2%)
         if (parsedData.price && parsedData.price !== Number(product.price)) {
-          const newPrice = new Decimal(parsedData.price);
+          const discountedPrice = Math.round(parsedData.price * 0.98);
+          const newPrice = new Decimal(discountedPrice);
           priceHistoryUpdates.push({
             productId: product.id,
             oldPrice: product.price,

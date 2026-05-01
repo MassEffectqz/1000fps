@@ -30,6 +30,8 @@ const nextConfig: NextConfig = {
   experimental: {
     // Оптимизация для PWA
     optimizePackageImports: ['lucide-react'],
+    // Trust Host для работы по IP
+    trustHost: true,
   },
 
   // Заголовки безопасности для PWA
