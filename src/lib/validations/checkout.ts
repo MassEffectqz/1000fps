@@ -12,11 +12,11 @@ export const createOrderSchema = z.object({
   warehouseId: z.string().uuid('Некорректный склад').optional().nullable(),
 
   // Поставщик
-  supplierId: z.string().uuid('Некорректный поставщик').optional().nullable(),
+  supplierId: z.string().min(1, 'Некорректный поставщик').optional().or(z.literal('')),
 
   // Комментарий к заказу
   notes: z.string().max(1000, 'Комментарий не более 1000 символов').optional().nullable(),
-}).refine(data => data.warehouseId || data.supplierId, {
+}).refine(data => (data.warehouseId && data.warehouseId.trim()) || (data.supplierId && data.supplierId.trim()), {
   message: 'Выберите склад или поставщика',
 });
 
