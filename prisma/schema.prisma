@@ -1,6 +1,5 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -9,24 +8,27 @@ datasource db {
 }
 
 model User {
-  id              String           @id @default(cuid())
-  email           String           @unique
-  password        String
-  name            String?
-  phone           String?
-  avatar          String?
-  role            UserRole         @default(CUSTOMER)
-  level           UserLevel        @default(BRONZE)
-  emailVerified   Boolean          @default(false)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String?
+  phone         String?
+  avatar        String?
+  role          UserRole  @default(CUSTOMER)
+  level         UserLevel @default(BRONZE)
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
   addresses       Address[]
-  cart            CartItem[]
   comparisonItems ComparisonItem[]
   configs         Configuration[]
   orders          Order[]
   reviews         Review[]
   wishlist        WishlistItem[]
+
+  cart      Cart?
+  cartItems CartItem[]
 
   @@index([email])
   @@index([role])
@@ -120,13 +122,13 @@ model Product {
   wishlistItems   WishlistItem[]
 
   // Парсинг
-  useParserPrice  Boolean                @default(false)
-  parserSources   Json?                  // [{url, priority, isActive}]
-  parserPrice     Decimal?               @db.Decimal(10, 2)
-  parserOldPrice  Decimal?               @db.Decimal(10, 2)
+  useParserPrice  Boolean   @default(false)
+  parserSources   Json? // [{url, priority, isActive}]
+  parserPrice     Decimal?  @db.Decimal(10, 2)
+  parserOldPrice  Decimal?  @db.Decimal(10, 2)
   parserDelivery  String?
   parserName      String?
-  parserInStock   Boolean                @default(true)
+  parserInStock   Boolean   @default(true)
   parserUpdatedAt DateTime?
 
   @@index([slug])
@@ -248,30 +250,29 @@ model CategoryFilter {
 
 model Cart {
   id        String     @id @default(cuid())
-  userId    String?    @unique
-  sessionId String?    @unique
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  items     CartItem[]
-
-  @@index([userId])
-  @@index([sessionId])
 }
 
 model CartItem {
   id          String   @id @default(cuid())
   cartId      String
   userId      String?
-  productId  String
-  quantity   Int      @default(1)
+  productId   String
+  quantity    Int      @default(1)
   warehouseId String?
   supplierId  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  cart       Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Позволяет хранить один и тот же товар в корзине отдельно для разных складов или поставщиков
   @@unique([cartId, productId, warehouseId, supplierId])
   @@index([userId])
 }
@@ -519,21 +520,21 @@ model ParseJob {
 }
 
 model ProductSupplier {
-  id          String   @id @default(cuid())
-  productId   String
-  name        String
-  url         String
-  price       Decimal  @db.Decimal(10, 2)
-  oldPrice    Decimal? @db.Decimal(10, 2)
+  id           String   @id @default(cuid())
+  productId    String
+  name         String
+  url          String
+  price        Decimal  @db.Decimal(10, 2)
+  oldPrice     Decimal? @db.Decimal(10, 2)
   deliveryTime String?
-  inStock     Boolean  @default(true)
-  rating      Float?
+  inStock      Boolean  @default(true)
+  rating       Float?
   reviewsCount Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  @@index([productId])
   @@unique([productId, url])
+  @@index([productId])
 }
 
 model ActivityLog {
