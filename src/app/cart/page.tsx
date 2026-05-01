@@ -138,19 +138,23 @@ export default function CartPage() {
                   </Link>
 
                   <div className="flex flex-wrap items-center gap-2 lg:gap-4 mb-2 lg:mb-3">
-                    {item.product.warehouse && (
-                      <select
-                        value={item.warehouseId || ''}
-                        onChange={(e) => updateCartItem(item.id, item.quantity, e.target.value || undefined)}
-                        className="text-[11px] lg:text-[12px] bg-black3 border border-gray1 rounded-[var(--radius)] px-2 py-1 text-gray3 focus:border-orange focus:outline-none cursor-pointer"
-                        disabled={!item.product.inStock}
-                      >
-                        <option value="">Склад</option>
-                        <option value={item.product.warehouse.id}>
-                          {item.product.warehouse.city}
-                        </option>
-                      </select>
-                    )}
+                    {/* Warehouse info */}
+                    <div className="flex items-center gap-2">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-orange">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                      {item.warehouseId ? (
+                        <span className="text-[11px] lg:text-[12px] text-white2">
+                          {item.product.warehouse?.name || 'Склад'} 
+                          {item.product.warehouse?.address && ` - ${item.product.warehouse.address}`}
+                        </span>
+                      ) : (
+                        <span className="text-[11px] lg:text-[12px] text-gray3">
+                          Поставщик
+                        </span>
+                      )}
+                    </div>
                     {item.product.inStock ? (
                       <span className="text-[11px] lg:text-[12px] text-green-500 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
