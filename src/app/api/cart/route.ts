@@ -192,8 +192,11 @@ export async function POST(request: NextRequest) {
 
     const { productId, quantity, warehouseId } = validation.data;
 
+    // Нормализуем warehouseId - убираем пустую строку
+    const normalizedWarehouseId = warehouseId && warehouseId.trim() ? warehouseId.trim() : undefined;
+
     // Проверяем существование товара
-    // Сначала ищем по ID, затем по ID поставщика
+    // Сначала ищем по ID, затем по ID поставщика (productSupplier), затем по supplierId (артикул WB)
     let product = await prisma.product.findUnique({
       where: { id: productId, isActive: true, isDraft: false },
       include: {
@@ -204,7 +207,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Если товар не найден по ID - пробуем найти по ID поставщика
+    // Если товар не найден по ID - пробуем найти по ID поставщика (productSupplier.id)
     if (!product) {
       const supplier = await prisma.productSupplier.findUnique({
         where: { id: productId },
@@ -223,6 +226,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Если товар не найден - пробуем найти по supplierId (артикулу WB)
+    if (!product) {
+      const supplierProduct = await prisma.productSupplier.findFirst({
+        where: { supplierId: productId },
+        select: { productId: true },
+      });
+      if (supplierProduct?.productId) {
+        product = await prisma.product.findUnique({
+          where: { id: supplierProduct.productId, isActive: true, isDraft: false },
+          include: {
+            images: {
+              where: { isMain: true },
+              take: 1,
+            },
+          },
+        });
+      }
+    }
+
     if (!product) {
       return NextResponse.json(
         { error: 'Товар не найден' },
@@ -231,9 +253,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Проверяем существование склада, если указан warehouseId
-    if (warehouseId) {
+    if (normalizedWarehouseId) {
       const warehouse = await prisma.warehouse.findUnique({
-        where: { id: warehouseId },
+        where: { id: normalizedWarehouseId },
       });
 
       if (!warehouse) {
@@ -246,8 +268,8 @@ export async function POST(request: NextRequest) {
       const warehouseStock = await prisma.warehouseStock.findUnique({
         where: {
           warehouseId_productId: {
-            warehouseId,
-            productId,
+            warehouseId: normalizedWarehouseId,
+            productId: product.id,
           },
         },
       });
@@ -283,7 +305,7 @@ export async function POST(request: NextRequest) {
           where: {
             cartId_productId: {
               cartId: cart.id,
-              productId,
+              productId: product.id,
             },
           },
         });
@@ -293,13 +315,13 @@ export async function POST(request: NextRequest) {
           const newQuantity = existingItem.quantity + quantity;
 
           // Проверяем наличие на складе при обновлении
-          const stockWarehouseId = warehouseId || existingItem.warehouseId;
+          const stockWarehouseId = normalizedWarehouseId || existingItem.warehouseId;
           if (stockWarehouseId) {
             const warehouseStock = await tx.warehouseStock.findUnique({
               where: {
                 warehouseId_productId: {
                   warehouseId: stockWarehouseId,
-                  productId,
+                  productId: product.id,
                 },
               },
             });
@@ -313,7 +335,7 @@ export async function POST(request: NextRequest) {
             where: { id: existingItem.id },
             data: {
               quantity: newQuantity,
-              warehouseId: warehouseId || existingItem.warehouseId,
+              warehouseId: normalizedWarehouseId || existingItem.warehouseId,
             },
             include: {
               product: {
@@ -332,9 +354,9 @@ export async function POST(request: NextRequest) {
             data: {
               cartId: cart.id,
               userId: session.userId,
-              productId,
+              productId: product.id,
               quantity,
-              warehouseId,
+              warehouseId: normalizedWarehouseId || null,
             },
             include: {
               product: {
