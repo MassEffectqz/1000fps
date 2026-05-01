@@ -101,13 +101,12 @@ export async function addToCart(productId: string, quantity: number = 1, warehou
         });
       }
 
-      // Проверяем, есть ли уже такой товар в корзине
-      const existingItem = await tx.cartItem.findUnique({
+      // Проверяем, есть ли уже такой товар в корзине с таким же складом/поставщиком
+      const existingItem = await tx.cartItem.findFirst({
         where: {
-          cartId_productId: {
-            cartId: cart.id,
-            productId,
-          },
+          cartId: cart.id,
+          productId,
+          warehouseId: warehouseId || null,
         },
       });
 

@@ -26,6 +26,7 @@ interface SupplierSelectorProps {
 }
 
 export function SupplierSelector({
+  productId,
   suppliers,
   warehouses = [],
   onRefresh,
@@ -40,7 +41,7 @@ export function SupplierSelector({
     setIsAdding(supplierId);
     try {
       console.log('[SupplierSelector] Adding to cart:', supplierId, quantity, warehouseId);
-      await addToCart(supplierId, quantity, warehouseId || undefined);
+      await addToCart(productId, quantity, warehouseId || undefined, supplierId);
       console.log('[SupplierSelector] Added to cart successfully');
     } catch (error) {
       console.error('[SupplierSelector] Error adding to cart:', error);
@@ -54,7 +55,7 @@ export function SupplierSelector({
     setIsAdding(supplierId);
     try {
       console.log('[SupplierSelector] Buying now:', supplierId, quantity, warehouseId);
-      await addToCart(supplierId, quantity, warehouseId || undefined);
+      await addToCart(productId, quantity, warehouseId || undefined, supplierId);
       console.log('[SupplierSelector] Redirecting to cart');
       window.location.href = '/cart';
     } catch (error) {

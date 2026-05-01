@@ -8,6 +8,7 @@ export const addToCartSchema = z.object({
   productId: z.string().min(1, 'ID товара обязателен'),
   quantity: z.number().int().min(1, 'Количество должно быть не менее 1').max(999, 'Количество должно быть не более 999'),
   warehouseId: z.string().min(1, 'ID склада обязателен').optional().or(z.literal('')),
+  supplierId: z.string().min(1, 'ID поставщика обязателен').optional().or(z.literal('')),
 });
 
 export type AddToCartInput = z.infer<typeof addToCartSchema>;

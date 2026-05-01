@@ -190,10 +190,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { productId, quantity, warehouseId } = validation.data;
+    const { productId, quantity, warehouseId, supplierId } = validation.data;
 
-    // Нормализуем warehouseId - убираем пустую строку
+    // Нормализуем warehouseId и supplierId - убираем пустую строку
     const normalizedWarehouseId = warehouseId && warehouseId.trim() ? warehouseId.trim() : undefined;
+    const normalizedSupplierId = supplierId && supplierId.trim() ? supplierId.trim() : undefined;
 
     // Проверяем существование товара
     // Сначала ищем по ID, затем по ID поставщика (productSupplier), затем по supplierId (артикул WB)
@@ -300,8 +301,8 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Проверяем, есть ли уже такой товар в корзине с таким же складом
-        // Ищем по точному совпадению productId и warehouseId
+        // Проверяем, есть ли уже такой товар в корзине с таким же складом или поставщиком
+        // Ищем по точному совпадению productId, warehouseId и supplierId
         let existingItem: typeof cartItem | null = null;
         
         try {
@@ -314,13 +315,23 @@ export async function POST(request: NextRequest) {
                 warehouseId: normalizedWarehouseId,
               },
             });
+          } else if (normalizedSupplierId) {
+            // Ищем товар от конкретного поставщика
+            existingItem = await tx.cartItem.findFirst({
+              where: {
+                cartId: cart.id,
+                productId: product.id,
+                supplierId: normalizedSupplierId,
+              },
+            });
           } else {
-            // Ищем товар без склада (поставщик)
+            // Ищем товар без склада и поставщика (со склада магазина)
             existingItem = await tx.cartItem.findFirst({
               where: {
                 cartId: cart.id,
                 productId: product.id,
                 warehouseId: null,
+                supplierId: null,
               },
             });
           }
@@ -377,6 +388,7 @@ export async function POST(request: NextRequest) {
                 productId: product.id,
                 quantity,
                 warehouseId: normalizedWarehouseId || null,
+                supplierId: normalizedSupplierId || null,
               },
               include: {
                 product: {

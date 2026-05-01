@@ -67,13 +67,13 @@ export async function POST(request: NextRequest) {
       // Проверяем наличие на складе
       const firstWarehouseStock = product.warehouseStocks.find(ws => ws.quantity > 0);
       
-      // Проверяем, есть ли уже такой товар в корзине
-      const existingCartItem = await prisma.cartItem.findUnique({
+      // Проверяем, есть ли уже такой товар в корзине (со склада по умолчанию)
+      const existingCartItem = await prisma.cartItem.findFirst({
         where: {
-          cartId_productId: {
-            cartId: cart!.id,
-            productId: product.id,
-          },
+          cartId: cart!.id,
+          productId: product.id,
+          warehouseId: null,
+          supplierId: null,
         },
       });
 

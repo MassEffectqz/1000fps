@@ -101,7 +101,7 @@ interface CartContextType {
   setIsCartDrawerOpen: (open: boolean) => void;
   refreshCart: () => Promise<void>;
   refreshWishlist: () => Promise<void>;
-  addToCart: (productId: string, quantity?: number, warehouseId?: string) => Promise<void>;
+  addToCart: (productId: string, quantity?: number, warehouseId?: string, supplierId?: string) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
   updateCartItem: (itemId: string, quantity?: number, warehouseId?: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -280,8 +280,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated, refreshCart, refreshWishlist]);
 
   // Добавить в корзину
-  const handleAddToCart = useCallback(async (productId: string, quantity: number = 1, warehouseId?: string) => {
-    console.log('[CartContext] handleAddToCart called:', productId, quantity, warehouseId);
+  const handleAddToCart = useCallback(async (productId: string, quantity: number = 1, warehouseId?: string, supplierId?: string) => {
+    console.log('[CartContext] handleAddToCart called:', productId, quantity, warehouseId, supplierId);
     const optimisticItemId = `temp_${Date.now()}`;
     
     // Оптимистичное обновление
@@ -327,12 +327,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     setIsCartDrawerOpen(true);
 
-    console.log('[CartContext] Sending POST to /api/cart', { productId, quantity, warehouseId });
+    console.log('[CartContext] Sending POST to /api/cart', { productId, quantity, warehouseId, supplierId });
     try {
       const response = await fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, quantity, warehouseId }),
+        body: JSON.stringify({ productId, quantity, warehouseId, supplierId }),
       });
 
       const data = await response.json();
