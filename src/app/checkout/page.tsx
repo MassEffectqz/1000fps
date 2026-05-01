@@ -384,9 +384,14 @@ export default function CheckoutPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[12px] text-white2 truncate">{item.product.name}</p>
-                        <p className="text-[11px] text-gray3">
-                          {item.quantity} × {item.product.finalPrice.toLocaleString('ru-RU')} ₽
-                        </p>
+                        <div className="flex items-center gap-2 text-[11px] text-gray3">
+                          <span>{item.quantity} × {item.product.finalPrice.toLocaleString('ru-RU')} ₽</span>
+                          {item.warehouseId ? (
+                            <span className="text-green-500">• Склад</span>
+                          ) : (
+                            <span className="text-orange">• Поставщик</span>
+                          )}
+                        </div>
                       </div>
                       <p className="text-[13px] text-white2 font-display font-bold">
                         {(item.product.finalPrice * item.quantity).toLocaleString('ru-RU')} ₽

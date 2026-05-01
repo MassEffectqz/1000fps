@@ -117,6 +117,10 @@ export async function POST(request: NextRequest) {
     const deliveryCost = 0;
     const total = subtotal + deliveryCost;
 
+    // Определяем источник заказа: если есть товары со складом - WAREHOUSE, иначе SUPPLIER
+    const hasWarehouseItems = cart.items.some(item => item.warehouseId);
+    const orderSource = hasWarehouseItems ? 'WAREHOUSE' : 'SUPPLIER';
+
     // Генерируем номер заказа
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
@@ -130,6 +134,7 @@ export async function POST(request: NextRequest) {
           customerName: name,
           customerEmail: email,
           customerPhone: phone,
+          source: orderSource,
           paymentMethod: 'CASH',
           deliveryMethod: 'PICKUP',
           notes: notes || null,

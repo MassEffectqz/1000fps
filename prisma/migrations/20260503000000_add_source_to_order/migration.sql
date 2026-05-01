@@ -1,0 +1,2 @@
+-- Add source field to Order
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "source" TEXT NOT NULL DEFAULT 'SUPPLIER';

@@ -333,6 +333,8 @@ model Order {
   customerName    String?
   customerEmail   String?
   customerPhone   String?
+  // Источник заказа: WAREHOUSE (со склада) или SUPPLIER (от поставщика)
+  source          String          @default("SUPPLIER")
   status          OrderStatus     @default(PENDING)
   paymentStatus   PaymentStatus   @default(PENDING)
   paymentMethod   PaymentMethod?
