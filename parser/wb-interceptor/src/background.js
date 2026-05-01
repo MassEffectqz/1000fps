@@ -121,18 +121,18 @@ function extractPrice(product) {
   if (totalQuantity === 0) {
     return { price: null, originalPrice: null, outOfStock: true };
   }
-  if (product.sizes && product.sizes[0] && product.sizes[0].price) {
-    const p = product.sizes[0].price;
-    if (p.product) price = Math.round(p.product / 100);
-    if (p.basic) originalPrice = Math.round(p.basic / 100);
-  }
+  if (product.salePriceU) price = Math.round(product.salePriceU / 100);
+  if (product.priceU) originalPrice = Math.round(product.priceU / 100);
   if (!price && product.sizes && product.sizes[0] && product.sizes[0].price) {
     const p = product.sizes[0].price;
     if (p.total) price = Math.round(p.total / 100);
+    if (p.basic && !originalPrice) originalPrice = Math.round(p.basic / 100);
     if (p.old && !originalPrice) originalPrice = Math.round(p.old / 100);
   }
-  if (!price && product.salePriceU) price = Math.round(product.salePriceU / 100);
-  if (!originalPrice && product.priceU) originalPrice = Math.round(product.priceU / 100);
+  if (!price && product.sizes && product.sizes[0] && product.sizes[0].price) {
+    const p = product.sizes[0].price;
+    if (p.product) price = Math.round(p.product / 100);
+  }
   if (!price && typeof product.salePrice === 'number') price = product.salePrice;
   if (!originalPrice && typeof product.price === 'number') originalPrice = product.price;
   if (!price && typeof product.salePrice === 'string') {
