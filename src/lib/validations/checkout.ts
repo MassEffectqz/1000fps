@@ -13,3 +13,12 @@ export const createOrderSchema = z.object({
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+
+// Схема для обновления профиля пользователя
+export const updateProfileSchema = z.object({
+  name: z.string().min(2, 'Имя должно содержать минимум 2 символа').max(100),
+  email: z.string().email('Некорректный email'),
+  phone: z.string().min(5, 'Укажите номер телефона').max(20).optional().nullable(),
+});
+
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

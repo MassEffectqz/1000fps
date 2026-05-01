@@ -330,6 +330,9 @@ model Order {
   id              String          @id @default(cuid())
   orderNumber     String          @unique
   userId          String
+  customerName    String?
+  customerEmail   String?
+  customerPhone   String?
   status          OrderStatus     @default(PENDING)
   paymentStatus   PaymentStatus   @default(PENDING)
   paymentMethod   PaymentMethod?

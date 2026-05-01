@@ -56,8 +56,19 @@ export async function addToCart(productId: string, quantity: number = 1, warehou
       };
     }
 
-    // Проверяем наличие на складе, если указан warehouseId
+    // Проверяем существование склада, если указан warehouseId
     if (warehouseId) {
+      const warehouse = await prisma.warehouse.findUnique({
+        where: { id: warehouseId },
+      });
+
+      if (!warehouse) {
+        return {
+          success: false,
+          error: 'Склад не найден',
+        };
+      }
+
       const warehouseStock = await prisma.warehouseStock.findUnique({
         where: {
           warehouseId_productId: {
@@ -75,74 +86,72 @@ export async function addToCart(productId: string, quantity: number = 1, warehou
       }
     }
 
-    // Находим или создаем корзину пользователя
-    let cart = await prisma.cart.findUnique({
-      where: { userId: session.userId },
-    });
-
-    if (!cart) {
-      cart = await prisma.cart.create({
-        data: {
-          userId: session.userId,
-        },
+    // Транзакция для избежания race condition
+    const cartItem = await prisma.$transaction(async (tx) => {
+      // Находим или создаем корзину пользователя
+      let cart = await tx.cart.findUnique({
+        where: { userId: session.userId },
       });
-    }
 
-    // Проверяем, есть ли уже такой товар в корзине
-    const existingItem = await prisma.cartItem.findUnique({
-      where: {
-        cartId_productId: {
-          cartId: cart.id,
-          productId,
-        },
-      },
-    });
-
-    let cartItem;
-
-    if (existingItem) {
-      // Обновляем количество
-      const newQuantity = existingItem.quantity + quantity;
-
-      // Проверяем наличие на складе при обновлении
-      const stockWarehouseId = warehouseId || existingItem.warehouseId;
-      if (stockWarehouseId) {
-        const warehouseStock = await prisma.warehouseStock.findUnique({
-          where: {
-            warehouseId_productId: {
-              warehouseId: stockWarehouseId,
-              productId,
-            },
+      if (!cart) {
+        cart = await tx.cart.create({
+          data: {
+            userId: session.userId,
           },
         });
-
-        if (!warehouseStock || warehouseStock.quantity < newQuantity) {
-          return {
-            success: false,
-            error: 'Недостаточно товара на складе для обновления количества',
-          };
-        }
       }
 
-      cartItem = await prisma.cartItem.update({
-        where: { id: existingItem.id },
-        data: {
-          quantity: newQuantity,
-          warehouseId: warehouseId || existingItem.warehouseId,
+      // Проверяем, есть ли уже такой товар в корзине
+      const existingItem = await tx.cartItem.findUnique({
+        where: {
+          cartId_productId: {
+            cartId: cart.id,
+            productId,
+          },
         },
       });
-    } else {
-      // Создаем новый элемент
-      cartItem = await prisma.cartItem.create({
-        data: {
-          cartId: cart.id,
-          userId: session.userId,
-          productId,
-          quantity,
-          warehouseId,
-        },
-      });
-    }
+
+      if (existingItem) {
+        // Обновляем количество
+        const newQuantity = existingItem.quantity + quantity;
+
+        // Проверяем наличие на складе при обновлении
+        const stockWarehouseId = warehouseId || existingItem.warehouseId;
+        if (stockWarehouseId) {
+          const warehouseStock = await tx.warehouseStock.findUnique({
+            where: {
+              warehouseId_productId: {
+                warehouseId: stockWarehouseId,
+                productId,
+              },
+            },
+          });
+
+          if (!warehouseStock || warehouseStock.quantity < newQuantity) {
+            throw new Error('Недостаточно товара на складе для обновления количества');
+          }
+        }
+
+        return await tx.cartItem.update({
+          where: { id: existingItem.id },
+          data: {
+            quantity: newQuantity,
+            warehouseId: warehouseId || existingItem.warehouseId,
+          },
+        });
+      } else {
+        // Создаем новый элемент
+        return await tx.cartItem.create({
+          data: {
+            cartId: cart.id,
+            userId: session.userId,
+            productId,
+            quantity,
+            warehouseId,
+          },
+        });
+      }
+    });
 
     revalidatePath('/cart');
     revalidatePath('/api/cart');
@@ -155,6 +164,16 @@ export async function addToCart(productId: string, quantity: number = 1, warehou
     };
   } catch (error) {
     console.error('Error adding to cart:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Ошибка при добавлении в корзину';
+    
+    if (errorMessage.includes('склада')) {
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+    
     return {
       success: false,
       error: 'Ошибка при добавлении в корзину',

@@ -30,16 +30,23 @@ export async function POST(request: NextRequest) {
     }
 
     const {
+      name,
+      email,
+      phone,
       notes,
     } = validation.data;
 
-    // Получаем корзину пользователя
+    // Получаем корзину пользователя с товарами
     const cart = await prisma.cart.findUnique({
       where: { userId: session.userId },
       include: {
         items: {
           include: {
-            product: true,
+            product: {
+              include: {
+                warehouseStocks: true,
+              },
+            },
           },
         },
       },
@@ -52,26 +59,59 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Проверяем наличие товаров
+    // Проверяем наличие и активность товаров
     for (const item of cart.items) {
-      if (item.product.stock <= 0) {
+      // Проверка активности товара
+      if (!item.product.isActive || item.product.isDraft) {
         return NextResponse.json(
-          { error: `Товар "${item.product.name}" отсутствует в наличии` },
+          { error: `Товар "${item.product.name}" недоступен для заказа` },
           { status: 400 }
         );
       }
-      if (item.product.stock < item.quantity) {
-        return NextResponse.json(
-          { error: `Недостаточное количество товара "${item.product.name}"` },
-          { status: 400 }
-        );
+
+      // Проверка остатков на конкретном складе
+      const warehouseId = item.warehouseId;
+      if (warehouseId) {
+        const stock = item.product.warehouseStocks.find(s => s.warehouseId === warehouseId);
+        if (!stock || stock.quantity < item.quantity) {
+          return NextResponse.json(
+            { error: `Недостаточное количество товара "${item.product.name}" на выбранном складе` },
+            { status: 400 }
+          );
+        }
+      } else {
+        // Если склад не указан - проверяем общий остаток
+        if (item.product.stock <= 0) {
+          return NextResponse.json(
+            { error: `Товар "${item.product.name}" отсутствует в наличии` },
+            { status: 400 }
+          );
+        }
+        if (item.product.stock < item.quantity) {
+          return NextResponse.json(
+            { error: `Недостаточное количество товара "${item.product.name}"` },
+            { status: 400 }
+          );
+        }
       }
     }
 
-    // Рассчитываем стоимость
+    // Рассчитываем стоимость (актуальные цены из БД)
     let subtotal = 0;
     for (const item of cart.items) {
-      subtotal += Number(item.product.price) * item.quantity;
+      const price = Number(item.product.price);
+      const discountValue = Number(item.product.discountValue || 0);
+      let finalPrice = price;
+
+      if (discountValue > 0) {
+        if (item.product.discountType === 'PERCENT') {
+          finalPrice = price * (1 - discountValue / 100);
+        } else {
+          finalPrice = Math.max(0, price - discountValue);
+        }
+      }
+
+      subtotal += finalPrice * item.quantity;
     }
 
     const deliveryCost = 0;
@@ -82,11 +122,14 @@ export async function POST(request: NextRequest) {
 
     // Создаём заказ в транзакции
     const order = await prisma.$transaction(async (tx) => {
-      // Создаём заказ
+      // Создаём заказ с данными покупателя
       const newOrder = await tx.order.create({
         data: {
           orderNumber,
           userId: session.userId,
+          customerName: name,
+          customerEmail: email,
+          customerPhone: phone,
           paymentMethod: 'CASH',
           deliveryMethod: 'PICKUP',
           notes: notes || null,
@@ -94,12 +137,26 @@ export async function POST(request: NextRequest) {
           subtotal,
           total,
           items: {
-            create: cart.items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              price: item.product.price,
-              total: Number(item.product.price) * item.quantity,
-            })),
+            create: cart.items.map((item) => {
+              const price = Number(item.product.price);
+              const discountValue = Number(item.product.discountValue || 0);
+              let finalPrice = price;
+
+              if (discountValue > 0) {
+                if (item.product.discountType === 'PERCENT') {
+                  finalPrice = price * (1 - discountValue / 100);
+                } else {
+                  finalPrice = Math.max(0, price - discountValue);
+                }
+              }
+
+              return {
+                productId: item.productId,
+                quantity: item.quantity,
+                price: finalPrice,
+                total: finalPrice * item.quantity,
+              };
+            }),
           },
         },
         include: {
@@ -117,8 +174,26 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Уменьшаем остатки на складе
+      // Списываем остатки с складов
       for (const item of cart.items) {
+        const warehouseId = item.warehouseId;
+        
+        if (warehouseId) {
+          // Списываем с конкретного склада
+          await tx.warehouseStock.update({
+            where: {
+              warehouseId_productId: {
+                warehouseId,
+                productId: item.productId,
+              },
+            },
+            data: {
+              quantity: { decrement: item.quantity },
+            },
+          });
+        }
+
+        // Также уменьшаем общий остаток товара
         await tx.product.update({
           where: { id: item.productId },
           data: {

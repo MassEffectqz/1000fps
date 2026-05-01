@@ -189,6 +189,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
+  // Синхронизация гостевой корзины с сервером
+  const syncGuestCart = useCallback(async (guestCart: Cart) => {
+    if (guestCart.items.length === 0) return;
+    
+    try {
+      const items = guestCart.items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        warehouseId: item.warehouseId,
+      }));
+
+      const response = await fetch('/api/cart/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      });
+
+      if (response.ok) {
+        localStorage.removeItem(GUEST_CART_KEY);
+      }
+    } catch (error) {
+      console.error('Error syncing guest cart:', error);
+    }
+  }, []);
+
   // Загрузка корзины
   const refreshCart = useCallback(async () => {
     try {
@@ -196,10 +221,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
       
       if (data.cart) {
-        setCart(data.cart);
+        const serverCart = data.cart;
+        setCart(serverCart);
+        
         if (isAuthenticated === true) {
-          // Очищаем гостевую корзину после загрузки авторизованной
-          localStorage.removeItem(GUEST_CART_KEY);
+          // Синхронизируем гостевую корзину с сервером
+          const guestCart = getGuestCart();
+          if (guestCart.items.length > 0) {
+            await syncGuestCart(guestCart);
+          }
         }
       } else if (isAuthenticated === false) {
         // Используем гостевую корзину
@@ -215,7 +245,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, syncGuestCart]);
 
   // Загрузка вишлиста
   const refreshWishlist = useCallback(async () => {
@@ -297,9 +327,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     setIsCartDrawerOpen(true);
 
-    console.log('[CartContext] Sending POST to /api/cart/items', { productId, quantity, warehouseId });
+    console.log('[CartContext] Sending POST to /api/cart', { productId, quantity, warehouseId });
     try {
-      const response = await fetch('/api/cart/items', {
+      const response = await fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId, quantity, warehouseId }),

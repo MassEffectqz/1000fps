@@ -7,12 +7,21 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
+interface SessionUser {
+  user?: {
+    id: string;
+    email?: string;
+    name?: string;
+  } | null;
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, isLoading: cartLoading, clearCart } = useCart();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,30 +31,44 @@ export default function CheckoutPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Загрузка профиля
+  // Проверка авторизации и загрузка профиля
   useEffect(() => {
     const loadProfile = async () => {
       try {
+        // Проверяем сессию
+        const sessionRes = await fetch('/api/auth/session');
+        const sessionData: SessionUser = await sessionRes.json();
+        
+        if (!sessionData.user) {
+          // Не авторизован - редирект на вход
+          router.push(`/auth/login?redirect=/checkout`);
+          return;
+        }
+        
+        setIsAuthenticated(true);
+        
+        // Загружаем профиль
         const res = await fetch('/api/profile');
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.user) {
             setFormData((prev) => ({
               ...prev,
-              name: data.user.name || '',
-              email: data.user.email || '',
+              name: data.user.name || sessionData.user?.name || '',
+              email: data.user.email || sessionData.user?.email || '',
               phone: data.user.phone || '',
             }));
           }
         }
       } catch {
-        // Не авторизован — оставляем пустые поля
+        // Ошибка - редирект на вход
+        router.push(`/auth/login?redirect=/checkout`);
       } finally {
         setProfileLoading(false);
       }
     };
     loadProfile();
-  }, []);
+  }, [router]);
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

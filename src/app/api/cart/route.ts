@@ -16,6 +16,12 @@ export async function GET() {
         where: { userId: session.userId },
         include: {
           items: {
+            where: {
+              product: {
+                isActive: true,
+                isDraft: false,
+              },
+            },
             include: {
               product: {
                 include: {
@@ -204,8 +210,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Проверяем наличие на складе, если указан warehouseId
+    // Проверяем существование склада, если указан warehouseId
     if (warehouseId) {
+      const warehouse = await prisma.warehouse.findUnique({
+        where: { id: warehouseId },
+      });
+
+      if (!warehouse) {
+        return NextResponse.json(
+          { error: 'Склад не найден' },
+          { status: 400 }
+        );
+      }
+
       const warehouseStock = await prisma.warehouseStock.findUnique({
         where: {
           warehouseId_productId: {
@@ -223,93 +240,104 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Находим или создаем корзину пользователя
-    let cart = await prisma.cart.findUnique({
-      where: { userId: session.userId },
-    });
-
-    if (!cart) {
-      cart = await prisma.cart.create({
-        data: {
-          userId: session.userId,
-        },
-      });
-    }
-
-    // Проверяем, есть ли уже такой товар в корзине
-    const existingItem = await prisma.cartItem.findUnique({
-      where: {
-        cartId_productId: {
-          cartId: cart.id,
-          productId,
-        },
-      },
-    });
-
+    // Транзакция для избежания race condition
     let cartItem;
+    
+    try {
+      cartItem = await prisma.$transaction(async (tx) => {
+        // Находим или создаем корзину пользователя
+        let cart = await tx.cart.findUnique({
+          where: { userId: session.userId },
+        });
 
-    if (existingItem) {
-      // Обновляем количество
-      const newQuantity = existingItem.quantity + quantity;
+        if (!cart) {
+          cart = await tx.cart.create({
+            data: {
+              userId: session.userId,
+            },
+          });
+        }
 
-      // Проверяем наличие на складе при обновлении
-      const stockWarehouseId = warehouseId || existingItem.warehouseId;
-      if (stockWarehouseId) {
-        const warehouseStock = await prisma.warehouseStock.findUnique({
+        // Проверяем, есть ли уже такой товар в корзине
+        const existingItem = await tx.cartItem.findUnique({
           where: {
-            warehouseId_productId: {
-              warehouseId: stockWarehouseId,
+            cartId_productId: {
+              cartId: cart.id,
               productId,
             },
           },
         });
 
-        if (!warehouseStock || warehouseStock.quantity < newQuantity) {
-          return NextResponse.json(
-            { error: 'Недостаточно товара на складе для обновления количества' },
-            { status: 400 }
-          );
-        }
-      }
+        if (existingItem) {
+          // Обновляем количество
+          const newQuantity = existingItem.quantity + quantity;
 
-      cartItem = await prisma.cartItem.update({
-        where: { id: existingItem.id },
-        data: {
-          quantity: newQuantity,
-          warehouseId: warehouseId || existingItem.warehouseId,
-        },
-        include: {
-          product: {
+          // Проверяем наличие на складе при обновлении
+          const stockWarehouseId = warehouseId || existingItem.warehouseId;
+          if (stockWarehouseId) {
+            const warehouseStock = await tx.warehouseStock.findUnique({
+              where: {
+                warehouseId_productId: {
+                  warehouseId: stockWarehouseId,
+                  productId,
+                },
+              },
+            });
+
+            if (!warehouseStock || warehouseStock.quantity < newQuantity) {
+              throw new Error('Недостаточно товара на складе для обновления количества');
+            }
+          }
+
+          return await tx.cartItem.update({
+            where: { id: existingItem.id },
+            data: {
+              quantity: newQuantity,
+              warehouseId: warehouseId || existingItem.warehouseId,
+            },
             include: {
-              images: {
-                where: { isMain: true },
-                take: 1,
+              product: {
+                include: {
+                  images: {
+                    where: { isMain: true },
+                    take: 1,
+                  },
+                },
               },
             },
-          },
-        },
-      });
-    } else {
-      // Создаем новый элемент
-      cartItem = await prisma.cartItem.create({
-        data: {
-          cartId: cart.id,
-          userId: session.userId,
-          productId,
-          quantity,
-          warehouseId,
-        },
-        include: {
-          product: {
+          });
+        } else {
+          // Создаем новый элемент
+          return await tx.cartItem.create({
+            data: {
+              cartId: cart.id,
+              userId: session.userId,
+              productId,
+              quantity,
+              warehouseId,
+            },
             include: {
-              images: {
-                where: { isMain: true },
-                take: 1,
+              product: {
+                include: {
+                  images: {
+                    where: { isMain: true },
+                    take: 1,
+                  },
+                },
               },
             },
-          },
-        },
+          });
+        }
       });
+    } catch (txError) {
+      const errorMessage = txError instanceof Error ? txError.message : '';
+      if (errorMessage.includes('склада')) {
+        return NextResponse.json(
+          { error: errorMessage },
+          { status: 400 }
+        );
+      }
+      throw txError;
     }
 
     // Вычисляем цену товара
