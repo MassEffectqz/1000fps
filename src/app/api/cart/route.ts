@@ -300,15 +300,29 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Проверяем, есть ли уже такой товар в корзине
-        const existingItem = await tx.cartItem.findUnique({
-          where: {
-            cartId_productId: {
+        // Проверяем, есть ли уже такой товар в корзине с таким же складом
+        // Ищем по точному совпадению productId и warehouseId
+        let existingItem = null;
+        
+        if (normalizedWarehouseId) {
+          // Ищем товар с конкретным складом
+          existingItem = await tx.cartItem.findFirst({
+            where: {
               cartId: cart.id,
               productId: product.id,
+              warehouseId: normalizedWarehouseId,
             },
-          },
-        });
+          });
+        } else {
+          // Ищем товар без склада (поставщик)
+          existingItem = await tx.cartItem.findFirst({
+            where: {
+              cartId: cart.id,
+              productId: product.id,
+              warehouseId: null,
+            },
+          });
+        }
 
         if (existingItem) {
           // Обновляем количество
