@@ -60,7 +60,7 @@ export function Hero() {
               alt={slide.alt}
               width={1920}
               height={500}
-              className="w-full h-auto max-h-[200px] sm:max-h-[400px] lg:max-h-[600px] object-cover"
+              className="w-full h-[300px] sm:h-[400px] lg:h-[500px] object-cover"
               priority={slide.idx === 0}
               sizes="100vw"
             />
