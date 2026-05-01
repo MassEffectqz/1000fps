@@ -12,6 +12,7 @@ export interface WarehouseWithStock {
   quantity: number;
   price: number;
   formattedPrice: string;
+  formattedAddress: string;
 }
 
 export interface WarehousesResponse {
@@ -89,6 +90,7 @@ export async function getWarehousesWithStock(productId: string): Promise<Warehou
           currency: 'RUB',
           minimumFractionDigits: 0,
         }),
+        formattedAddress: `${warehouse.city} ${warehouse.address}`,
       };
     });
 

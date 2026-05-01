@@ -389,6 +389,7 @@ export function ProductPageClient({
                 <SupplierSelector
                   productId={product.id}
                   suppliers={suppliers}
+                  warehouses={product.warehouses || []}
                   onRefresh={loadSuppliers}
                   isLoading={isLoadingSuppliers}
                 />

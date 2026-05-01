@@ -83,13 +83,13 @@ export function WarehouseSelector({
             {/* Desktop layout */}
             <div className="hidden sm:flex items-center gap-3">
               {/* Warehouse name + stock */}
-              <div className="flex-shrink-0 w-[160px]">
+              <div className="flex-shrink-0 w-[200px]">
                 <div className="font-body text-[13px] font-medium text-white2 leading-tight">
                   {warehouse.name}
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-[11px] text-gray3">
-                    {warehouse.city}
+                    {warehouse.address}
                   </span>
                   {warehouse.inStock ? (
                     <span className="text-[11px] text-green-500 font-medium">
@@ -173,7 +173,7 @@ export function WarehouseSelector({
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-[11px] text-gray3">
-                    {warehouse.city}
+                    {warehouse.address}
                   </span>
                   {warehouse.inStock ? (
                     <span className="text-[11px] text-green-500 font-medium">
