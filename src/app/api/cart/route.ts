@@ -193,7 +193,8 @@ export async function POST(request: NextRequest) {
     const { productId, quantity, warehouseId } = validation.data;
 
     // Проверяем существование товара
-    const product = await prisma.product.findUnique({
+    // Сначала ищем по ID, затем по ID поставщика
+    let product = await prisma.product.findUnique({
       where: { id: productId, isActive: true, isDraft: false },
       include: {
         images: {
@@ -202,6 +203,25 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Если товар не найден по ID - пробуем найти по ID поставщика
+    if (!product) {
+      const supplier = await prisma.productSupplier.findUnique({
+        where: { id: productId },
+        select: { productId: true },
+      });
+      if (supplier?.productId) {
+        product = await prisma.product.findUnique({
+          where: { id: supplier.productId, isActive: true, isDraft: false },
+          include: {
+            images: {
+              where: { isMain: true },
+              take: 1,
+            },
+          },
+        });
+      }
+    }
 
     if (!product) {
       return NextResponse.json(
