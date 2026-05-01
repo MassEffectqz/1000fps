@@ -233,12 +233,43 @@ export function Footer() {
           </div>
         </div>
 
-        {/* BOTTOM */}
+{/* BOTTOM */}
         <div className="flex items-center justify-between py-5 gap-6 flex-wrap">
           <div className="text-[12px] text-gray3">
             2026 &copy; 1000FPS — интернет-магазин компьютерной техники.<br />
             Все цены указаны в рублях. <Link href="/agreement" className="text-gray3 underline">Пользовательское соглашение</Link>.
           </div>
+          <div className="flex flex-col items-end gap-3">
+            <div className="flex gap-5">
+              <Link href="/privacy" className="text-[12px] text-gray3 transition-colors hover:text-white">
+                Политика конфиденциальности
+              </Link>
+              <Link href="/offer" className="text-[12px] text-gray3 transition-colors hover:text-white">
+                Оферта
+              </Link>
+              <Link href="/requisites" className="text-[12px] text-gray3 transition-colors hover:text-white">
+                Реквизиты
+              </Link>
+              <Link href="/sitemap" className="text-[12px] text-gray3 transition-colors hover:text-white">
+                Карта сайта
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* DEVELOPER */}
+        <div className="border-t border-gray1 py-4">
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-[11px] text-gray4">Сделано в</span>
+            <Image 
+              src="/images/footer/dev-group-logo.png" 
+              alt="Dev Group" 
+              width={80} 
+              height={24}
+              className="h-auto w-[80px] opacity-70"
+            />
+          </div>
+        </div>
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end gap-3">
               <div className="flex gap-5">
