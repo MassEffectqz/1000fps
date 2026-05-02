@@ -71,12 +71,14 @@ export const ProductParserConfig: React.FC<ProductParserConfigProps> = ({
 
   // Удалить источник
   const handleRemoveSource = useCallback((url: string) => {
-    const filtered = parseSources.filter(s => s.url !== url);
-    // Пересчитываем приоритеты, создаем новые объекты чтобы не мутировать
+    const currentSources = [...parseSources]; // Копируем текущий массив
+    const filtered = currentSources.filter(s => s.url !== url);
+    // Пересчитываем приоритеты, создаем новые объекты
     const updated = filtered.map((s, i) => ({
       ...s,
       priority: i,
     }));
+    console.log('[Parser] Remove source:', url, 'Result:', updated);
     onUpdateSources(updated);
   }, [parseSources, onUpdateSources]);
 

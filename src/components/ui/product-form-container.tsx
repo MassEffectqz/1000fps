@@ -447,53 +447,80 @@ const handleParse = async () => {
         throw new Error('Не удалось извлечь артикул из URL');
       }
 
-      console.log('[Parser] Парсинг через расширение, артикул:', article);
-      
-      // Сохраняем запрос в chrome.storage для расширения
-      if (typeof chrome !== 'undefined' && chrome.storage) {
-        await chrome.storage.local.set({
-          wb_parser_request: {
-            requestId: `parse_${Date.now()}`,
-            article,
-            source,
-            timestamp: Date.now(),
-          }
-        });
-      }
+      console.log('[Parser] Парсинг, артикул:', article);
 
-      // Открываем вкладку WB с товаром
-      const wbUrl = `https://www.wildberries.ru/catalog/${article}/detail.aspx`;
+      // Проверяем доступность chrome extension (runtime.sendMessage)
+      const hasChromeExtension = typeof chrome !== 'undefined' && chrome.runtime?.sendMessage;
       
-      if (typeof chrome !== 'undefined' && chrome.tabs) {
-        // Создаём новую вкладку
-        const tab = await new Promise((resolve) => {
-          chrome.tabs.create({ url: wbUrl, active: true }, resolve);
+      // Fallback на серверный парсинг если расширение недоступно
+      if (!hasChromeExtension) {
+        if (!initialData?.id) {
+          throw new Error('ID товара не найден');
+        }
+        
+        console.log('[Parser] Chrome extension недоступен, используем серверный парсинг');
+        
+        const response = await fetch(`/api/admin/parser/products/${initialData.id}/parse`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sources }),
         });
         
-        // Ждём пока вкладка загрузится и расширение получит данные
-        const result = await new Promise((resolve) => {
-          const checkInterval = setInterval(async () => {
-            try {
-              const data = await chrome.storage.local.get('wb_parser_result') as { wb_parser_result?: { article: string; name?: string; price?: number; oldPrice?: number } };
-              if (data.wb_parser_result && data.wb_parser_result.article === article) {
-                clearInterval(checkInterval);
-                await chrome.storage.local.remove('wb_parser_result');
-                resolve(data.wb_parser_result);
-              }
-            } catch (e) {
-              // ignore
-            }
-          }, 1000);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Ошибка серверного парсинга');
+        }
+        
+        const parseResult = await response.json();
+        console.log('[Parser] Серверный парсинг результат:', parseResult);
+        
+        if (parseResult.success && parseResult.data) {
+          const parsedData = parseResult.data;
+          setParserStatus({
+            status: 'success',
+            lastParsedAt: new Date(),
+            parsedData,
+          });
+          setParseProgress({ processed: sources.length, total: sources.length });
           
-          // Таймаут 30 секунд
-          setTimeout(() => {
-            clearInterval(checkInterval);
-            resolve(null);
-          }, 30000);
-        });
+          if (parsedData.price) {
+            setFormData(prev => ({
+              ...prev,
+              price: parsedData.price ?? prev.price,
+              oldPrice: parsedData.oldPrice !== undefined ? parsedData.oldPrice : prev.oldPrice,
+            }));
+          }
+          
+          loadPriceHistory();
+          toast.success('Парсинг завершён!');
+          setIsParsing(false);
+          return;
+        } else {
+          throw new Error(parseResult.error || 'Не удалось распарсить товар');
+        }
+      }
+      
+      // Отправляем сообщение напрямую в расширение
+      const result = await new Promise((resolve) => {
+        chrome.runtime.sendMessage(
+          {
+            type: 'PRICE_PARSE',
+            sources: sources,
+          },
+          (response) => {
+            console.log('[Parser] Ответ от расширения:', response);
+            resolve(response);
+          }
+        );
+        
+        // Таймаут 30 секунд
+        setTimeout(() => {
+          resolve({ ok: false, error: 'Таймаут ожидания ответа от расширения' });
+        }, 30000);
+      });
 
-        if (result && (result as { price?: number }).price) {
-          const r = result as { name?: string; price?: number; oldPrice?: number };
+      if (result && result.ok && result.parsedData) {
+          const r = result.parsedData;
           const parsedData = {
             name: r.name || 'Товар',
             price: r.price,
@@ -709,6 +736,7 @@ const handleParse = async () => {
     field: K,
     value: ProductFormData[K]
   ) => {
+    console.log('[Form] handleChange:', field, value);
     setFormData(prev => ({ ...prev, [field]: value }));
   }, []);
 
