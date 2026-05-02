@@ -35,7 +35,7 @@ export default async function StocksPage({ searchParams }: { searchParams: Promi
         </div>
       </div>
 
-      <div className="container py-8">
+      <div className="container py-10">
         <div className="mb-8">
           <h1 className="font-display text-[32px] font-extrabold uppercase text-white2 mb-2">
             Акции и скидки
@@ -47,7 +47,12 @@ export default async function StocksPage({ searchParams }: { searchParams: Promi
 
         {products.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-[48px] mb-4">🏷️</div>
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-12 h-12 text-gray2">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                <line x1="7" y1="7" x2="7.01" y2="7" />
+              </svg>
+            </div>
             <h2 className="font-display text-[20px] font-bold text-white2 mb-2">
               Акций пока нет
             </h2>

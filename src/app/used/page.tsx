@@ -55,17 +55,32 @@ export default function UsedPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5">
-            <div className="text-orange text-[24px] mb-2">✓</div>
+            <div className="w-8 h-8 mb-2 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-orange">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
             <div className="text-[14px] font-medium text-white2 mb-1">Гарантия</div>
             <div className="text-[12px] text-gray3">На все товары б/у от 14 дней до 6 месяцев</div>
           </div>
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5">
-            <div className="text-orange text-[24px] mb-2">✓</div>
+            <div className="w-8 h-8 mb-2 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-orange">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
             <div className="text-[14px] font-medium text-white2 mb-1">Проверка</div>
             <div className="text-[12px] text-gray3">Каждый товар проходит полную диагностику</div>
           </div>
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-5">
-            <div className="text-orange text-[24px] mb-2">✓</div>
+            <div className="w-8 h-8 mb-2 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-orange">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+            </div>
             <div className="text-[14px] font-medium text-white2 mb-1">Экономия</div>
             <div className="text-[12px] text-gray3">Цены до 50% ниже чем на новую технику</div>
           </div>
