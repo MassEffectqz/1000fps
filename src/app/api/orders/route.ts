@@ -108,7 +108,9 @@ export async function POST(request: NextRequest) {
     const itemsByWarehouse = new Map<string, typeof cart.items>();
     
     for (const item of cart.items) {
-      const key = `${item.warehouseId || 'no-warehouse'}-${item.supplierId || 'no-supplier'}`;
+      const effectiveWarehouseId = item.warehouseId || selectedWarehouseId;
+      const effectiveSupplierId = item.supplierId || (selectedSupplierId && !item.warehouseId ? selectedSupplierId : null);
+      const key = `${effectiveWarehouseId || 'no-warehouse'}-${effectiveSupplierId || 'no-supplier'}`;
       if (!itemsByWarehouse.has(key)) {
         itemsByWarehouse.set(key, []);
       }
@@ -120,7 +122,7 @@ export async function POST(request: NextRequest) {
     await prisma.$transaction(async (tx) => {
       for (const [groupKey, groupItems] of itemsByWarehouse) {
         const firstItem = groupItems[0];
-        const isSupplierOrder = !!firstItem.supplierId;
+        const isSupplierOrder = !!firstItem.supplierId || (selectedSupplierId && !firstItem.warehouseId);
         const warehouseId = firstItem.warehouseId || selectedWarehouseId;
         const supplierId = firstItem.supplierId || (selectedSupplierId && !firstItem.warehouseId ? selectedSupplierId : null);
         

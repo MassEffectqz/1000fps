@@ -8,11 +8,11 @@ export const createOrderSchema = z.object({
   email: z.string().email('Некорректный email'),
   phone: z.string().min(5, 'Укажите номер телефона').max(20),
 
-  // Склад самовывоза
-  warehouseId: z.string().uuid('Некорректный склад').optional().nullable(),
+  // Склад самовывоза - для товаров без warehouseId в корзине
+  warehouseId: z.string().optional().nullable(),
 
-  // Поставщик
-  supplierId: z.string().min(1, 'Некорректный поставщик').optional().or(z.literal('')),
+  // Поставщик - для товаров без supplierId в корзине
+  supplierId: z.string().optional().nullable(),
 
   // Комментарий к заказу
   notes: z.string().max(1000, 'Комментарий не более 1000 символов').optional().nullable(),
