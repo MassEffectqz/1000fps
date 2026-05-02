@@ -339,107 +339,81 @@ export function CartProvider({ children }: { children: ReactNode }) {
       console.log('[CartContext] Response:', response.status, data);
 
       if (!response.ok) {
+        // Если 401 и пользователь не авторизован - используем гостевую корзину
+        if (response.status === 401 && isAuthenticated === false) {
+          console.log('[CartContext] Not authenticated, using guest cart');
+          // Получаем данные о товаре
+          try {
+            const productResponse = await fetch(`/api/products/${productId}`);
+            let productData: CartProduct | null = null;
+            
+            if (productResponse.ok) {
+              const productJson = await productResponse.json();
+              productData = {
+                id: productJson.id,
+                name: productJson.name,
+                slug: productJson.slug,
+                sku: productJson.sku,
+                price: productJson.price,
+                finalPrice: productJson.finalPrice,
+                image: productJson.image,
+                inStock: productJson.inStock,
+                availableQuantity: productJson.availableQuantity,
+                category: productJson.category || null,
+                brand: productJson.brand || null,
+                warehouse: null,
+              };
+            }
+            
+            const guestCart = getGuestCart();
+            const existingItem = guestCart.items.find(item => item.productId === productId);
+            
+            if (existingItem) {
+              existingItem.quantity += quantity;
+            } else {
+              guestCart.items.push({
+                id: optimisticItemId,
+                productId,
+                quantity,
+                warehouseId,
+                product: productData || {
+                  id: productId,
+                  name: 'Загрузка...',
+                  slug: '',
+                  sku: '',
+                  price: 0,
+                  finalPrice: 0,
+                  image: null,
+                  inStock: true,
+                  availableQuantity: 0,
+                },
+              });
+            }
+            
+            saveGuestCart(guestCart);
+            setCart({
+              id: null,
+              items: guestCart.items,
+              totalItems: guestCart.items.reduce((sum, item) => sum + item.quantity, 0),
+              totalPrice: guestCart.items.reduce((sum, item) => sum + (item.product.finalPrice || 0) * item.quantity, 0),
+            });
+            
+            setIsCartDrawerOpen(true);
+            toast.success('Товар добавлен в корзину (гостевая)');
+            return;
+          } catch (e) {
+            console.error('[CartContext] Guest cart fallback failed:', e);
+          }
+        }
         throw new Error(data.error || 'Ошибка при добавлении в корзину');
       }
 
       // Обновляем корзину с серверными данными
       await refreshCart();
       toast.success('Товар добавлен в корзину');
-    } catch (error) {
+} catch (error) {
       console.error('[CartContext] Error adding to cart:', error);
-      // Откат оптимистичного обновления
-      await refreshCart();
-      
-      if (isAuthenticated === false) {
-        // Для гостевой корзины получаем данные о товаре
-        try {
-          const productResponse = await fetch(`/api/products/${productId}`);
-          
-          let productData: CartProduct | null = null;
-          
-          if (productResponse.ok) {
-            const productJson = await productResponse.json();
-            productData = {
-              id: productJson.id,
-              name: productJson.name,
-              slug: productJson.slug,
-              sku: productJson.sku,
-              price: productJson.price,
-              finalPrice: productJson.finalPrice,
-              image: productJson.image,
-              inStock: productJson.inStock,
-              availableQuantity: productJson.availableQuantity,
-              category: productJson.category || null,
-              brand: productJson.brand || null,
-              warehouse: null,
-            };
-          }
-          
-          const guestCart = getGuestCart();
-          const existingItem = guestCart.items.find(item => item.productId === productId);
-          
-          if (existingItem) {
-            existingItem.quantity += quantity;
-          } else {
-            guestCart.items.push({
-              id: optimisticItemId,
-              productId,
-              quantity,
-              warehouseId,
-              product: productData || {
-                id: productId,
-                name: 'Товар',
-                slug: '',
-                sku: '',
-                price: 0,
-                finalPrice: 0,
-                image: null,
-                inStock: true,
-                availableQuantity: 0,
-              },
-            });
-          }
-          
-          guestCart.totalItems = guestCart.items.reduce((sum, item) => sum + item.quantity, 0);
-          guestCart.totalPrice = guestCart.items.reduce((sum, item) => sum + (item.product.finalPrice || 0) * item.quantity, 0);
-          saveGuestCart(guestCart);
-          setCart(guestCart);
-          toast.success('Товар добавлен в корзину');
-        } catch {
-          // Если не удалось получить данные о товаре, создаем пустой элемент
-          const guestCart = getGuestCart();
-          const existingItem = guestCart.items.find(item => item.productId === productId);
-          
-          if (existingItem) {
-            existingItem.quantity += quantity;
-          } else {
-            guestCart.items.push({
-              id: optimisticItemId,
-              productId,
-              quantity,
-              warehouseId,
-              product: {
-                id: productId,
-                name: 'Товар',
-                slug: '',
-                sku: '',
-                price: 0,
-                finalPrice: 0,
-                image: null,
-                inStock: true,
-                availableQuantity: 0,
-              },
-            });
-          }
-          
-          guestCart.totalItems = guestCart.items.reduce((sum, item) => sum + item.quantity, 0);
-          saveGuestCart(guestCart);
-          setCart(guestCart);
-          toast.success('Товар добавлен в корзину (данные загружаются)');
-        }
-      } else {
-        toast.error('Ошибка при добавлении в корзину. Требуется авторизация.');
-      }
+      toast.error('Ошибка при добавлении в корзину');
     }
   }, [refreshCart, isAuthenticated]);
 
