@@ -8,6 +8,8 @@ import { useSearchParams } from 'next/navigation';
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('number');
+  const isMultiple = searchParams.get('multiple') === 'true';
+  const orderNumbers = searchParams.get('numbers');
 
   return (
     <>
@@ -26,7 +28,6 @@ function OrderSuccessContent() {
 
       <div className="container py-20">
         <div className="max-w-lg mx-auto text-center">
-          {/* Иконка успеха */}
           <div className="w-24 h-24 mx-auto mb-6 bg-green-500/10 rounded-full flex items-center justify-center">
             <svg
               viewBox="0 0 24 24"
@@ -43,15 +44,28 @@ function OrderSuccessContent() {
             Заказ оформлен!
           </h1>
 
-          {orderNumber && (
+          {isMultiple && orderNumbers ? (
+            <div className="mb-4">
+              <p className="text-[14px] text-gray3 mb-2">Номера заказов:</p>
+              <p className="text-[16px] text-orange font-display font-bold">
+                {orderNumbers.split(',').map((n, i) => (
+                  <span key={i}>
+                    {i > 0 && ', '}
+                    <span className="text-white2">№ {n.trim()}</span>
+                  </span>
+                ))}
+              </p>
+            </div>
+          ) : orderNumber ? (
             <p className="text-[18px] text-orange font-display font-bold mb-2">
               № {orderNumber}
             </p>
-          )}
+          ) : null}
 
           <p className="text-gray3 mb-8 max-w-md mx-auto">
-            Спасибо за заказ! Мы уже начали его обработку. Вы получите уведомление на email, когда
-            заказ будет готов к отправке.
+            {isMultiple 
+              ? 'Спасибо за заказ! Ваш заказ был разделён на несколько частей по складам. Вы получите отдельные уведомления для каждого заказа.'
+              : 'Спасибо за заказ! Мы уже начали его обработку. Вы получите уведомление на email, когда заказ будет готов к отправке.'}
           </p>
 
           <div className="bg-black2 border border-gray1 rounded-[var(--radius)] p-6 mb-8 text-left">
@@ -64,7 +78,7 @@ function OrderSuccessContent() {
                   1
                 </span>
                 <p className="text-[14px] text-gray3">
-                  Мы проверим наличие товаров и подтвердим заказ
+                  Мы проверим наличие товаров и подтвердим каждый заказ
                 </p>
               </div>
               <div className="flex items-start gap-3">
@@ -72,7 +86,9 @@ function OrderSuccessContent() {
                   2
                 </span>
                 <p className="text-[14px] text-gray3">
-                  Вы получите email с подтверждением и деталями заказа
+                  {isMultiple 
+                    ? 'Вы получите email с подтверждением и деталями каждого заказа'
+                    : 'Вы получите email с подтверждением и деталями заказа'}
                 </p>
               </div>
               <div className="flex items-start gap-3">
@@ -80,14 +96,16 @@ function OrderSuccessContent() {
                   3
                 </span>
                 <p className="text-[14px] text-gray3">
-                  После оплаты заказ будет передан в доставку
+                  {isMultiple 
+                    ? 'После оплаты каждый заказ будет передан в доставку'
+                    : 'После оплаты заказ будет передан в доставку'}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/profile">
+            <Link href="/profile/orders">
               <Button variant="primary" size="lg">
                 Мои заказы
               </Button>

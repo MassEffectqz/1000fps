@@ -51,6 +51,7 @@ interface Order {
   paymentMethod: string;
   notes: string | null;
   trackingNumber: string | null;
+  source: string | null;
   paidAt: Date | null;
   shippedAt: Date | null;
   deliveredAt: Date | null;
@@ -59,6 +60,15 @@ interface Order {
   updatedAt: Date;
   userId: string;
   user: OrderUser;
+  warehouse: {
+    id: string;
+    name: string;
+    city: string;
+  } | null;
+  supplier: {
+    id: string;
+    name: string;
+  } | null;
   items: OrderItem[];
 }
 
@@ -606,6 +616,9 @@ function OrdersPageContent() {
                       Статус оплаты
                     </th>
                     <th className="text-left text-[11px] font-bold uppercase tracking-wider text-gray3 px-4 py-3">
+                      Источник
+                    </th>
+                    <th className="text-left text-[11px] font-bold uppercase tracking-wider text-gray3 px-4 py-3">
                       Дата
                     </th>
                     <th className="text-right text-[11px] font-bold uppercase tracking-wider text-gray3 px-4 py-3">
@@ -645,6 +658,20 @@ function OrdersPageContent() {
                       </td>
                       <td className="px-4 py-3">
                         <PaymentStatusBadge status={order.paymentStatus} />
+                      </td>
+                      <td className="px-4 py-3">
+                        {order.source ? (
+                          <span className={cn(
+                            'text-[10px] font-bold px-[6px] py-[2px] rounded-[var(--radius)]',
+                            order.source === 'WAREHOUSE'
+                              ? 'bg-green-500/10 text-green-500'
+                              : 'bg-orange/10 text-orange'
+                          )}>
+                            {order.source === 'WAREHOUSE' ? 'Склад' : 'Поставщик'}
+                          </span>
+                        ) : (
+                          <span className="text-[12px] text-gray4">—</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-[12px] text-gray3">

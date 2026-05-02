@@ -268,9 +268,10 @@ model CartItem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cart     Cart              @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product  Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user     User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  supplier ProductSupplier?  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
 
   // Позволяет хранить один и тот же товар в корзине отдельно для разных складов или поставщиков
   @@unique([cartId, productId, warehouseId, supplierId])
@@ -335,11 +336,8 @@ model Order {
   customerName    String?
   customerEmail   String?
   customerPhone   String?
-  // Склад самовывоза
   warehouseId     String?
-  // Поставщик
   supplierId      String?
-  // Источник заказа: WAREHOUSE (со склада) или SUPPLIER (от поставщика)
   source          String          @default("SUPPLIER")
   status          OrderStatus     @default(PENDING)
   paymentStatus   PaymentStatus   @default(PENDING)
@@ -359,6 +357,8 @@ model Order {
   deliveredAt     DateTime?
   cancelledAt     DateTime?
   user            User            @relation(fields: [userId], references: [id])
+  warehouse       Warehouse?      @relation(fields: [warehouseId], references: [id])
+  supplier        ProductSupplier? @relation(fields: [supplierId], references: [id])
   items           OrderItem[]
 
   @@index([userId])
@@ -473,6 +473,7 @@ model Warehouse {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
   stock     WarehouseStock[]
+  orders    Order[]
 
   @@index([city])
 }
@@ -532,6 +533,8 @@ model ProductSupplier {
   reviewsCount Int?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  cartItems    CartItem[]
+  orders       Order[]
 
   @@unique([productId, url])
   @@index([productId])

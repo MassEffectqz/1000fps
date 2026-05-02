@@ -26,6 +26,21 @@ export async function GET(
             role: true,
           },
         },
+        warehouse: {
+          select: {
+            id: true,
+            name: true,
+            city: true,
+            address: true,
+          },
+        },
+        supplier: {
+          select: {
+            id: true,
+            name: true,
+            url: true,
+          },
+        },
         items: {
           include: {
             product: {

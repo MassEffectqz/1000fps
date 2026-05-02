@@ -66,6 +66,19 @@ export async function GET(request: NextRequest) {
               phone: true,
             },
           },
+          warehouse: {
+            select: {
+              id: true,
+              name: true,
+              city: true,
+            },
+          },
+          supplier: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           items: {
             include: {
               product: {

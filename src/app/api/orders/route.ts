@@ -3,11 +3,29 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth-helpers';
 import { createOrderSchema } from '@/lib/validations/checkout';
 
-/**
- * POST /api/orders - создать заказ
- * Body: { name, email, phone, notes? }
- * Оплата: при получении (CASH), Доставка: самовывоз (PICKUP)
- */
+function calculateFinalPrice(product: {
+  price: unknown;
+  discountValue: unknown;
+  discountType: string | null;
+}, supplierPrice?: unknown): number {
+  if (supplierPrice !== undefined && supplierPrice !== null) {
+    return Number(supplierPrice);
+  }
+
+  const price = Number(product.price);
+  const discountValue = Number(product.discountValue || 0);
+
+  if (discountValue > 0) {
+    if (product.discountType === 'PERCENT') {
+      return price * (1 - discountValue / 100);
+    } else {
+      return Math.max(0, price - discountValue);
+    }
+  }
+
+  return price;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
@@ -29,16 +47,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const {
-      name,
-      email,
-      phone,
-      warehouseId,
-      supplierId,
-      notes,
-    } = validation.data;
+    const { name, email, phone, warehouseId: selectedWarehouseId, supplierId: selectedSupplierId, notes } = validation.data;
 
-    // Получаем корзину пользователя с товарами
     const cart = await prisma.cart.findUnique({
       where: { userId: session.userId },
       include: {
@@ -49,6 +59,7 @@ export async function POST(request: NextRequest) {
                 warehouseStocks: true,
               },
             },
+            supplier: true,
           },
         },
       },
@@ -61,9 +72,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Проверяем наличие и активность товаров
     for (const item of cart.items) {
-      // Проверка активности товара
       if (!item.product.isActive || item.product.isDraft) {
         return NextResponse.json(
           { error: `Товар "${item.product.name}" недоступен для заказа` },
@@ -71,18 +80,16 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Проверка остатков на конкретном складе
       const warehouseId = item.warehouseId;
-      if (warehouseId) {
+      if (warehouseId && !item.supplierId) {
         const stock = item.product.warehouseStocks.find(s => s.warehouseId === warehouseId);
         if (!stock || stock.quantity < item.quantity) {
           return NextResponse.json(
-            { error: `Недостаточное количество товара "${item.product.name}" на выбранном складе` },
+            { error: `Недостаточное количество товара "${item.product.name}" на складе` },
             { status: 400 }
           );
         }
-      } else {
-        // Если склад не указан - проверяем общий остаток
+      } else if (!warehouseId && !item.supplierId) {
         if (item.product.stock <= 0) {
           return NextResponse.json(
             { error: `Товар "${item.product.name}" отсутствует в наличии` },
@@ -98,147 +105,130 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Рассчитываем стоимость (актуальные цены из БД)
-    let subtotal = 0;
+    const itemsByWarehouse = new Map<string, typeof cart.items>();
+    
     for (const item of cart.items) {
-      const price = Number(item.product.price);
-      const discountValue = Number(item.product.discountValue || 0);
-      let finalPrice = price;
-
-      if (discountValue > 0) {
-        if (item.product.discountType === 'PERCENT') {
-          finalPrice = price * (1 - discountValue / 100);
-        } else {
-          finalPrice = Math.max(0, price - discountValue);
-        }
+      const key = `${item.warehouseId || 'no-warehouse'}-${item.supplierId || 'no-supplier'}`;
+      if (!itemsByWarehouse.has(key)) {
+        itemsByWarehouse.set(key, []);
       }
-
-      subtotal += finalPrice * item.quantity;
+      itemsByWarehouse.get(key)!.push(item);
     }
 
-    const deliveryCost = 0;
-    const total = subtotal + deliveryCost;
+    const createdOrders: { id: string; orderNumber: string; total: number }[] = [];
 
-    // Определяем источник заказа: если есть товары со складом - WAREHOUSE, иначе SUPPLIER
-    const hasWarehouseItems = cart.items.some(item => item.warehouseId);
-    const orderSource = hasWarehouseItems ? 'WAREHOUSE' : 'SUPPLIER';
+    await prisma.$transaction(async (tx) => {
+      for (const [groupKey, groupItems] of itemsByWarehouse) {
+        const firstItem = groupItems[0];
+        const isSupplierOrder = !!firstItem.supplierId;
+        const warehouseId = firstItem.warehouseId || selectedWarehouseId;
+        const supplierId = firstItem.supplierId || (selectedSupplierId && !firstItem.warehouseId ? selectedSupplierId : null);
+        
+        let subtotal = 0;
+        for (const item of groupItems) {
+          const finalPrice = calculateFinalPrice(item.product, item.supplier?.price);
+          subtotal += finalPrice * item.quantity;
+        }
 
-    // Генерируем номер заказа
-    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        const orderSource = isSupplierOrder ? 'SUPPLIER' : 'WAREHOUSE';
+        const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
-    // Создаём заказ в транзакции
-    const order = await prisma.$transaction(async (tx) => {
-      // Создаём заказ с данными покупателя
-      const newOrder = await tx.order.create({
-        data: {
-          orderNumber,
-          userId: session.userId,
-          customerName: name,
-          customerEmail: email,
-          customerPhone: phone,
-          warehouseId: warehouseId || null,
-          supplierId: supplierId || null,
-          source: orderSource,
-          paymentMethod: 'CASH',
-          deliveryMethod: 'PICKUP',
-          notes: notes || null,
-          deliveryCost,
-          subtotal,
-          total,
-          items: {
-            create: cart.items.map((item) => {
-              const price = Number(item.product.price);
-              const discountValue = Number(item.product.discountValue || 0);
-              let finalPrice = price;
-
-              if (discountValue > 0) {
-                if (item.product.discountType === 'PERCENT') {
-                  finalPrice = price * (1 - discountValue / 100);
-                } else {
-                  finalPrice = Math.max(0, price - discountValue);
-                }
-              }
-
-              return {
-                productId: item.productId,
-                quantity: item.quantity,
-                price: finalPrice,
-                total: finalPrice * item.quantity,
-              };
-            }),
+        const newOrder = await tx.order.create({
+          data: {
+            orderNumber,
+            userId: session.userId,
+            customerName: name,
+            customerEmail: email,
+            customerPhone: phone,
+            warehouseId: warehouseId || null,
+            supplierId: supplierId,
+            source: orderSource,
+            paymentMethod: 'CASH',
+            deliveryMethod: 'PICKUP',
+            notes: notes || null,
+            deliveryCost: 0,
+            subtotal,
+            total: subtotal,
+            items: {
+              create: groupItems.map((item) => {
+                const finalPrice = calculateFinalPrice(item.product, item.supplier?.price);
+                return {
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  price: finalPrice,
+                  total: finalPrice * item.quantity,
+                };
+              }),
+            },
           },
-        },
-        include: {
-          items: {
-            include: {
-              product: {
-                select: {
-                  id: true,
-                  name: true,
-                  slug: true,
+          include: {
+            items: {
+              include: {
+                product: {
+                  select: { id: true, name: true, slug: true },
                 },
               },
             },
           },
-        },
-      });
+        });
 
-      // Списываем остатки с складов
-      for (const item of cart.items) {
-        const warehouseId = item.warehouseId;
-        
-        if (warehouseId) {
-          // Списываем с конкретного склада
-          await tx.warehouseStock.update({
-            where: {
-              warehouseId_productId: {
-                warehouseId,
-                productId: item.productId,
+        for (const item of groupItems) {
+          if (item.warehouseId && !item.supplierId) {
+            await tx.warehouseStock.update({
+              where: {
+                warehouseId_productId: {
+                  warehouseId: item.warehouseId,
+                  productId: item.productId,
+                },
               },
-            },
+              data: {
+                quantity: { decrement: item.quantity },
+              },
+            });
+          }
+
+          await tx.product.update({
+            where: { id: item.productId },
             data: {
-              quantity: { decrement: item.quantity },
+              stock: { decrement: item.quantity },
+              salesCount: { increment: item.quantity },
             },
           });
         }
 
-        // Также уменьшаем общий остаток товара
-        await tx.product.update({
-          where: { id: item.productId },
+        await tx.activityLog.create({
           data: {
-            stock: { decrement: item.quantity },
-            salesCount: { increment: item.quantity },
+            userId: session.userId,
+            action: 'ORDER_CREATED',
+            entity: 'Order',
+            entityId: newOrder.id,
+            details: { orderNumber, total: subtotal, itemsCount: groupItems.length },
           },
+        });
+
+        createdOrders.push({
+          id: newOrder.id,
+          orderNumber: newOrder.orderNumber,
+          total: Number(newOrder.total),
         });
       }
 
-      // Очищаем корзину
       await tx.cartItem.deleteMany({
         where: { cartId: cart.id },
       });
-
-      // Логируем активность
-      await tx.activityLog.create({
-        data: {
-          userId: session.userId,
-          action: 'ORDER_CREATED',
-          entity: 'Order',
-          entityId: newOrder.id,
-          details: { orderNumber, total: Number(total) },
-        },
-      });
-
-      return newOrder;
     });
+
+    if (createdOrders.length === 1) {
+      return NextResponse.json({
+        success: true,
+        order: createdOrders[0],
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      order: {
-        id: order.id,
-        orderNumber: order.orderNumber,
-        total: Number(order.total),
-        status: order.status,
-      },
+      orders: createdOrders,
+      message: `Создано ${createdOrders.length} заказов`,
     });
   } catch (error) {
     console.error('Error creating order:', error);

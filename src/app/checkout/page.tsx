@@ -77,26 +77,41 @@ export default function CheckoutPage() {
           }
         }
 
-        // Load warehouses if cart has items
-        if (cart.items.length > 0 && cart.items[0]?.productId) {
-          const whData = await getWarehousesWithStock(cart.items[0].productId);
-          if (whData?.warehouses) {
-            setWarehouses(whData.warehouses);
-            // Auto-select first warehouse with stock
-            const firstWithStock = whData.warehouses.find((w: WarehouseWithStock) => w.quantity > 0);
-            if (firstWithStock) {
-              setSelectedWarehouse(firstWithStock.id);
+        // Load warehouses and suppliers for all cart items
+        if (cart.items.length > 0) {
+          // Get unique product IDs from cart
+          const productIds = [...new Set(cart.items.map(item => item.productId))];
+          
+          // Load warehouses for first product (for simplicity - same warehouses available for all)
+          const firstProductId = cart.items[0]?.productId;
+          if (firstProductId) {
+            const whData = await getWarehousesWithStock(firstProductId);
+            if (whData?.warehouses) {
+              setWarehouses(whData.warehouses);
+              // Auto-select first warehouse with stock (if no supplier selected)
+              if (!selectedSupplier) {
+                const firstWithStock = whData.warehouses.find((w: WarehouseWithStock) => w.quantity > 0);
+                if (firstWithStock) {
+                  setSelectedWarehouse(firstWithStock.id);
+                }
+              }
             }
           }
 
-          // Load suppliers
-          const supplierRes = await fetch(`/api/public/products/${cart.items[0].productId}/suppliers`);
-          if (supplierRes.ok) {
-            const supplierData = await supplierRes.json();
-            if (supplierData.ok && supplierData.data) {
-              setSuppliers(supplierData.data);
+          // Load suppliers from all products in cart
+          const allSuppliers: Supplier[] = [];
+          for (const productId of productIds) {
+            const supplierRes = await fetch(`/api/public/products/${productId}/suppliers`);
+            if (supplierRes.ok) {
+              const supplierData = await supplierRes.json();
+              if (supplierData.ok && supplierData.data) {
+                allSuppliers.push(...supplierData.data);
+              }
             }
           }
+          // Deduplicate by ID
+          const uniqueSuppliers = allSuppliers.filter((s, i, arr) => arr.findIndex(x => x.id === s.id) === i);
+          setSuppliers(uniqueSuppliers);
         }
       } catch {
         router.push(`/auth/login?redirect=/checkout`);
@@ -133,9 +148,9 @@ export default function CheckoutPage() {
     if (formData.phone.trim().length < 5) {
       newErrors.phone = 'Укажите номер телефона';
     }
-// Нужно выбрать либо склад, либо поставщика
-    if (!selectedWarehouse && !selectedSupplier) {
-      newErrors.warehouse = 'Выберите склад или поставщика';
+
+    if (!selectedWarehouse) {
+      newErrors.warehouse = 'Выберите пункт самовывоза (склад для доставки)';
     }
 
     setErrors(newErrors);
@@ -174,7 +189,13 @@ export default function CheckoutPage() {
       }
 
       await clearCart();
-      router.push(`/orders/success?id=${data.order.id}&number=${data.order.orderNumber}`);
+
+      if (data.orders && data.orders.length > 1) {
+        const orderNumbers = data.orders.map((o: { orderNumber: string }) => o.orderNumber).join(', ');
+        router.push(`/orders/success?multiple=true&numbers=${orderNumbers}`);
+      } else {
+        router.push(`/orders/success?id=${data.order.id}&number=${data.order.orderNumber}`);
+      }
     } catch (error) {
       console.error('Error submitting order:', error);
       toast.error('Произошла ошибка при оформлении заказа');
@@ -231,6 +252,32 @@ export default function CheckoutPage() {
         <h1 className="font-display text-2xl lg:text-[28px] font-bold uppercase text-white2 mb-6 lg:mb-8">
           Оформление заказа
         </h1>
+
+        {(() => {
+          const uniqueWarehouses = new Set(cart.items.map(i => i.warehouseId || 'supplier'));
+          if (uniqueWarehouses.size > 1) {
+            return (
+              <div className="bg-orange/10 border border-orange/20 rounded-[var(--radius)] p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-orange flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  <div>
+                    <p className="text-[14px] font-semibold text-orange mb-1">
+                      Товары с разных складов
+                    </p>
+                    <p className="text-[13px] text-gray3">
+                      Ваш заказ будет разделён на {uniqueWarehouses.size} отдельных заказов по складам. Каждый заказ нужно будет забрать с соответствующего склада.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -340,7 +387,12 @@ export default function CheckoutPage() {
                   {suppliers.length > 0 ? (
                     <select
                       value={selectedSupplier}
-                      onChange={(e) => setSelectedSupplier(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedSupplier(e.target.value);
+                        if (e.target.value) {
+                          setSelectedWarehouse('');
+                        }
+                      }}
                       className="w-full bg-black3 border border-gray1 rounded-[var(--radius)] px-4 py-2.5 text-[14px] text-white2 focus:border-orange focus:outline-none"
                     >
                       <option value="">Без поставщика (со склада)</option>
@@ -378,13 +430,16 @@ export default function CheckoutPage() {
                       }`}
                     >
                       <option value="">Выберите пункт самовывоза</option>
-                      {warehouses
-                        .filter(w => w.quantity > 0)
-                        .map((wh) => (
-                          <option key={wh.id} value={wh.id}>
-                            {wh.city} - {wh.name} (в наличии: {wh.quantity} шт.)
+                      {warehouses.map((wh) => {
+                        const isAvailable = wh.quantity > 0;
+                        const isDisabled = !selectedSupplier && !isAvailable;
+                        return (
+                          <option key={wh.id} value={wh.id} disabled={isDisabled}>
+                            {wh.city} - {wh.name} {!selectedSupplier && (isAvailable ? `(в наличии: ${wh.quantity} шт.)` : '(нет в наличии)')}
+                            {selectedSupplier && ' (доставка)'}
                           </option>
-                        ))}
+                        );
+                      })}
                     </select>
                   ) : (
                     <p className="text-[13px] text-gray3">Загрузка складов...</p>
@@ -393,7 +448,9 @@ export default function CheckoutPage() {
                     <p className="text-[12px] text-red-500 mt-1">{errors.warehouse}</p>
                   )}
                   <p className="text-[13px] text-gray3">
-                    Заберите заказ из нашего магазина после подтверждения готовности
+                    {selectedSupplier 
+                      ? 'Выберите склад для доставки/самовывоза товара от поставщика'
+                      : 'Заберите заказ из нашего магазина после подтверждения готовности'}
                   </p>
                 </div>
               </div>

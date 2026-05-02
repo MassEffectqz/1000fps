@@ -21,6 +21,7 @@ interface Order {
   paymentMethod?: string | null;
   trackingNumber?: string | null;
   notes?: string | null;
+  source?: string | null;
   createdAt: string;
   paidAt?: string | null;
   shippedAt?: string | null;
@@ -33,6 +34,17 @@ interface Order {
     phone?: string | null;
     role: string;
   };
+  warehouse?: {
+    id: string;
+    name: string;
+    city: string;
+    address?: string | null;
+  } | null;
+  supplier?: {
+    id: string;
+    name: string;
+    url?: string | null;
+  } | null;
   items: {
     id: string;
     quantity: number;
@@ -265,6 +277,16 @@ export default function AdminOrderPage({ params }: AdminOrderPageProps) {
                 <span className={cn('text-[10px] font-bold px-[8px] py-[3px] rounded-[var(--radius)]', paymentStatusCfg.class)}>
                   {paymentStatusCfg.label}
                 </span>
+                {order.source && (
+                  <span className={cn(
+                    'text-[10px] font-bold px-[8px] py-[3px] rounded-[var(--radius)]',
+                    order.source === 'WAREHOUSE' 
+                      ? 'bg-green-500/10 text-green-500 border border-green-500/20'
+                      : 'bg-orange/10 text-orange border border-orange/20'
+                  )}>
+                    {order.source === 'WAREHOUSE' ? 'Со склада' : 'От поставщика'}
+                  </span>
+                )}
               </div>
             )}
             <div className="mt-4 pt-4 border-t border-gray1 grid grid-cols-3 gap-4">
@@ -405,6 +427,21 @@ export default function AdminOrderPage({ params }: AdminOrderPageProps) {
             <h2 className="font-display text-[14px] font-bold text-white uppercase tracking-wider mb-4">
               Доставка
             </h2>
+            {order.warehouse && (
+              <div className="mb-3">
+                <div className="text-[10px] text-gray3 uppercase tracking-wider mb-1">Склад / ПВЗ</div>
+                <div className="text-[13px] text-white">
+                  {order.warehouse.city} — {order.warehouse.name}
+                  {order.warehouse.address && <span className="text-gray4"> ({order.warehouse.address})</span>}
+                </div>
+              </div>
+            )}
+            {order.supplier && (
+              <div className="mb-3">
+                <div className="text-[10px] text-gray3 uppercase tracking-wider mb-1">Поставщик</div>
+                <div className="text-[13px] text-orange">{order.supplier.name}</div>
+              </div>
+            )}
             {order.deliveryMethod && (
               <div className="mb-3">
                 <div className="text-[10px] text-gray3 uppercase tracking-wider mb-1">Способ доставки</div>
