@@ -44,6 +44,12 @@ interface Order {
     id: string;
     name: string;
     url?: string | null;
+    price: unknown;
+    oldPrice?: unknown | null;
+    deliveryTime?: string | null;
+    inStock: boolean;
+    rating?: number | null;
+    reviewsCount?: number | null;
   } | null;
   items: {
     id: string;
@@ -439,7 +445,46 @@ export default function AdminOrderPage({ params }: AdminOrderPageProps) {
             {order.supplier && (
               <div className="mb-3">
                 <div className="text-[10px] text-gray3 uppercase tracking-wider mb-1">Поставщик</div>
-                <div className="text-[13px] text-orange">{order.supplier.name}</div>
+                <div className="text-[13px] text-orange font-semibold">{order.supplier.name}</div>
+                {order.supplier.url && (
+                  <a 
+                    href={order.supplier.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-blue-400 hover:text-blue-300 hover:underline"
+                  >
+                    {order.supplier.url}
+                  </a>
+                )}
+                <div className="flex flex-wrap gap-3 mt-2 text-[12px]">
+                  <div className="bg-black3 px-2 py-1 rounded">
+                    <span className="text-gray4">Цена: </span>
+                    <span className="text-white font-semibold">{Number(order.supplier.price).toLocaleString('ru-RU')} ₽</span>
+                    {order.supplier.oldPrice && Number(order.supplier.oldPrice) > Number(order.supplier.price) ? (
+                      <span className="text-gray4 line-through ml-2">{Number(String(order.supplier.oldPrice)).toLocaleString('ru-RU')} ₽</span>
+                    ) : null}
+                  </div>
+                  {order.supplier.deliveryTime && (
+                    <div className="bg-black3 px-2 py-1 rounded">
+                      <span className="text-gray4">Срок: </span>
+                      <span className="text-white">{order.supplier.deliveryTime}</span>
+                    </div>
+                  )}
+                  <div className={`px-2 py-1 rounded ${order.supplier.inStock ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                    <span className={order.supplier.inStock ? 'text-green-400' : 'text-red-400'}>
+                      {order.supplier.inStock ? 'В наличии' : 'Нет в наличии'}
+                    </span>
+                  </div>
+                  {order.supplier.rating && (
+                    <div className="bg-black3 px-2 py-1 rounded">
+                      <span className="text-gray4">Рейтинг: </span>
+                      <span className="text-yellow-400">★ {order.supplier.rating.toFixed(1)}</span>
+                      {order.supplier.reviewsCount && (
+                        <span className="text-gray4"> ({order.supplier.reviewsCount} отзывов)</span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             {order.deliveryMethod && (

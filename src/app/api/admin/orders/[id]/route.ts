@@ -39,6 +39,12 @@ export async function GET(
             id: true,
             name: true,
             url: true,
+            price: true,
+            oldPrice: true,
+            deliveryTime: true,
+            inStock: true,
+            rating: true,
+            reviewsCount: true,
           },
         },
         items: {
