@@ -3,6 +3,130 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth-helpers';
 import { createOrderSchema } from '@/lib/validations/checkout';
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getSession();
+
+    if (!session?.userId) {
+      return NextResponse.json(
+        { error: 'Требуется авторизация' },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const orderId = searchParams.get('id');
+
+    if (orderId) {
+      const order = await prisma.order.findFirst({
+        where: { id: orderId, userId: session.userId },
+        include: {
+          warehouse: true,
+          supplier: true,
+          items: {
+            include: {
+              product: {
+                include: {
+                  images: { where: { isMain: true }, take: 1 },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!order) {
+        return NextResponse.json(
+          { error: 'Заказ не найден' },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        order: {
+          id: order.id,
+          orderNumber: order.orderNumber,
+          status: order.status,
+          paymentStatus: order.paymentStatus,
+          paymentMethod: order.paymentMethod,
+          deliveryMethod: order.deliveryMethod,
+          deliveryAddress: order.deliveryAddress,
+          deliveryCost: Number(order.deliveryCost),
+          subtotal: Number(order.subtotal),
+          discount: Number(order.discount),
+          total: Number(order.total),
+          trackingNumber: order.trackingNumber,
+          notes: order.notes,
+          createdAt: order.createdAt.toISOString(),
+          updatedAt: order.updatedAt.toISOString(),
+          paidAt: order.paidAt?.toISOString() || null,
+          shippedAt: order.shippedAt?.toISOString() || null,
+          deliveredAt: order.deliveredAt?.toISOString() || null,
+          cancelledAt: order.cancelledAt?.toISOString() || null,
+          customerName: order.customerName,
+          customerEmail: order.customerEmail,
+          customerPhone: order.customerPhone,
+          warehouse: order.warehouse ? {
+            id: order.warehouse.id,
+            name: order.warehouse.name,
+            address: order.warehouse.address,
+          } : null,
+          supplier: order.supplier ? {
+            id: order.supplier.id,
+            name: order.supplier.name,
+          } : null,
+          items: order.items.map(item => ({
+            id: item.id,
+            quantity: item.quantity,
+            price: Number(item.price),
+            total: Number(item.total),
+            product: {
+              id: item.product.id,
+              name: item.product.name,
+              slug: item.product.slug,
+              image: item.product.images[0]?.url || null,
+            },
+          })),
+        },
+      });
+    }
+
+    const orders = await prisma.order.findMany({
+      where: { userId: session.userId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                images: { where: { isMain: true }, take: 1 },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      orders: orders.map(order => ({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        total: Number(order.total),
+        createdAt: order.createdAt.toISOString(),
+        itemsCount: order.items.length,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return NextResponse.json(
+      { error: 'Ошибка при получении заказов' },
+      { status: 500 }
+    );
+  }
+}
+
 function calculateFinalPrice(product: {
   price: unknown;
   discountValue: unknown;

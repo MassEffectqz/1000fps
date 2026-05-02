@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Breadcrumbs, Button, Card } from '@/components/ui';
 
 interface Order {
@@ -11,7 +12,7 @@ interface Order {
   paymentStatus: string;
   total: number;
   createdAt: string;
-  items: { id: string; product: { name: string; image?: string } }[];
+  itemsCount: number;
 }
 
 export default function ProfileOrdersPage() {
@@ -100,18 +101,21 @@ export default function ProfileOrdersPage() {
 
         <div className="space-y-4">
           {orders.map(order => (
-            <Card key={order.id} className="p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-display font-bold text-white2">{order.orderNumber}</p>
-                  <p className="text-sm text-gray3">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</p>
+            <Link key={order.id} href={`/profile/orders/${order.id}`}>
+              <Card className="p-4 hover:border-orange/50 transition-colors cursor-pointer">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-display font-bold text-white2">{order.orderNumber}</p>
+                    <p className="text-sm text-gray3">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</p>
+                    <p className="text-sm text-gray3 mt-1">{order.itemsCount} товар(ов)</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-display font-bold text-orange">{order.total.toLocaleString('ru-RU')} ₽</p>
+                    <p className="text-sm text-gray3">{order.status}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-display font-bold text-orange">{order.total.toLocaleString('ru-RU')} ₽</p>
-                  <p className="text-sm text-gray3">{order.status}</p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>

@@ -64,6 +64,23 @@ export async function PUT(
       },
     });
 
+    // Обновляем рейтинг и счётчик отзывов товара при одобрении
+    if (isApproved) {
+      const stats = await prisma.review.aggregate({
+        where: { productId: review.productId, isApproved: true },
+        _avg: { rating: true },
+        _count: { id: true },
+      });
+
+      await prisma.product.update({
+        where: { id: review.productId },
+        data: {
+          rating: stats._avg.rating || 0,
+          reviewCount: stats._count.id,
+        },
+      });
+    }
+
     // TODO: Отправить уведомление пользователю о результате модерации
     if (isApproved) {
       console.log(`[Review] Отзыв ${id} одобрен`);
@@ -108,9 +125,26 @@ export async function DELETE(
       );
     }
 
+    const productId = existingReview.productId;
+
     // Удаляем отзыв
     await prisma.review.delete({
       where: { id },
+    });
+
+    // Обновляем рейтинг и счётчик отзывов товара
+    const stats = await prisma.review.aggregate({
+      where: { productId, isApproved: true },
+      _avg: { rating: true },
+      _count: { id: true },
+    });
+
+    await prisma.product.update({
+      where: { id: productId },
+      data: {
+        rating: stats._avg.rating || 0,
+        reviewCount: stats._count.id,
+      },
     });
 
     return NextResponse.json({
