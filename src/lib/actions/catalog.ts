@@ -54,12 +54,9 @@ export const getProducts = cache(
         where.brandId = brandId;
       }
 
-      // Товары со скидкой (если есть oldPrice или discountValue)
+      // Товары со скидкой (реальная скидка - discountValue > 0)
       if (hasDiscount) {
-        where.OR = [
-          { oldPrice: { not: null } },
-          { discountValue: { gt: 0 } },
-        ];
+        where.discountValue = { gt: 0 };
       }
 
       if (minPrice !== undefined || maxPrice !== undefined) {
