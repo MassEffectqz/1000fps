@@ -8,6 +8,7 @@ import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/json-ld";
 import { PWAInstallPrompt } from "@/components/pwa/install-prompt";
 import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
 import { SWCleanup } from "@/components/pwa/sw-cleanup";
+import { PaymentBlocker } from "@/components/ui/payment-blocker";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
@@ -109,6 +110,7 @@ export default function RootLayout({
             },
           }}
         />
+        <PaymentBlocker />
       </body>
     </html>
   );
