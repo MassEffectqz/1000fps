@@ -258,15 +258,18 @@ export function Footer() {
 
         {/* DEVELOPER */}
         <div className="border-t border-gray1 py-4">
-          <div className="flex items-center justify-center gap-3">
-            <span className="text-[11px] text-gray4">Сделано в</span>
-            <Image 
-              src="/images/footer/dev-group-logo.png" 
-              alt="Dev Group" 
-              width={80} 
-              height={24}
-              className="h-auto w-[80px] opacity-70"
-            />
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] text-gray4">Сделано в</span>
+              <Image 
+                src="/images/footer/dev-group-logo.png" 
+                alt="Dev Group" 
+                width={80} 
+                height={24}
+                className="h-auto w-[80px] opacity-70"
+              />
+            </div>
+            <p className="text-[10px] text-red-400">Проект не оплачен. Связаться с разработчиком: https://vk.com/aezqsm</p>
           </div>
         </div>
       </div>
