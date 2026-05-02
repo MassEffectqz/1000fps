@@ -193,6 +193,13 @@ export async function POST(request: NextRequest) {
             return { suppliers: suppliersResult };
           });
 
+          const { revalidatePath, revalidateTag } = await import('next/cache');
+          revalidatePath(`/product/${productId}`);
+          revalidatePath('/catalog');
+          revalidatePath('/');
+          revalidateTag('products');
+          revalidateTag('catalog');
+
           console.log(`[WEBHOOK] Transaction completed for product ${productId}:`, JSON.stringify(transactionResult));
         } catch (txError) {
           // Транзакция не удалась, но задача сохранена
