@@ -20,6 +20,7 @@ export const getProducts = cache(
       maxPrice?: number;
       search?: string;
       isInStock?: boolean;
+      hasDiscount?: boolean;
       sortBy?: 'popular' | 'price-asc' | 'price-desc' | 'newest' | 'rating' | 'sales';
       sortOrder?: 'asc' | 'desc';
     }) => {
@@ -32,6 +33,7 @@ export const getProducts = cache(
         maxPrice,
         search,
         isInStock,
+        hasDiscount,
         sortBy = 'popular',
         sortOrder = 'desc',
       } = options || {};
@@ -50,6 +52,14 @@ export const getProducts = cache(
 
       if (brandId) {
         where.brandId = brandId;
+      }
+
+      // Товары со скидкой (если есть oldPrice или discountValue)
+      if (hasDiscount) {
+        where.OR = [
+          { oldPrice: { not: null } },
+          { discountValue: { gt: 0 } },
+        ];
       }
 
       if (minPrice !== undefined || maxPrice !== undefined) {

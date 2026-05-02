@@ -90,7 +90,6 @@ interface ProductFormData {
   isFeatured: boolean;
   isNew: boolean;
   isHit: boolean;
-  isUsed: boolean;
 
   // SEO
   metaTitle: string;
@@ -139,8 +138,8 @@ interface ProductFormProps {
   popularTags?: Tag[];
   categorySpecifications?: CategorySpecification[];
   onSave?: (data: ProductFormData) => Promise<void>;
+  onDelete?: () => Promise<void>;
   onCancel?: () => void;
-  onDelete?: () => void;
 }
 
 const LOCAL_STORAGE_KEY = 'product_form_draft';
@@ -193,7 +192,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     isFeatured: false,
     isNew: false,
     isHit: false,
-    isUsed: false,
     metaTitle: '',
     metaDescription: '',
     metaKeywords: '',
@@ -400,6 +398,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         });
         setIsParsing(false);
         setParseProgress(null);
+        toast.error('Парсинг не удался');
       } else if (job.status === 'PENDING' || job.status === 'PROCESSING') {
         // Обновляем прогресс
         const processed = job.result?.processedCount || 0;
@@ -419,14 +418,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [loadPriceHistory]);
 
-const handleParse = async () => {
+  const handleParse = async () => {
     const sources = formData.parseSources?.filter(s => s.isActive).map(s => s.url) || [];
 
     if (sources.length === 0) {
-      toast.warning('Добавьте хотя бы один источник для парсинга');
+      toast.warning('Добавьте хотя бы одну ссылку для парсинга');
       return;
     }
 
+    // Debounce: предотвращаем повторные нажатия
     const now = Date.now();
     if (now - parseLastClicked < PARSE_DEBOUNCE_MS) {
       toast.info('Парсинг уже запущен, подождите...');
@@ -438,241 +438,143 @@ const handleParse = async () => {
     setParseProgress({ processed: 0, total: sources.length });
     setParserStatus({ status: 'parsing' });
 
+    // Offline fallback: сохраняем задачу в localStorage на случай сбоя
+    const pendingParse = {
+      sources,
+      productId: initialData?.id,
+      timestamp: Date.now(),
+    };
     try {
-      const source = sources[0];
-      const articleMatch = source.match(/catalog\/(\d+)/);
-      const article = articleMatch ? articleMatch[1] : null;
-      
-      if (!article) {
-        throw new Error('Не удалось извлечь артикул из URL');
-      }
+      localStorage.setItem('wb_parser_pending_parse', JSON.stringify(pendingParse));
+    } catch {
+      console.warn('Failed to save pending parse to localStorage');
+    }
 
-      console.log('[Parser] Парсинг, артикул:', article);
+    const requestId = `parse_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-      // Проверяем доступность chrome extension (runtime.sendMessage)
-      const hasChromeExtension = typeof chrome !== 'undefined' && chrome.runtime?.sendMessage;
-      
-      // Fallback на серверный парсинг если расширение недоступно
-      if (!hasChromeExtension) {
-        if (!initialData?.id) {
-          throw new Error('ID товара не найден');
-        }
-        
-        console.log('[Parser] Chrome extension недоступен, используем серверный парсинг');
-        
-        const response = await fetch(`/api/admin/parser/products/${initialData.id}/parse`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sources }),
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Ошибка серверного парсинга');
-        }
-        
-        const parseResult = await response.json();
-        console.log('[Parser] Серверный парсинг результат:', parseResult);
-        
-        if (parseResult.success && parseResult.data) {
-          const parsedData = parseResult.data;
-          setParserStatus({
-            status: 'success',
-            lastParsedAt: new Date(),
-            parsedData,
-          });
-          setParseProgress({ processed: sources.length, total: sources.length });
-          
-          if (parsedData.price) {
-            setFormData(prev => ({
-              ...prev,
-              price: parsedData.price ?? prev.price,
-              oldPrice: parsedData.oldPrice !== undefined ? parsedData.oldPrice : prev.oldPrice,
-            }));
+    try {
+      // Отправляем сообщение расширению через content script bridge
+      window.postMessage({
+        type: 'wb-parser-parse',
+        requestId,
+        sources,
+        productId: initialData?.id,
+      }, window.location.origin);
+
+      // Ждём ответ от расширения с таймаутом
+      const result = await new Promise<{ ok?: boolean; parsedData?: Record<string, unknown>; error?: string }>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          window.removeEventListener('message', listener);
+          reject(new Error(
+            'Таймаут парсинга (45с). Возможные причины:\n' +
+            '1. Расширение WB Parser не установлено или отключено\n' +
+            '2. Нет открытых вкладок Wildberries\n' +
+            '3. Проблемы с сетью'
+          ));
+        }, 45000);
+
+        const listener = (event: MessageEvent) => {
+          // Validate origin
+          if (event.origin !== window.location.origin) return;
+
+          const msg = event.data;
+          if (msg && msg.type === 'wb-parser-parse-response' && msg.requestId === requestId) {
+            clearTimeout(timeout);
+            window.removeEventListener('message', listener);
+            resolve(msg.response);
           }
-          
-          loadPriceHistory();
-          toast.success('Парсинг завершён!');
-          setIsParsing(false);
-          return;
-        } else {
-          throw new Error(parseResult.error || 'Не удалось распарсить товар');
-        }
-      }
-      
-      // Отправляем сообщение напрямую в расширение
-      const result = await new Promise((resolve) => {
-        chrome.runtime.sendMessage(
-          {
-            type: 'PRICE_PARSE',
-            sources: sources,
-          },
-          (response) => {
-            console.log('[Parser] Ответ от расширения:', response);
-            resolve(response);
-          }
-        );
-        
-        // Таймаут 30 секунд
-        setTimeout(() => {
-          resolve({ ok: false, error: 'Таймаут ожидания ответа от расширения' });
-        }, 30000);
+        };
+
+        window.addEventListener('message', listener);
       });
 
-      if (result && result.ok && result.parsedData) {
-          const r = result.parsedData;
-          const parsedData = {
-            name: r.name || 'Товар',
-            price: r.price,
-            oldPrice: r.oldPrice || undefined,
-            brand: undefined,
-            rating: undefined,
-            reviews: undefined,
-          };
+      // Обрабатываем результат
+      if (result?.ok && result.parsedData) {
+        const { parsedData } = result as { ok?: boolean; parsedData: { name?: string; price?: number; oldPrice?: number; brand?: string; rating?: number; reviews?: number } };
 
-          setParserStatus({
-            status: 'success',
-            lastParsedAt: new Date(),
-            parsedData,
-          });
-          setParseProgress({ processed: sources.length, total: sources.length });
-
-          if (parsedData.price) {
-            setFormData(prev => ({
-              ...prev,
-              price: parsedData.price ?? prev.price,
-              oldPrice: parsedData.oldPrice !== undefined ? parsedData.oldPrice : prev.oldPrice,
-            }));
-          }
-
-          if (!initialData?.id) {
-            throw new Error('ID товара не найден');
-          }
-
-          // Отправляем на сервер
-          await fetch('/api/admin/parser/webhook', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              productId: initialData.id,
-              status: 'COMPLETED',
-              result: [{ source, success: true, data: parsedData }],
-              sources: [source],
-            }),
-          });
-
-          loadPriceHistory();
-          toast.success('Парсинг завершён!');
-        } else {
-          throw new Error('Не удалось получить данные о товаре');
-        }
-      } else {
-        // Fallback: используем postMessage для связи с расширением через content script
-        const requestId = `parse_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-
-        window.postMessage({
-          type: 'wb-parser-parse',
-          requestId,
-          sources,
-          productId: initialData?.id,
-        }, window.location.origin);
-
-        const result = await new Promise<{ ok?: boolean; parsedData?: Record<string, unknown>; error?: string }>((resolve) => {
-          const timeout = setTimeout(() => {
-            window.removeEventListener('message', listener);
-            console.warn('[Parser] Таймаут ожидания ответа от расширения (15с)');
-            resolve({
-              ok: false,
-              error: 'Расширение WB Parser не ответило за 15 секунд. Возможные причины:\n' +
-                '1. Расширение не установлено или отключено\n' +
-                '2. Нет открытых вкладок Wildberries с товаром\n' +
-                '3. Проверьте что расширение загружено ( должно быть active на chrome://extensions )'
-            });
-          }, 15000);
-
-          const listener = (event: MessageEvent) => {
-            if (event.origin !== window.location.origin) return;
-            const msg = event.data;
-            if (msg && msg.type === 'wb-parser-parse-response' && msg.requestId === requestId) {
-              clearTimeout(timeout);
-              window.removeEventListener('message', listener);
-              resolve(msg.response);
-            }
-          };
-
-          window.addEventListener('message', listener);
+        setParserStatus({
+          status: 'success',
+          lastParsedAt: new Date(),
+          parsedData: {
+            name: parsedData.name,
+            price: parsedData.price,
+            oldPrice: parsedData.oldPrice,
+            brand: parsedData.brand,
+            rating: parsedData.rating,
+            reviews: parsedData.reviews,
+          },
         });
+        setParseProgress({ processed: sources.length, total: sources.length });
 
-        if (result?.ok && result.parsedData) {
-          const { parsedData } = result as { ok?: boolean; parsedData: { name?: string; price?: number; oldPrice?: number; brand?: string; rating?: number; reviews?: number } };
-
-          setParserStatus({
-            status: 'success',
-            lastParsedAt: new Date(),
-            parsedData: {
-              name: parsedData.name,
-              price: parsedData.price,
-              oldPrice: parsedData.oldPrice,
-              brand: parsedData.brand,
-              rating: parsedData.rating,
-              reviews: parsedData.reviews,
-            },
-          });
-          setParseProgress({ processed: sources.length, total: sources.length });
-
-          if (parsedData.price) {
-            setFormData(prev => ({
-              ...prev,
-              price: parsedData.price as number,
-              oldPrice: (parsedData.oldPrice as number) || prev.oldPrice,
-            }));
-          }
-
-          const resultWithResults = result as { results?: Array<{ url?: string; success?: boolean; data?: Record<string, unknown> }> };
-          if (resultWithResults.results && resultWithResults.results.length > 0 && initialData?.id) {
-            try {
-              const supplierResults = resultWithResults.results
-                .filter((r) => r.success && r.url)
-                .map((r) => {
-                  const d = r.data || {};
-                  return {
-                    source: r.url,
-                    price: d.price ?? null,
-                    oldPrice: d.oldPrice ?? null,
-                    name: (d.name as string) || null,
-                    brand: (d.brand as string) || null,
-                    inStock: true,
-                    stockQuantity: null,
-                    deliveryMin: null,
-                    deliveryMax: null,
-                    rating: null,
-                    feedbacks: 0,
-                  };
-                });
-
-              if (supplierResults.length > 0) {
-                await fetch('/api/admin/parser/webhook', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    productId: initialData.id,
-                    status: 'COMPLETED',
-                    result: supplierResults,
-                    sources: sources,
-                  }),
-                });
-              }
-            } catch (err) {
-              console.warn('Failed to save parse results as suppliers:', err);
-            }
-          }
-
-          loadPriceHistory();
-        } else if (result?.ok && !result.parsedData) {
-          throw new Error('Источники не вернули данных. Проверьте URL и попробуйте снова.');
-        } else {
-          throw new Error(result?.error || 'Не удалось получить данные от расширения');
+        // Обновляем цену из парсинга
+        if (parsedData.price) {
+          setFormData(prev => ({
+            ...prev,
+            price: parsedData.price as number,
+            oldPrice: (parsedData.oldPrice as number) || prev.oldPrice,
+          }));
         }
+
+        // Отправляем результаты парсинга на сервер для сохранения как поставщики
+        const resultWithResults = result as { results?: Array<{ url?: string; success?: boolean; data?: Record<string, unknown> }> };
+        if (resultWithResults.results && resultWithResults.results.length > 0 && initialData?.id) {
+          try {
+            // Преобразуем результаты в плоский формат для saveSuppliers
+            const supplierResults = resultWithResults.results
+              .filter((r) => r.success && r.url)
+              .map((r) => {
+                const d = r.data || {};
+                return {
+                  source: r.url,
+                  price: d.price ?? null,
+                  oldPrice: d.oldPrice ?? null,
+                  name: (d.name as string) || null,
+                  brand: (d.brand as string) || null,
+                  inStock: true,
+                  stockQuantity: null,
+                  deliveryMin: null,
+                  deliveryMax: null,
+                  rating: null,
+                  feedbacks: 0,
+                };
+              });
+
+            if (supplierResults.length > 0) {
+              await fetch('/api/admin/parser/webhook', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  productId: initialData.id,
+                  status: 'COMPLETED',
+                  result: supplierResults,
+                  sources: sources,
+                }),
+              });
+              console.log('[Parser] Saved', supplierResults.length, 'suppliers');
+            }
+          } catch (err) {
+            console.warn('Failed to save parse results as suppliers:', err);
+          }
+        }
+
+        loadPriceHistory();
+        toast.success('Парсинг завершён успешно!');
+
+        // Очищаем pending parse
+        localStorage.removeItem('wb_parser_pending_parse');
+      } else if (result?.ok && !result.parsedData) {
+        // Extension ответил, но данных нет
+        setParserStatus({
+          status: 'error',
+          errorMessage: 'Источники не вернули данных. Проверьте URL и попробуйте снова.',
+        });
+        toast.warning('Данные не получены от источников');
+      } else {
+        setParserStatus({
+          status: 'error',
+          errorMessage: result?.error || 'Не удалось получить данные от расширения',
+        });
+        toast.error(result?.error || 'Ошибка парсинга');
       }
     } catch (error) {
       console.error('Parse error:', error);
@@ -683,23 +585,25 @@ const handleParse = async () => {
         errorMessage: message,
       });
 
+      // Сохраняем для retry
       try {
         localStorage.setItem('wb_parser_failed_parse', JSON.stringify({
-          sources,
-          productId: initialData?.id,
+          ...pendingParse,
           error: message,
           failedAt: Date.now(),
         }));
       } catch {
         // ignore
       }
+
+      toast.error('Парсинг не удался. Проверьте подключение расширения.');
     } finally {
       setIsParsing(false);
-      if (parserStatus.status === 'parsing') {
-        setParserStatus({ status: 'idle' });
-      }
+      setParseProgress(null);
     }
   };
+
+  // Retry failed parse from localStorage при монтировании
   useEffect(() => {
     try {
       const failedParse = localStorage.getItem('wb_parser_failed_parse');
@@ -736,7 +640,6 @@ const handleParse = async () => {
     field: K,
     value: ProductFormData[K]
   ) => {
-    console.log('[Form] handleChange:', field, value);
     setFormData(prev => ({ ...prev, [field]: value }));
   }, []);
 
@@ -891,14 +794,6 @@ const handleParse = async () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {initialData?.id && (
-            <Button variant="danger" onClick={onDelete}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 mr-2">
-                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-              </svg>
-              Удалить товар
-            </Button>
-          )}
           <Button variant="secondary" onClick={handleClearDraft}>
             Очистить
           </Button>
@@ -966,7 +861,6 @@ const handleParse = async () => {
               <Checkbox label="Рекоменд." checked={formData.isFeatured} onChange={(e) => handleChange('isFeatured', e.target.checked)} />
               <Checkbox label="Новинка" checked={formData.isNew} onChange={(e) => handleChange('isNew', e.target.checked)} />
               <Checkbox label="Хит" checked={formData.isHit} onChange={(e) => handleChange('isHit', e.target.checked)} />
-              <Checkbox label="Б/У" checked={formData.isUsed} onChange={(e) => handleChange('isUsed', e.target.checked)} />
             </div>
           </Card>
         </div>

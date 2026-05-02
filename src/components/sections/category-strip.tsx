@@ -91,7 +91,7 @@ export function CategoryStrip() {
           {categories.map((cat) => (
             <Link
               key={cat.name}
-              href={`/catalog?categoryId=${cat.slug}`}
+              href={`/catalog?category=${cat.slug}`}
               className="flex flex-col items-center gap-2 px-3 py-3 bg-black2 border border-gray1 rounded-[var(--radius)] text-center transition-colors hover:border-orange hover:bg-black3 snap-center flex-shrink-0 sm:flex-shrink sm:snap-none"
             >
               <div className="w-[26px] h-[26px] text-gray4 transition-colors hover:text-orange">

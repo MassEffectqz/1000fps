@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -7,7 +8,7 @@ const promos = [
     title: 'Скидки до 30%\nна видеокарты',
     subtitle: 'Только до конца месяца',
     link: 'Смотреть',
-    href: '/catalog/gpu',
+    href: '/stocks',
     decor: 'GPU',
   },
   {
@@ -15,7 +16,7 @@ const promos = [
     title: 'Intel Core Ultra\nсерия 200',
     subtitle: 'Новое поколение уже в наличии',
     link: 'Смотреть',
-    href: '/catalog/cpu',
+    href: '/catalog?category=processory',
     decor: 'CPU',
   },
   {
@@ -23,7 +24,7 @@ const promos = [
     title: 'ПК от 45 000\nс гарантией 2 года',
     subtitle: 'Протестированы перед отправкой',
     link: 'Собрать',
-    href: '/configurator',
+    href: '/ready-builds',
     decor: 'PC',
   },
   {
@@ -31,7 +32,7 @@ const promos = [
     title: 'Техника б/у\nс проверкой',
     subtitle: 'Гарантия 6 месяцев на всё',
     link: 'Смотреть',
-    href: '/catalog',
+    href: '/used',
     decor: 'B/U',
   },
 ];
@@ -42,9 +43,10 @@ export function PromoBlocks() {
       <div className="container">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {promos.map((promo, index) => (
-            <div
+            <Link
               key={index}
-              className="relative p-5 bg-black2 border border-gray1 rounded-[var(--radius)] overflow-hidden transition-colors hover:border-orange group"
+              href={promo.href}
+              className="relative p-5 bg-black2 border border-gray1 rounded-[var(--radius)] overflow-hidden transition-colors hover:border-orange group block"
             >
               <div className="mb-3">
                 <Badge variant={promo.badge.variant}>{promo.badge.text}</Badge>
@@ -59,7 +61,7 @@ export function PromoBlocks() {
               <div className="absolute right-[-8px] bottom-[-12px] font-display text-[72px] font-extrabold text-gray1 pointer-events-none select-none opacity-35">
                 {promo.decor}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

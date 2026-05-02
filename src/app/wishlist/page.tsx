@@ -147,36 +147,53 @@ export default function WishlistPage() {
         </div>
 
         {/* Grid с ProductCard */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {wishlist.items.map((item) => (
             <div
               key={item.id}
               className={cn(
-                'relative',
-                removingIds.has(item.id) && 'opacity-50 pointer-events-none'
+                'relative bg-black2 border rounded-[var(--radius)] overflow-hidden',
+                selectedItems.has(item.id) ? 'border-orange' : 'border-gray1',
+                removingIds.has(item.id) && 'opacity-50 pointer-events-none',
+                'hover:border-orange transition-colors'
               )}
             >
-              {/* Selection checkbox — touch-friendly */}
-              <button
-                onClick={() => handleSelect(item.id)}
-                className={cn(
-                  'absolute top-2 left-2 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-all',
-                  selectedItems.has(item.id)
-                    ? 'bg-orange text-white shadow-lg shadow-orange/30'
-                    : 'bg-black3/80 text-gray3 backdrop-blur-sm border border-gray1 hover:border-orange'
-                )}
-                aria-label={selectedItems.has(item.id) ? 'Снять выделение' : 'Выделить'}
-              >
-                {selectedItems.has(item.id) ? (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-4 h-4">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                ) : (
+              {/* Actions row */}
+              <div className="absolute top-2 left-2 right-2 z-10 flex justify-between items-start">
+                {/* Selection checkbox */}
+                <button
+                  onClick={() => handleSelect(item.id)}
+                  className={cn(
+                    'w-8 h-8 rounded-full flex items-center justify-center transition-all',
+                    selectedItems.has(item.id)
+                      ? 'bg-orange text-white'
+                      : 'bg-black3/80 text-gray3 border border-gray1 hover:border-orange'
+                  )}
+                  aria-label={selectedItems.has(item.id) ? 'Снять выделение' : 'Выделить'}
+                >
+                  {selectedItems.has(item.id) ? (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-4 h-4">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                      <rect x="3" y="3" width="18" height="18" rx="4" />
+                    </svg>
+                  )}
+                </button>
+
+                {/* Remove button */}
+                <button
+                  onClick={() => handleRemove(item.id)}
+                  disabled={removingIds.has(item.id)}
+                  className="w-8 h-8 rounded-full bg-black3/80 text-gray3 border border-gray1 hover:border-red-500 hover:text-red-500 flex items-center justify-center transition-colors"
+                  aria-label="Удалить"
+                >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                    <rect x="3" y="3" width="18" height="18" rx="4" />
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                   </svg>
-                )}
-              </button>
+                </button>
+              </div>
 
               {/* Product Card */}
               <ProductCard
@@ -187,22 +204,11 @@ export default function WishlistPage() {
                 image={item.product.image ?? undefined}
                 rating={item.product.rating}
                 reviewCount={item.product.reviewCount}
+                specs={undefined}
                 badges={item.product.badges}
                 href={`/product/${item.product.slug}`}
                 inStock={item.product.inStock ?? true}
               />
-
-              {/* Remove button — touch-friendly */}
-              <button
-                onClick={() => handleRemove(item.id)}
-                disabled={removingIds.has(item.id)}
-                className="w-full mt-2 min-h-[44px] text-[12px] sm:text-[13px] text-gray4 hover:text-red-500 transition-colors flex items-center justify-center gap-1.5 py-2.5 rounded-[var(--radius)] hover:bg-red-500/5"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-                Удалить
-              </button>
             </div>
           ))}
         </div>

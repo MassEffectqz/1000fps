@@ -10,6 +10,7 @@ interface CatalogPageProps {
     page?: string;
     limit?: string;
     categoryId?: string;
+    category?: string;
     brand?: string;
     minPrice?: string;
     maxPrice?: string;
@@ -19,12 +20,27 @@ interface CatalogPageProps {
   }>;
 }
 
+import { prisma } from '@/lib/prisma';
+
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
   const params = await searchParams;
 
   const page = parseInt(params.page || '1');
   const limit = parseInt(params.limit || '20');
-  const categoryId = params.categoryId;
+  const categorySlug = params.category;
+  let categoryId = params.categoryId;
+
+  // Если передан category slug - получаем id
+  if (categorySlug && !categoryId) {
+    const cat = await prisma.category.findUnique({
+      where: { slug: categorySlug },
+      select: { id: true },
+    });
+    if (cat) {
+      categoryId = cat.id;
+    }
+  }
+
   const minPrice = params.minPrice ? parseInt(params.minPrice) : undefined;
   const maxPrice = params.maxPrice ? parseInt(params.maxPrice) : undefined;
   const search = params.search;

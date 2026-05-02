@@ -17,12 +17,14 @@ export async function GET(request: NextRequest) {
 
     // Фильтры
     const categoryId = searchParams.get('categoryId');
+    const categorySlug = searchParams.get('category');
     const brandId = searchParams.get('brandId');
+    const brandSlug = searchParams.get('brand');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
     const search = searchParams.get('search');
     const isInStock = searchParams.get('isInStock');
-    
+
     // Сортировка
     const sortBy = searchParams.get('sortBy') || 'popular';
     const sortOrder = searchParams.get('sortOrder') || 'desc';
@@ -33,12 +35,30 @@ export async function GET(request: NextRequest) {
       isDraft: false,
     };
 
+    // Категория: поддерживаем и id, и slug
     if (categoryId) {
       where.categoryId = categoryId;
+    } else if (categorySlug) {
+      const category = await prisma.category.findUnique({
+        where: { slug: categorySlug },
+        select: { id: true },
+      });
+      if (category) {
+        where.categoryId = category.id;
+      }
     }
 
+    // Бренд: поддерживаем и id, и slug
     if (brandId) {
       where.brandId = brandId;
+    } else if (brandSlug) {
+      const brand = await prisma.brand.findUnique({
+        where: { slug: brandSlug },
+        select: { id: true },
+      });
+      if (brand) {
+        where.brandId = brand.id;
+      }
     }
 
     if (minPrice || maxPrice) {
