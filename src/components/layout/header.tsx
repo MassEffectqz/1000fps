@@ -786,7 +786,7 @@ export function Header() {
               </button>
               <div className="nav__links">
                 <Link href="/catalog" className="nav__link">Каталог</Link>
-                <Link href="#" className="nav__link nav__link--hot">Акции</Link>
+                <Link href="/stocks" className="nav__link nav__link--hot">Акции</Link>
                 <Link href="#" className="nav__link">Новинки</Link>
                 <Link href="/configurator" className="nav__link">Конфигуратор ПК</Link>
                 <Link href="/ready-builds" className="nav__link">Готовые сборки</Link>
