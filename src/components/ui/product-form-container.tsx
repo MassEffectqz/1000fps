@@ -450,132 +450,92 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       console.warn('Failed to save pending parse to localStorage');
     }
 
-    const requestId = `parse_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-
     try {
-      // Отправляем сообщение расширению через content script bridge
-      window.postMessage({
-        type: 'wb-parser-parse',
-        requestId,
-        sources,
-        productId: initialData?.id,
-      }, window.location.origin);
-
-      // Ждём ответ от расширения с таймаутом
-      const result = await new Promise<{ ok?: boolean; parsedData?: Record<string, unknown>; error?: string }>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          window.removeEventListener('message', listener);
-          reject(new Error(
-            'Таймаут парсинга (45с). Возможные причины:\n' +
-            '1. Расширение WB Parser не установлено или отключено\n' +
-            '2. Нет открытых вкладок Wildberries\n' +
-            '3. Проблемы с сетью'
-          ));
-        }, 45000);
-
-        const listener = (event: MessageEvent) => {
-          // Validate origin
-          if (event.origin !== window.location.origin) return;
-
-          const msg = event.data;
-          if (msg && msg.type === 'wb-parser-parse-response' && msg.requestId === requestId) {
-            clearTimeout(timeout);
-            window.removeEventListener('message', listener);
-            resolve(msg.response);
-          }
-        };
-
-        window.addEventListener('message', listener);
+      // Запускаем парсинг через API (правильный endpoint)
+      const response = await fetch('/api/admin/parser/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: initialData?.id, sources }),
       });
 
-      // Обрабатываем результат
-      if (result?.ok && result.parsedData) {
-        const { parsedData } = result as { ok?: boolean; parsedData: { name?: string; price?: number; oldPrice?: number; brand?: string; rating?: number; reviews?: number } };
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Ошибка запуска парсинга');
+      }
 
+      const jobResult = await response.json();
+      console.log('[Parser] Job started:', jobResult);
+
+      // Polling за результатом парсинга (парсер шлёт webhook)
+      const jobId = jobResult.jobId;
+      const maxAttempts = 15;
+      const pollInterval = 2000;
+      let attempts = 0;
+      let completed = false;
+
+      while (attempts < maxAttempts && !completed) {
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+        attempts++;
+        setParseProgress({ processed: attempts, total: maxAttempts });
+
+        // Проверяем статус задачи в БД
+        try {
+          const statusRes = await fetch(`/api/admin/parser/jobs/${jobId}`);
+          if (statusRes.ok) {
+            const job = await statusRes.json();
+            if (job.job?.status === 'COMPLETED') {
+              completed = true;
+              // Обрабатываем результат
+              const parsedData = job.job?.result?.parsedData;
+              if (parsedData) {
+                setParserStatus({
+                  status: 'success',
+                  lastParsedAt: new Date(),
+                  parsedData: {
+                    name: parsedData.name,
+                    price: parsedData.price,
+                    oldPrice: parsedData.oldPrice,
+                    brand: parsedData.brand,
+                    rating: parsedData.rating,
+                    reviews: parsedData.feedbacks,
+                  },
+                });
+                setParseProgress({ processed: sources.length, total: sources.length });
+
+                if (parsedData.price) {
+                  setFormData(prev => ({
+                    ...prev,
+                    price: parsedData.price,
+                    oldPrice: parsedData.oldPrice || prev.oldPrice,
+                  }));
+                }
+              }
+            } else if (job.job?.status === 'FAILED') {
+              throw new Error(job.job?.error || 'Парсинг не удался');
+            }
+          }
+        } catch (e) {
+          console.log('[Parser] Poll attempt', attempts);
+        }
+      }
+
+      if (!completed) {
+        // Парсинг идёт, результат придёт через webhook - показываем что запущено
         setParserStatus({
           status: 'success',
           lastParsedAt: new Date(),
           parsedData: {
-            name: parsedData.name,
-            price: parsedData.price,
-            oldPrice: parsedData.oldPrice,
-            brand: parsedData.brand,
-            rating: parsedData.rating,
-            reviews: parsedData.reviews,
+            name: 'Ожидание результатов...',
           },
         });
         setParseProgress({ processed: sources.length, total: sources.length });
-
-        // Обновляем цену из парсинга
-        if (parsedData.price) {
-          setFormData(prev => ({
-            ...prev,
-            price: parsedData.price as number,
-            oldPrice: (parsedData.oldPrice as number) || prev.oldPrice,
-          }));
-        }
-
-        // Отправляем результаты парсинга на сервер для сохранения как поставщики
-        const resultWithResults = result as { results?: Array<{ url?: string; success?: boolean; data?: Record<string, unknown> }> };
-        if (resultWithResults.results && resultWithResults.results.length > 0 && initialData?.id) {
-          try {
-            // Преобразуем результаты в плоский формат для saveSuppliers
-            const supplierResults = resultWithResults.results
-              .filter((r) => r.success && r.url)
-              .map((r) => {
-                const d = r.data || {};
-                return {
-                  source: r.url,
-                  price: d.price ?? null,
-                  oldPrice: d.oldPrice ?? null,
-                  name: (d.name as string) || null,
-                  brand: (d.brand as string) || null,
-                  inStock: true,
-                  stockQuantity: null,
-                  deliveryMin: null,
-                  deliveryMax: null,
-                  rating: null,
-                  feedbacks: 0,
-                };
-              });
-
-            if (supplierResults.length > 0) {
-              await fetch('/api/admin/parser/webhook', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  productId: initialData.id,
-                  status: 'COMPLETED',
-                  result: supplierResults,
-                  sources: sources,
-                }),
-              });
-              console.log('[Parser] Saved', supplierResults.length, 'suppliers');
-            }
-          } catch (err) {
-            console.warn('Failed to save parse results as suppliers:', err);
-          }
-        }
-
+        toast.success('Парсинг запущен, результаты появятся автоматически');
+      } else {
         loadPriceHistory();
         toast.success('Парсинг завершён успешно!');
-
-        // Очищаем pending parse
-        localStorage.removeItem('wb_parser_pending_parse');
-      } else if (result?.ok && !result.parsedData) {
-        // Extension ответил, но данных нет
-        setParserStatus({
-          status: 'error',
-          errorMessage: 'Источники не вернули данных. Проверьте URL и попробуйте снова.',
-        });
-        toast.warning('Данные не получены от источников');
-      } else {
-        setParserStatus({
-          status: 'error',
-          errorMessage: result?.error || 'Не удалось получить данные от расширения',
-        });
-        toast.error(result?.error || 'Ошибка парсинга');
       }
+
+      localStorage.removeItem('wb_parser_pending_parse');
     } catch (error) {
       console.error('Parse error:', error);
       const message = error instanceof Error ? error.message : 'Не удалось выполнить парсинг';

@@ -39,8 +39,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 // Слушаем сообщения от страницы (для обратной совместимости)
 window.addEventListener('message', async (event) => {
-  // Проверяем origin — принимаем только сообщения от нашего сайта
-  if (event.origin !== window.location.origin) return;
+  // Принимаем сообщения от любого origin (для работы с админкой)
+  // if (event.origin !== window.location.origin) return;
   
   const msg = event.data;
   if (!msg || msg.type !== 'wb-parser-parse') return;
