@@ -63,7 +63,7 @@ export function ProductCard({
       )}
 
       {/* Image */}
-      <div className="aspect-[4/3] flex items-center justify-center bg-black3 border-b border-gray1 p-2 sm:p-4 relative">
+      <Link href={href} className="block aspect-[4/3] flex items-center justify-center bg-black3 border-b border-gray1 p-2 sm:p-4 relative">
         {image ? (
           <Image
             src={image}
@@ -110,7 +110,7 @@ export function ProductCard({
             />
           </svg>
         )}
-      </div>
+      </Link>
 
       {/* Body */}
       <div className="p-2 sm:p-[11px] pb-1.5 sm:pb-[9px] flex flex-col flex-1 min-h-0">

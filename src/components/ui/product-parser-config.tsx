@@ -213,9 +213,15 @@ export const ProductParserConfig: React.FC<ProductParserConfigProps> = ({
 
                 {/* URL */}
                 <div className="flex-1 min-w-0">
-                  <div className="text-[11px] text-white truncate" title={source.url}>
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-blue-400 hover:text-blue-300 hover:underline truncate block"
+                    title={source.url}
+                  >
                     {source.url}
-                  </div>
+                  </a>
                 </div>
 
                 {/* Toggle активности */}
